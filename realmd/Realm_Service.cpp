@@ -55,7 +55,7 @@ Realm_Service::update_realms(Trinity::SQL::ResultSet* res)
       rlm.timezone = res->getUint8(7);
       rlm.allowedSecurityLevel = res->getUint8(8);
       rlm.population = res->getFloat(9);
-      rlm.build = res->getUint16(10)
+      rlm.build = res->getUint16(10);
       id = res->getUint32(1);
       this->realm_map[id] = rlm;
       REALM_LOG("Added realm %s (ID: %u) %f\n",rlm.name.c_str(), res->getUint8(1), rlm.population);
