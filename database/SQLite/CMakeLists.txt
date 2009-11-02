@@ -1,0 +1,20 @@
+SET(databaseSQLite_SRCS
+	SQLiteConnection.cpp
+	SQLiteDriver.cpp
+	SQLitePreparedStatement.cpp
+	SQLiteStatement.cpp
+	SQLiteResultSet.cpp
+	SQLiteException.cpp
+	)
+	
+include_directories(
+	${CMAKE_SOURCE_DIR}/src/common
+	${SQLITE3_INCLUDE_DIR}
+)
+
+add_library(trinitydatabaseSqlite STATIC ${databaseSQLite_SRCS})
+
+target_link_libraries(
+	trinitydatabaseSqlite
+	${SQLITE3_LIBRARIES}
+	)
