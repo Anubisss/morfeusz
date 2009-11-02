@@ -152,9 +152,9 @@ class RealmDB : public RealmDBInh
 {
  public:
  RealmDB(int c): RealmDBInh(c){}
-  void check_ip_ban(ACE_Refcounted_Auto_Ptr<Realm_Socket, ACE_Null_Mutex> conn);
-  void get_account(ACE_Refcounted_Auto_Ptr<Realm_Socket, ACE_Null_Mutex> conn);
-  void get_char_amount(ACE_Refcounted_Auto_Ptr<Realm_Socket, ACE_Null_Mutex> conn);
+  void check_ip_ban(Realm_Sock_Ptr conn);
+  void get_account(Realm_Sock_Ptr conn);
+  void get_char_amount(Realm_Sock_Ptr conn);
   void increment_failed_logins(uint64 id);
   void ban_failed_logins(uint64 id);
   void ban_failed_logins(const std::string &ip);

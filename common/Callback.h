@@ -37,7 +37,7 @@ class Callback
 public:
     typedef void (C::*callback_func)(T data);
 
-    Callback(ACE_Refcounted_Auto_Ptr<C, ACE_Null_Mutex>& obj, callback_func f) : object(obj), method(f)
+    Callback(ACE_Refcounted_Auto_Ptr<C, ACE_Recursive_Thread_Mutex>& obj, callback_func f) : object(obj), method(f)
       , raw_ptr(NULL)
     {
 
@@ -60,6 +60,6 @@ public:
     C* get_obj(){return object.get();}
 private:
     callback_func method;
-    ACE_Refcounted_Auto_Ptr<C, ACE_Null_Mutex> object;
+    ACE_Refcounted_Auto_Ptr<C, ACE_Recursive_Thread_Mutex> object;
     C* raw_ptr;
 };

@@ -33,6 +33,7 @@ enum AccountState
   ACCOUNT_BANNED
 };
 
+
 class Realm_Socket : public ACE_Svc_Handler<ACE_SOCK_STREAM, ACE_MT_SYNCH>
 {
 
@@ -59,7 +60,7 @@ class Realm_Socket : public ACE_Svc_Handler<ACE_SOCK_STREAM, ACE_MT_SYNCH>
   int handle_input(ACE_HANDLE);
   int handle_output(ACE_HANDLE);
   int handle_close(ACE_HANDLE, ACE_Reactor_Mask);
-  ACE_Refcounted_Auto_Ptr<Realm_Socket, ACE_Null_Mutex> ptr;
+  ACE_Refcounted_Auto_Ptr<Realm_Socket, ACE_Recursive_Thread_Mutex> ptr;
   char raw_buf[4096];
   uint16 client_build;
   std::string login;
@@ -69,6 +70,8 @@ class Realm_Socket : public ACE_Svc_Handler<ACE_SOCK_STREAM, ACE_MT_SYNCH>
   BN_CTX* ctx;
   BIGNUM* s, *v, *g, *k, *N, *b, *B;
 };
+
+typedef ACE_Refcounted_Auto_Ptr<Realm_Socket, ACE_Recursive_Thread_Mutex> Realm_Sock_Ptr;
 
 #else
 #endif

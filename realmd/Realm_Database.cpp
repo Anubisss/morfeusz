@@ -83,7 +83,7 @@ RealmDB::increment_failed_logins(uint64 id)
 }
 
 void
-RealmDB::check_ip_ban(ACE_Refcounted_Auto_Ptr<Realm_Socket, ACE_Null_Mutex> conn)
+RealmDB::check_ip_ban(Realm_Sock_Ptr conn)
 {
   ACE_Future<SQL::ResultSet*> result;
   result.attach(new checkIpBanObsv<Realm_Socket>
@@ -96,7 +96,7 @@ RealmDB::check_ip_ban(ACE_Refcounted_Auto_Ptr<Realm_Socket, ACE_Null_Mutex> conn
 }
 
 void
-RealmDB::get_account(ACE_Refcounted_Auto_Ptr<Realm_Socket, ACE_Null_Mutex> conn)
+RealmDB::get_account(Realm_Sock_Ptr conn)
 {
   ACE_Future<SQL::ResultSet*> result;
   
@@ -110,7 +110,7 @@ RealmDB::get_account(ACE_Refcounted_Auto_Ptr<Realm_Socket, ACE_Null_Mutex> conn)
 }
 
 void
-RealmDB::get_char_amount(ACE_Refcounted_Auto_Ptr<Realm_Socket, ACE_Null_Mutex> conn)
+RealmDB::get_char_amount(Realm_Sock_Ptr conn)
 {
   ACE_Future<SQL::ResultSet*> res;
   res.attach(new getCharAmntObsv<Realm_Socket>
