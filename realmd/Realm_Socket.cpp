@@ -112,7 +112,7 @@ Realm_Socket::open(void*)
 					     ACE_Event_Handler::READ_MASK) == -1 )
     return -1;
   this->ip.append(addr.get_host_addr());
-  REALM_LOG("Got connection from: %s \n", addr.get_host_name());
+  REALM_LOG("Got connection from: %s (%s) \n", addr.get_host_name(), addr.get_host_addr());
   
   return 0;
 }
@@ -143,7 +143,7 @@ Realm_Socket::handle_input(ACE_HANDLE)
 
   uint8 cmd = (uint8)raw_buf[0];
 
-  REALM_LOG("Got command %u from peer, bytes_read = %u\n",cmd, bytes_read);
+  //REALM_LOG("Got command %u from peer, bytes_read = %u\n",cmd, bytes_read);
   switch(cmd)
     {
     case AUTH_LOGON_CHALLENGE:
@@ -348,6 +348,7 @@ Realm_Socket::handle_auth_logon_proof()
     }
   else
     {
+      REALM_LOG("Wrong password for user %s (%s)\n", this->login.c_str(), this->ip.c_str());
       if(sConfig->getBool("realmd","WrongPassBan"))
 	{
 	  this->acct.failed_logins++;
@@ -589,11 +590,11 @@ Realm_Socket::handle_output(ACE_HANDLE)
     {
       ByteBuffer* buffer = this->packet_queue.front();
       sent_bytes = this->peer().send(buffer->contents(), buffer->size());
-      REALM_LOG("Sent %u bytes of %u\n",sent_bytes, buffer->size());
+      //REALM_LOG("Sent %u bytes of %u\n",sent_bytes, buffer->size());
       error = errno;
       if (sent_bytes < buffer->size() && sent_bytes > 0)
         {
-	  REALM_LOG("Sent %u of %u bytes \n",sent_bytes,buffer->size());
+	  //  REALM_LOG("Sent %u of %u bytes \n",sent_bytes,buffer->size());
 	  buffer->rpos(sent_bytes - 1);
 	  buffer->read((uint8*)buffer->contents(), buffer->size() - sent_bytes);
 	  buffer->resize(buffer->size() - sent_bytes);
@@ -602,7 +603,7 @@ Realm_Socket::handle_output(ACE_HANDLE)
       else
 	if (sent_bytes == -1)
 	  {
-	    REALM_LOG("Couldn't send to peer, bailing out size: %u!\n",buffer->size());
+	    //REALM_LOG("Couldn't send to peer, bailing out size: %u!\n",buffer->size());
 	    return -1;
 	  }
 	else
