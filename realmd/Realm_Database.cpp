@@ -60,6 +60,7 @@ RealmDB::ban_failed_logins(uint64 id)
 {
   SqlOperationRequest* op = new SqlOperationRequest(REALMD_DB_ADD_ACCOUNT_AUTOBAN);
   op->add_uint64(1, id);
+  op->add_uint32(2, 600);
   this->enqueue(op);
 }
 
@@ -68,6 +69,7 @@ RealmDB::ban_failed_logins(const std::string &ip)
 {
   SqlOperationRequest* op = new SqlOperationRequest(REALMD_DB_ADD_IP_AUTOBAN);
   op->add_string(1, ip.c_str());
+  op->add_uint32(2, 600);
   this->enqueue(op);
 
 }
