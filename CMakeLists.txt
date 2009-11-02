@@ -11,7 +11,7 @@ IF(MYSQL_FOUND)
          MESSAGE("MySQL found at: ${MYSQL_INCLUDE_DIR}, ${MYSQL_LIBRARIES}")
          ADD_DEFINITIONS(-DHAVE_MYSQL)
 ELSE(MYSQL_FOUND)
-         MESSAGE(FATAL_ERROR "Couldn't find MySQL include files and/or library")
+         MESSAGE("Couldn't find MySQL include files and/or library")
 ENDIF(MYSQL_FOUND)
 
 FIND_PACKAGE(SQLite3)
@@ -19,7 +19,7 @@ IF(SQLITE3_FOUND)
         MESSAGE("SQLite3 found at: ${SQLITE3_INCLUDE_DIR}, ${SQLITE3_LIBRARIES}")
         ADD_DEFINITIONS(-DHAVE_SQLITE)
 ELSE(SQLITE3_FOUND)
-         MESSAGE(FATAL_ERROR "Couldn't find SQLite3 include files and/or library")
+         MESSAGE("Couldn't find SQLite3 include files and/or library")
 ENDIF(SQLITE3_FOUND)
 
 
