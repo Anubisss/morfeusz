@@ -5,14 +5,21 @@
 #include "Realm_Timer.h"
 #include <sstream>
 #include <ace/TP_Reactor.h>
+#include <ace/Dev_Poll_Reactor.h>
 
 void
 Realm_Service::start()
 {
 
   REALM_LOG("Starting realmd\n");
-  
+
+#if defined (ACE_HAS_EVENT_POLL) || defined (ACE_HAS_DEV_POLL)
+  this->reactor = new ACE_Reactor(new ACE_Dev_Poll_Reactor());
+  this->reactor->restart(1);
+#else
   this->reactor = new ACE_Reactor(new ACE_TP_Reactor(), 1);
+#endif
+
   this->acceptor = new RealmdAcceptor();
   
   if(this->acceptor->open(ACE_INET_Addr(sConfig->getString("realmd", "BindAddr").c_str()), this->reactor) == -1)
