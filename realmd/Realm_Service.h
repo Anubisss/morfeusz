@@ -21,6 +21,7 @@ struct Realm
   uint8 timezone;
   uint8 allowedSecurityLevel;
   float population;
+  uint16 build;
 };
 
 class Realm_Service : public ACE_Task_Base

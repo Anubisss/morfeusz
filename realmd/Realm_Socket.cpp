@@ -182,7 +182,7 @@ Realm_Socket::handle_auth_logon_challenge()
   
   this->client_build = ch->build;
 
-  if(this->client_build != 8606)
+  if(this->client_build != 8606 && this->client_build != 10505)
     {
       ByteBuffer *pkt = new ByteBuffer;
       *pkt << (uint8) AUTH_LOGON_CHALLENGE;
@@ -385,12 +385,21 @@ Realm_Socket::get_char_amount(std::map<uint8, uint8> amnt)
   ByteBuffer* pkt = new ByteBuffer;
   std::map<uint8, Realm>* realmlist = sRealm->get_realmlist();
 
-  
-  *pkt << (uint32) 0;
-  *pkt << (uint16) realmlist->size();
+  uint16 listSize=0;
   std::map<uint8, Realm>::const_iterator i;
   for(i = realmlist->begin(); i != realmlist->end(); i++)
+      if(i->second.build == this->client_build)
+          ++listSize;
+      
+  
+  *pkt << (uint32) 0;
+  *pkt << (uint16) listSize;
+  if (listSize > 0)
+  for(i = realmlist->begin(); i != realmlist->end(); i++)
     {
+        if (i->second.build != this->client_build)
+            continue;
+
       *pkt << i->second.icon;
       *pkt << (uint8)(i->second.allowedSecurityLevel > this->acct.gmlevel ? 1:0);
       *pkt << i->second.color;
