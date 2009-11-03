@@ -355,7 +355,7 @@ Realm_Socket::handle_auth_logon_proof()
 	  sRealm->get_db()->increment_failed_logins(this->acct.id);
 	  if(this->acct.failed_logins > ( sConfig->getInt("realmd","WrongPassAmnt") ) )
 	    {
-	      if(sConfig->getString("realmd", "WrongPassBanType") == "ip")
+	      if(sConfig->getString("realmd", "WrongPassBanType").compare("ip"))
 		sRealm->get_db()->ban_failed_logins(this->acct.id);
 	      else
 		sRealm->get_db()->ban_failed_logins(this->ip);
@@ -661,8 +661,8 @@ Realm_Socket::send(ByteBuffer* pkt)
     {
       sRealm->get_reactor()->register_handler(this,
 					     ACE_Event_Handler::WRITE_MASK);
-      sRealm->get_reactor()->notify(this,
-      				    ACE_Event_Handler::WRITE_MASK);
+      //  sRealm->get_reactor()->notify(this,
+      //			    ACE_Event_Handler::WRITE_MASK);
       this->out_active = true;
     }
   

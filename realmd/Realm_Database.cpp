@@ -59,7 +59,7 @@ void
 RealmDB::ban_failed_logins(uint64 id)
 {
   SqlOperationRequest* op = new SqlOperationRequest(REALMD_DB_ADD_ACCOUNT_AUTOBAN);
-  op->add_uint64(1, id);
+  op->add_uint32(1, id);
   op->add_uint32(2, 600);
   this->enqueue(op);
 }
