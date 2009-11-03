@@ -9,6 +9,7 @@ class Realm_Timer : public ACE_Event_Handler
   {
     
     sRealm->get_db()->get_realmlist();
+      sRealm->get_db()->enqueue(new SqlOperationRequest(REALMD_DB_PRUNE_BANS));
     return 0;
 
   }

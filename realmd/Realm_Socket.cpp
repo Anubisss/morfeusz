@@ -194,7 +194,6 @@ Realm_Socket::handle_auth_logon_challenge()
       return;
     }
   //  ACE_OS::memset(raw_buf, 0, 4096);
-  sRealm->get_db()->enqueue(new SqlOperationRequest(REALMD_DB_PRUNE_BANS));
   sRealm->get_db()->check_ip_ban(this->ptr);
 }
 
