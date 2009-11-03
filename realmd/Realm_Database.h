@@ -127,7 +127,7 @@ template <class C>
 	  acc.locked = res->getBool(3);
 	  acc.last_ip = res->getString(4);
 	  acc.gmlevel = res->getUint8(5);
-	  acc.failed_logins = res->getUint8(6);
+	  acc.failed_logins = res->getUint8(7);
 	  SqlOperationObserver<C, AccountState>::callback.get_obj()->acct = acc;
 	  SqlOperationObserver<C, AccountState>::callback.call(ACCOUNT_EXISTS);
 	}

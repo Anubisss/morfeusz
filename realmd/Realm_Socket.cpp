@@ -353,7 +353,7 @@ Realm_Socket::handle_auth_logon_proof()
 	{
 	  this->acct.failed_logins++;
 	  sRealm->get_db()->increment_failed_logins(this->acct.id);
-	  if(this->acct.failed_logins > sConfig->getInt("realmd","WrongPassAmnt") )
+	  if(this->acct.failed_logins > ( sConfig->getInt("realmd","WrongPassAmnt") ) )
 	    {
 	      if(sConfig->getString("realmd", "WrongPassBanType") == "ip")
 		sRealm->get_db()->ban_failed_logins(this->acct.id);
