@@ -85,6 +85,8 @@ RealmDB::increment_failed_logins(uint64 id)
 void
 RealmDB::check_ip_ban(Realm_Sock_Ptr conn)
 {
+  if(conn.null())
+    return;
   ACE_Future<SQL::ResultSet*> result;
   result.attach(new checkIpBanObsv<Realm_Socket>
 		(Callback<Realm_Socket, bool>
@@ -98,8 +100,9 @@ RealmDB::check_ip_ban(Realm_Sock_Ptr conn)
 void
 RealmDB::get_account(Realm_Sock_Ptr conn)
 {
+  if(conn.null())
+    return;
   ACE_Future<SQL::ResultSet*> result;
-  
   SqlOperationRequest* op = new SqlOperationRequest(REALMD_DB_CHECK_ACCT_BAN, result);
   result.attach(new checkAcctObsv<Realm_Socket>
 		(Callback<Realm_Socket, AccountState>
@@ -112,6 +115,8 @@ RealmDB::get_account(Realm_Sock_Ptr conn)
 void
 RealmDB::get_char_amount(Realm_Sock_Ptr conn)
 {
+  if(conn.null())
+    return;
   ACE_Future<SQL::ResultSet*> res;
   res.attach(new getCharAmntObsv<Realm_Socket>
 	     (Callback<Realm_Socket, std::map<uint8, uint8> >
