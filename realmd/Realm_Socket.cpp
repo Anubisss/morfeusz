@@ -655,7 +655,7 @@ Realm_Socket::send(ByteBuffer* pkt)
   REALM_TRACE;
   ACE_Guard<ACE_Recursive_Thread_Mutex> g(this->queue_mtx);
   packet_queue.push_back(pkt);
-  g.release();
+
 
   if(!this->out_active)
     {
