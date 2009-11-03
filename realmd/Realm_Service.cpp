@@ -7,6 +7,8 @@
 #include <ace/TP_Reactor.h>
 #include <ace/Dev_Poll_Reactor.h>
 
+namespace Trinity
+{
 void
 Realm_Service::start()
 {
@@ -85,5 +87,7 @@ Realm_Service::stop()
   this->is_running = false;
   this->reactor->end_reactor_event_loop();
   this->database->close();
+
+}
 
 }

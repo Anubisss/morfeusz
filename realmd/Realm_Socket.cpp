@@ -8,6 +8,8 @@
 #include <openssl/sha.h>
 #include <algorithm>
 
+namespace Trinity
+{
 enum eAuthCmd
   {
     //AUTH_NO_CMD                 = 0xFF,
@@ -667,3 +669,4 @@ Realm_Socket::send(ByteBuffer* pkt)
     }
   
 }
+};

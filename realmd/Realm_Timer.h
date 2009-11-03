@@ -1,5 +1,7 @@
 #include <ace/Event_Handler.h>
 
+namespace Trinity
+{
 class Realm_Timer : public ACE_Event_Handler
 {
  private:
@@ -11,3 +13,4 @@ class Realm_Timer : public ACE_Event_Handler
 
   }
 };
+}

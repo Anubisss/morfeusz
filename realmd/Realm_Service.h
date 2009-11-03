@@ -10,6 +10,9 @@ class Realm_Socket;
 
 using namespace Trinity::DatabaseAccess;
 
+namespace Trinity
+{
+
 typedef ACE_Acceptor<Realm_Socket, ACE_SOCK_ACCEPTOR> RealmdAcceptor;
 
 struct Realm
@@ -45,10 +48,11 @@ class Realm_Service : public ACE_Task_Base
   bool is_running;
 };
 
+}
 #define REALM_PREFIX ACE_TEXT("REALMD: ")
 #define REALM_LOG(...) ACE_DEBUG((LM_INFO, REALM_PREFIX __VA_ARGS__))
 //#define REALM_TRACE ACE_DEBUG((LM_DEBUG,"%s\n", __PRETTY_FUNCTION__))
 #define REALM_TRACE NULL
-#define sRealm Realm_Service::instance()
+#define sRealm Trinity::Realm_Service::instance()
 #else
 #endif

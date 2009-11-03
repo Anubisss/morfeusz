@@ -15,6 +15,9 @@
 
 class ByteBuffer;
 
+namespace Trinity
+{
+
 class Account
 {
  public:
@@ -73,5 +76,6 @@ class Realm_Socket : public ACE_Svc_Handler<ACE_SOCK_STREAM, ACE_MT_SYNCH>
 
 typedef ACE_Refcounted_Auto_Ptr<Realm_Socket, ACE_Recursive_Thread_Mutex> Realm_Sock_Ptr;
 
+};
 #else
 #endif
