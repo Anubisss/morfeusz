@@ -1,3 +1,31 @@
+/* -*- C++ -*-
+ * Copyright (C) 2009 Trinity Core <http://www.trinitycore.org>
+ *
+ * This program is free software; you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation; either version 2 of the License, or
+ * (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program; if not, write to the Free Software
+ * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
+ */
+
+/**
+ *  @file
+ *  @brief   Contains base class for RealmDB and DB operation observers.
+ *  @author  raczman <raczman@gmail.com>
+ *  @date    2009-10-24
+ *  @ingroup Realmd
+ *
+ */
+
+
 #pragma once
 #ifndef REALM_DATABASE_H
 #define REALM_DATABASE_H
@@ -15,6 +43,9 @@ namespace Trinity
 namespace DatabaseAccess
 {
 
+  /**
+   * @brief Realmd's database statements are indexed by values from this enum.
+   */
 enum RealmdDatabaseStatements
 {
   REALMD_DB_SET_S_V = 0,
@@ -37,6 +68,10 @@ enum RealmdDatabaseStatements
   REALMD_DB_STMT_MAX
 };
 
+  /**
+   * @brief Observer for retrieving amount of characters on realms.
+   * @see Realm_Socket::get_char_amount(std::map<uint8, uint8>)
+   */
 template <class C>
   class getCharAmntObsv : public SqlOperationObserver<C, std::map<uint8, uint8> >
   {
@@ -63,6 +98,10 @@ template <class C>
     }
   };
 
+  /**
+   * @brief Observer for fetching realmlist from database.
+   * @see Realm_Service::update_realms(Trinity::SQL::ResultSet*)
+   */
 template <class C>
   class getRealmListObsv : public SqlOperationObserver<C, SQL::ResultSet*>
   {
@@ -79,6 +118,10 @@ template <class C>
     }
   };
 
+  /**
+   * @brief Observer for checking IP ban on new connections.
+   * @see Realm_Socket::ip_ban_checked(bool)
+   */
 template <class C>
   class checkIpBanObsv : public SqlOperationObserver<C, bool>
   {
@@ -101,7 +144,10 @@ template <class C>
     }
   };
 
-
+  /**
+   * @brief Observer for retrieving and checking account ban.
+   * @see Realm_Socket::account_checked(AccountState)
+   */
 template <class C>
   class checkAcctObsv : public SqlOperationObserver<C, AccountState>
   {
@@ -148,16 +194,59 @@ public:
 
 typedef DatabaseHolder<RealmDatabaseConnection> RealmDBInh;
 
+/**
+ * @brief This class encapsules most of database access functions.
+ */
 class RealmDB : public RealmDBInh
 {
  public:
- RealmDB(int c): RealmDBInh(c){}
+  RealmDB(int c): RealmDBInh(c){}
+
+  /**
+   * @brief Checks if IP is banned, passing result to conn through callback.
+   * @param conn Refcounted pointer to Realm_Socket
+   * @see Realm_Socket::ip_ban_checked(bool)
+   */
   void check_ip_ban(Realm_Sock_Ptr conn);
+
+  /**
+   * @brief Fetches account from database, callbacks into Realm_Socket
+   * @see Realm_Socket::account_checked(AccountState)
+   */
   void get_account(Realm_Sock_Ptr conn);
+
+  /**
+   * @brief Retrieves amount of characters on each of realms.
+   *        Callback passes the result to Realm_Socket.
+   * @see Realm_Socket::get_char_amount(std::map<uint8, uint8>)
+   */
   void get_char_amount(Realm_Sock_Ptr conn);
+
+  /**
+   * @brief Increments number of failed logins on account, 
+   *        mainly to handle failed logins autobanning.
+   * @param id Account id.
+   */
   void increment_failed_logins(uint64 id);
+
+  /**
+   * @brief Bans specified account id for failed logins.
+   * @param id Account id.
+   * @see RealmDB::ban_failed_logins(const std::string&)
+   */
   void ban_failed_logins(uint64 id);
+
+  /**
+   * @brief Bans IP for failed logins.
+   * @param ip IP to ban.
+   * @see RealmDB::ban_failed_logins(uint64)
+   */
   void ban_failed_logins(const std::string &ip);
+
+  /**
+   * @brief Retrieves realmlist from DB, and callbacks
+   *        Realm_Service to set its realmlist.
+   */
   void get_realmlist();
 };
 

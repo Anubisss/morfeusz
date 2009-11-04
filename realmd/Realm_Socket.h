@@ -207,9 +207,21 @@ class Realm_Socket : public ACE_Svc_Handler<ACE_SOCK_STREAM, ACE_MT_SYNCH>
   uint16 client_build;
   std::string login;
   std::string ip;
+  /**
+   * @brief FIFO queue for output packets.
+   */
   std::list<ByteBuffer*> packet_queue;
+
+  /**
+   * @brief Lock for synchronising access into packet_queue
+   */
   ACE_Recursive_Thread_Mutex queue_mtx;
   BN_CTX* ctx;
+
+  /**
+   * @brief Variables used when calculating SRP6
+   *        Seed, verificator, key, N prime and others. 
+   */
   BIGNUM* s, *v, *g, *k, *N, *b, *B;
 };
 
