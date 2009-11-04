@@ -73,6 +73,16 @@ enum AccountState
 };
 
 /**
+ * @brief Used to mark state of connection, 
+ *        to permit certain operations only to authed clients.
+ */
+enum ConnectionState
+{
+  STATUS_CONNECTED,
+  STATUS_AUTHED
+};
+
+/**
  * @brief Networking socket used to communicate with game client
  * @details Inherited from ACE_Svc_Handler this class follows 
  *          Acceptor/Reactor design pattern. 
@@ -174,6 +184,11 @@ class Realm_Socket : public ACE_Svc_Handler<ACE_SOCK_STREAM, ACE_MT_SYNCH>
   void handle_realm_list();
 
   /**
+   * @brief Handles packet 0x02
+   */
+  void handle_auth_reconnect_challenge();
+
+  /**
    * @brief Sets verificator and seed, used by SRP6 authentication.
    */
   void set_vs();
@@ -204,6 +219,7 @@ class Realm_Socket : public ACE_Svc_Handler<ACE_SOCK_STREAM, ACE_MT_SYNCH>
    * @brief Buffer that receives incoming data.
    */
   char raw_buf[4096];
+  ConnectionState state;
   uint16 client_build;
   std::string login;
   std::string ip;

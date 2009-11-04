@@ -96,7 +96,7 @@ typedef struct AUTH_LOGON_PROOF_C
 #endif
 
 Realm_Socket::Realm_Socket()
-  :ptr(this), out_active(false)
+  :ptr(this), out_active(false), state(STATUS_CONNECTED)
 {
   REALM_TRACE;
 
@@ -180,6 +180,9 @@ Realm_Socket::handle_input(ACE_HANDLE)
       break;
     case AUTH_LOGON_PROOF:
       this->handle_auth_logon_proof();
+      break;
+    case AUTH_RECONNECT_CHALLENGE:
+      this->handle_auth_reconnect_challenge();
       break;
     case REALM_LIST:
       this->handle_realm_list();
@@ -404,6 +407,12 @@ Realm_Socket::handle_realm_list()
   if(this->acct.id == 0)
     this->die();
   sRealm->get_db()->get_char_amount(this->ptr);
+}
+
+void
+Realm_Socket::handle_auth_reconnect_challenge()
+{
+  
 }
 
 void
