@@ -58,6 +58,7 @@ namespace DatabaseAccess
 
 	this->statement_holder.resize(REALMD_DB_STMT_MAX);
 
+	ADD_STMT(REALMD_DB_SET_INACTIVE_BANS, "UPDATE account_banned SET active = 0 WHERE unbandate<=UNIX_TIMESTAMP() AND unbandate<>bandate");
 	ADD_STMT(REALMD_DB_PRUNE_BANS, "DELETE FROM ip_banned WHERE unbandate<=UNIX_TIMESTAMP() AND unbandate<>bandate");
 	ADD_STMT(REALMD_DB_CHECK_IP_BAN, "SELECT * FROM ip_banned WHERE ip = ?");
 	ADD_STMT(REALMD_DB_CHECK_ACCT_BAN, "SELECT UPPER(a.sha_pass_hash) , a.id, a.locked, a.last_ip, a.gmlevel, ab.active, a.failed_logins FROM account AS a LEFT OUTER JOIN account_banned AS ab ON ab.id = a.id WHERE a.username = ?");
