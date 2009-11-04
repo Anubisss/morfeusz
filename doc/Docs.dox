@@ -1,0 +1,10 @@
+/**
+ * @mainpage
+ * @section intro Introduction to TrinityCore3
+ * This is documentation for \b TrinityCore3 , a World Of Warcraft reference server implementation.\n
+ * Aim for the project is to learn to write and manage distributed MMORPG game servers.\n
+ *
+ * @section links Further Reading:
+ * - <a href="http://www.trinitycore.org"> Project's homepage </a>
+ * - <a href="http://www.trinitycore.info"> Project's wiki, contains helpful DB table references</a> 
+ */

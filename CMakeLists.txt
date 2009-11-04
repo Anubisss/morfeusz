@@ -22,6 +22,7 @@ ELSE(SQLITE3_FOUND)
          MESSAGE("Couldn't find SQLite3 include files and/or library")
 ENDIF(SQLITE3_FOUND)
 
+add_custom_target(doc cd ${trinitycore3_SOURCE_DIR} && doxygen ${trinitycore3_SOURCE_DIR}/Doxyfile)
 
 add_subdirectory(configuration)
 add_subdirectory(database)
