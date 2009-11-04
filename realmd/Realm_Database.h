@@ -146,7 +146,7 @@ public:
   
 };
 
-  typedef DatabaseHolder<RealmDatabaseConnection> RealmDBInh;
+typedef DatabaseHolder<RealmDatabaseConnection> RealmDBInh;
 
 class RealmDB : public RealmDBInh
 {
