@@ -47,10 +47,25 @@ class Realm_Timer : public ACE_Event_Handler
   int handle_timeout(const ACE_Time_Value &, const void *act)
   {
     sRealm->get_db()->get_realmlist();
+    return 0;
+  }
+};
+
+  /**
+   * @brief Prunes bans every minute.
+   */
+class Unban_Timer : public ACE_Event_Handler
+{
+  
+  /**
+   * @see Realm_Timer::handle_timeout
+   */
+  int handle_timeout(const ACE_Time_Value &, const void* act)
+  {
     sRealm->get_db()->enqueue(new SqlOperationRequest(REALMD_DB_PRUNE_BANS));
     sRealm->get_db()->enqueue(new SqlOperationRequest(REALMD_DB_SET_INACTIVE_BANS));
     return 0;
-
   }
 };
+
 }

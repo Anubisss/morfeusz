@@ -66,6 +66,7 @@ Realm_Service::start()
   this->is_running = true;
   this->activate(THR_NEW_LWP | THR_JOINABLE, sConfig->getInt("realmd", "NetThreads"));
   this->reactor->schedule_timer(new Realm_Timer(), 0, tm, tm);
+  this->reactor->schedule_timer(new Unban_Timer(), 0, ACE_Time_Value(1), ACE_Time_Value(60));
   ACE_Thread_Manager::instance()->wait();
   return;
 }
