@@ -185,6 +185,8 @@ Realm_Socket::handle_input(ACE_HANDLE)
 {
   REALM_TRACE;
 
+  if(this->state == STATUS_CLOSING)
+    return -1;
   int error;
   memset(raw_buf, 0, 4096);
   int bytes_read = this->peer().recv(this->raw_buf, 4096);
@@ -229,6 +231,12 @@ Realm_Socket::handle_input(ACE_HANDLE)
 void
 Realm_Socket::handle_auth_logon_challenge()
 {
+  if(this->state != STATUS_CONNECTED)
+    {
+      this->die();
+      return;
+    }
+
   sAuthLogonChallenge_C* ch = (sAuthLogonChallenge_C*)&raw_buf;
   
   Utils::EndianConvert(*((uint32*)(&ch->gamename[0])));
@@ -254,11 +262,17 @@ Realm_Socket::handle_auth_logon_challenge()
     }
   //  ACE_OS::memset(raw_buf, 0, 4096);
   sRealm->get_db()->check_ip_ban(this->ptr);
+  this->state = STATUS_NEED_PROOF;
 }
 
 void
 Realm_Socket::handle_auth_logon_proof()
 {
+  if(this->state != STATUS_NEED_PROOF)
+    {
+      this->die();
+      return;
+    }
   REALM_TRACE;
   sAuthLogonProof_C* prf = (sAuthLogonProof_C*)&raw_buf;
   std::reverse(prf->A, (uint8*)prf->A + sizeof(prf->A));
@@ -407,6 +421,7 @@ Realm_Socket::handle_auth_logon_proof()
       if(this->client_build != supportedBuilds[BUILD_1_12])
         *pkt << (uint16) 0;
       this->send(pkt);
+      this->state = STATUS_AUTHED;
     }
   else
     {
@@ -428,6 +443,7 @@ Realm_Socket::handle_auth_logon_proof()
       buf << (uint8) 0;
       buf << (uint8) REALM_AUTH_NO_MATCH;
       this->send(new ByteBuffer(buf));
+      this->die();
     }
   
 }
@@ -435,8 +451,10 @@ Realm_Socket::handle_auth_logon_proof()
 void
 Realm_Socket::handle_realm_list()
 {
-  if(this->acct.id == 0)
-    this->die();
+  if(this->state != STATUS_AUTHED)
+    {
+      this->die();
+    }
   sRealm->get_db()->get_char_amount(this->ptr);
 }
 
@@ -454,6 +472,7 @@ Realm_Socket::handle_auth_reconnect_challenge()
   this->client_build = ch->build;
   this->login = (const char*)ch->I;
   sRealm->get_db()->get_sessionkey(this->ptr);
+  this->state = STATUS_NEED_RPROOF;
 }
 
 void
