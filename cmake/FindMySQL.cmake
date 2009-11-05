@@ -27,6 +27,8 @@ if(WIN32 AND MSVC)
       PATHS
       $ENV{ProgramFiles}/MySQL/*/lib/opt
       $ENV{SystemDrive}/MySQL/*/lib/opt
+      $ENV{SystemDrive}/MySQL/*/lib
+      $ENV{SystemDrive}/*/lib
       )
 else(WIN32 AND MSVC)
   find_library(MYSQL_LIBRARIES NAMES mysqlclient
