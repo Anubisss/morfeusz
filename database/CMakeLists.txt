@@ -25,6 +25,9 @@ target_link_libraries(
 	trinitydatabaseMysql
 	${MYSQL_LIBRARIES}
 	)
+include_directories(
+  ${MYSL_INCLUDE_DIR}
+  )
 ENDIF(MYSQL_FOUND)
 
 target_link_libraries(
