@@ -137,7 +137,7 @@ class Realm_Socket : public ACE_Svc_Handler<ACE_SOCK_STREAM, ACE_MT_SYNCH>
    * @brief Inserts new packet into output queue.
    *        This function is thread safe, and it's
    *        practically the only way to send to client.
-   * @param 
+   * @param pkt Payload to send.
    */
   void send(ByteBuffer* pkt);
   /**
@@ -169,7 +169,7 @@ class Realm_Socket : public ACE_Svc_Handler<ACE_SOCK_STREAM, ACE_MT_SYNCH>
   std::map<uint8, uint8> realm_char_amount;
 
   /**
-   * @briaf This variable is set when we have any packets in
+   * @brief This variable is set when we have any packets in
    *        socket's packet_queue
    */
   bool out_active;

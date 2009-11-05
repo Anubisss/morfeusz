@@ -187,11 +187,9 @@ public:
     }
     /**
      * @brief Opens up child connections, but first it checks provided data for correctness.
-     * @param hostname location of db, in host:port format, or host if using default port
-     * @param database database to use
-     * @param username
-     * @param password
-     * @retn true on success.
+     * @param driverName Name of database engine to use. Currently supported are sqlite and mysql.
+     * @param url Location of database, depends on driver.
+     * @return true on success.
      */
     bool open(const std::string& driverName, const std::string& url)
     {
