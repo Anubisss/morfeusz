@@ -18,5 +18,5 @@ target_link_libraries(
   realmd
   trinityconfig
   trinitydatabase
-  ssl
+  ${OPENSSL_LIBRARIES}
   )

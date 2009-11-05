@@ -15,7 +15,7 @@ target_link_libraries(
   trinity
   trinitydatabase
   realmd
-  ACE
+  ${ACE_LIBRARY}
   )
 
 install(TARGETS trinity DESTINATION bin)

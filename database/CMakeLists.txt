@@ -29,7 +29,7 @@ ENDIF(MYSQL_FOUND)
 
 target_link_libraries(
 	trinitydatabase
-	ACE
+	${ACE_LIBRARY}
 	)
 
 #add_subdirectory(test)
