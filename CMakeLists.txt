@@ -41,6 +41,13 @@ ENDIF(SQLITE3_FOUND)
 
 add_custom_target(doc cd ${trinitycore3_SOURCE_DIR} && doxygen ${trinitycore3_SOURCE_DIR}/Doxyfile)
 
+if(WIN32)
+include_directories(
+  ${ACE_INCLUDE_DIR}
+  ${OPENSSL_INCLUDE_DIR}
+)
+endif(WIN32)
+
 add_subdirectory(configuration)
 add_subdirectory(database)
 add_subdirectory(realmd)
