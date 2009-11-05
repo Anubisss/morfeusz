@@ -88,6 +88,14 @@ typedef struct AUTH_LOGON_PROOF_C
   uint8   unk;
 } sAuthLogonProof_C;
 
+typedef struct AUTH_RECONNECT_PROOF_C
+{
+  uint8 cmd;
+  uint8 R1[16];
+  uint8 R2[20];
+  uint8 R3[20];
+  uint8 number_of_keys;
+} sAuthReconnectProof_C;
 
 #if defined( __GNUC__ )
 #pragma pack()
@@ -109,6 +117,7 @@ Realm_Socket::Realm_Socket()
   v = BN_new();
   b = BN_new();
   B = BN_new();
+  reconnect_proof = BN_new();
 
   BN_set_word(k, 3);
   BN_set_word(g, 7);
@@ -127,6 +136,7 @@ Realm_Socket::~Realm_Socket()
   BN_free(b);
   BN_free(B);
   BN_free(N);
+  BN_free(reconnect_proof);
 }
 
 int
@@ -183,6 +193,9 @@ Realm_Socket::handle_input(ACE_HANDLE)
       break;
     case AUTH_RECONNECT_CHALLENGE:
       this->handle_auth_reconnect_challenge();
+      break;
+    case AUTH_RECONNECT_PROOF:
+      this->handle_auth_reconnect_proof();
       break;
     case REALM_LIST:
       this->handle_realm_list();
@@ -412,7 +425,57 @@ Realm_Socket::handle_realm_list()
 void
 Realm_Socket::handle_auth_reconnect_challenge()
 {
+  if(this->state != STATUS_CONNECTED)
+    {
+      this->die();
+      return;
+    }
+
+  sAuthLogonChallenge_C* ch = (sAuthLogonChallenge_C*)&raw_buf;
+
+  this->client_build = ch->build;
+  this->login = (const char*)ch->I;
+  sRealm->get_db()->get_sessionkey(this->ptr);
+}
+
+void
+Realm_Socket::handle_auth_reconnect_proof()
+{
+  if(this->state != STATUS_NEED_RPROOF)
+    {
+      this->die();
+      return;
+    }
+  sAuthReconnectProof_C* prf = (sAuthReconnectProof_C*)&raw_buf;
   
+  SHA_CTX sha;
+  uint8 hash[SHA_DIGEST_LENGTH];
+  SHA1_Init(&sha);
+  SHA1_Update(&sha, this->login.c_str(), this->login.length() );
+  SHA1_Update(&sha, prf->R1, 16);
+  uint8* tmp = new uint8[16];
+  BN_bn2bin(this->reconnect_proof, tmp);
+  SHA1_Update(&sha, tmp, 16);
+  delete[] tmp;
+  tmp = new uint8[40];
+  BN_bn2bin(this->k, tmp);
+  SHA1_Update(&sha, tmp, 40);
+  SHA1_Final(hash, &sha);
+  delete[] tmp;
+
+  if(!memcmp(hash, prf->R2, SHA_DIGEST_LENGTH))
+    {
+      ByteBuffer* pkt = new ByteBuffer();
+      *pkt << (uint8)AUTH_RECONNECT_PROOF;
+      *pkt << (uint8)0x00;
+      *pkt << (uint16)0x00;
+      this->send(pkt);
+      this->state = STATUS_AUTHED;
+    }
+  else
+    {
+      this->die();
+    }
 }
 
 void
@@ -570,6 +633,29 @@ void Realm_Socket::account_checked(AccountState state)
 }
 
 void
+Realm_Socket::get_sessionkey(bool result)
+{
+  if(!result)
+    {
+      this->die();  //Client displays "Session Expired" on its own.
+      return;
+    }
+
+  ByteBuffer* pkt = new ByteBuffer();
+  *pkt << (uint8) AUTH_RECONNECT_CHALLENGE;
+  *pkt << (uint8) 0x00;
+  BN_rand(this->reconnect_proof, 16*8,0,1);
+  uint8* rpr = new uint8[16];
+  BN_bn2bin(this->reconnect_proof,rpr);
+  pkt->append(rpr, 16);
+  delete[] rpr;
+  *pkt << (uint64) 0x00;
+  *pkt << (uint64) 0x00;
+  this->send(pkt);
+  this->state = STATUS_NEED_RPROOF;
+}
+
+void
 Realm_Socket::set_vs()
 {
   SqlOperationRequest* fix = new SqlOperationRequest(REALMD_DB_FIX_SV);
@@ -675,6 +761,7 @@ void
 Realm_Socket::die()
 {
   REALM_TRACE;
+  this->state = STATUS_CLOSING;
   ACE_Guard<ACE_Recursive_Thread_Mutex> g(this->queue_mtx);
   sRealm->get_reactor()->remove_handler(this,
 					ACE_Event_Handler::READ_MASK |

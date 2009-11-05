@@ -34,6 +34,7 @@
 #include "Realm_Socket.h"
 
 #include <ace/Refcounted_Auto_Ptr.h>
+#include <openssl/bn.h>
 
 class Realm_Socket;
 
@@ -69,10 +70,39 @@ enum RealmdDatabaseStatements
 };
 
   /**
+   * @brief Observer for retrieveing sessionkey from database, used when reconnecting.
+   * @see Realm_Socket::get_sessionkey(bool)
+   */
+  template <class C>
+  class getSessionKeyObsv : public SqlOperationObserver<C, bool> 
+  {
+  public:
+    getSessionKeyObsv(Callback<C, bool> c): SqlOperationObserver<C, bool>(c){}
+    void update(const ACE_Future<SQL::ResultSet*> &future)
+    {
+      SQL::ResultSet* res;
+      future.get(res);
+      res->next();
+      if(res->rowsCount())
+	{
+	  SqlOperationObserver<C, bool>::callback.call(false);
+	}
+      else
+	{
+	  BN_hex2bn(&(SqlOperationObserver<C, bool>::callback.get_obj()->k), res->getString(1).c_str());
+	  SqlOperationObserver<C, bool>::callback.call(true);
+	}
+
+      delete res;
+      delete this;
+    }
+  };
+
+  /**
    * @brief Observer for retrieving amount of characters on realms.
    * @see Realm_Socket::get_char_amount(std::map<uint8, uint8>)
    */
-template <class C>
+  template <class C>
   class getCharAmntObsv : public SqlOperationObserver<C, std::map<uint8, uint8> >
   {
   public:
@@ -163,7 +193,7 @@ template <class C>
       
       if(res->rowsCount() == 0 )
 	SqlOperationObserver<C, AccountState>::callback.call(ACCOUNT_NOTFOUND);
-      else if(res->getInt32(6) != 0)
+      else if(res->getUint8(6) != 0)
 	SqlOperationObserver<C, AccountState>::callback.call(ACCOUNT_BANNED);
       else
 	{
@@ -221,6 +251,12 @@ class RealmDB : public RealmDBInh
    * @see Realm_Socket::get_char_amount(std::map<uint8, uint8>)
    */
   void get_char_amount(Realm_Sock_Ptr conn);
+
+  /**
+   * @brief Fetches sessionkey for account from database.
+   * 
+   */
+  void get_sessionkey(Realm_Sock_Ptr conn);
 
   /**
    * @brief Increments number of failed logins on account, 

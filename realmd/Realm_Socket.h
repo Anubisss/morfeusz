@@ -79,7 +79,10 @@ enum AccountState
 enum ConnectionState
 {
   STATUS_CONNECTED,
-  STATUS_AUTHED
+  STATUS_NEED_PROOF,
+  STATUS_AUTHED,
+  STATUS_NEED_RPROOF,
+  STATUS_CLOSING
 };
 
 /**
@@ -147,6 +150,17 @@ class Realm_Socket : public ACE_Svc_Handler<ACE_SOCK_STREAM, ACE_MT_SYNCH>
    * @param amnt Contains information about character amount
    */
   void get_char_amount(std::map<uint8, uint8> amnt);
+
+  /**
+   * @brief Callback from getSessionKeyObsv
+   * @param result True means we have sessionkey, false means we do not.
+   */
+  void get_sessionkey(bool result);
+
+  /**
+   * @brief Sessionkey. It is public because it is set by callback.
+   */
+  BIGNUM* k;
  private:
 
   /**
@@ -188,6 +202,11 @@ class Realm_Socket : public ACE_Svc_Handler<ACE_SOCK_STREAM, ACE_MT_SYNCH>
    */
   void handle_auth_reconnect_challenge();
 
+  /**
+   * @brief Handles packet 0x03
+   */
+  void handle_auth_reconnect_proof();
+  
   /**
    * @brief Sets verificator and seed, used by SRP6 authentication.
    */
@@ -236,9 +255,9 @@ class Realm_Socket : public ACE_Svc_Handler<ACE_SOCK_STREAM, ACE_MT_SYNCH>
 
   /**
    * @brief Variables used when calculating SRP6
-   *        Seed, verificator, key, N prime and others. 
+   *        Seed, verificator, sessionkey, N prime and others. 
    */
-  BIGNUM* s, *v, *g, *k, *N, *b, *B;
+  BIGNUM* s, *v, *g, *N, *b, *B, *reconnect_proof;
 };
 
 /**

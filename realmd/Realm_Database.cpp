@@ -71,7 +71,8 @@ namespace DatabaseAccess
 	ADD_STMT(REALMD_DB_SET_FAILED_LOGINS, "UPDATE account set failed_logins = failed_logins + 1 where id = ?");
 	ADD_STMT(REALMD_DB_ADD_IP_AUTOBAN, "INSERT INTO ip_banned VALUES (?,UNIX_TIMESTAMP(),UNIX_TIMESTAMP()+ ?,'Trinity realmd','Failed login autoban')");
 	ADD_STMT(REALMD_DB_ADD_ACCOUNT_AUTOBAN, "INSERT INTO account_banned VALUES (? ,UNIX_TIMESTAMP(),UNIX_TIMESTAMP()+ ?,'Trinity realmd','Failed login autoban',1)");
-
+	ADD_STMT(REALMD_DB_GET_SESSIONKEY, "SELECT sessionkey FROM account WHERE username = ?");
+	
 	this->worker = new DatabaseWorker(this->query_queue, this);
       }
     catch (SQL::SQLException& e)
@@ -153,6 +154,21 @@ RealmDB::get_char_amount(Realm_Sock_Ptr conn)
 	      ));
   SqlOperationRequest* op = new SqlOperationRequest(REALMD_DB_GET_NUMCHAR, res);
   op->add_uint32(1, conn->acct.id);
+  this->enqueue(op);
+}
+
+void
+RealmDB::get_sessionkey(Realm_Sock_Ptr conn)
+{
+  if(conn.null())
+    return;
+  ACE_Future<SQL::ResultSet*> res;
+  res.attach(new getSessionKeyObsv<Realm_Socket>
+	     (Callback<Realm_Socket, bool>
+	      (conn, &Realm_Socket::get_sessionkey)
+	      ));
+  SqlOperationRequest* op = new SqlOperationRequest(REALMD_DB_GET_SESSIONKEY, res);
+  op->add_string(1, conn->get_login().c_str());
   this->enqueue(op);
 }
 
