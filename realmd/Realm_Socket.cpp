@@ -528,13 +528,13 @@ Realm_Socket::get_char_amount(std::map<uint8, uint8> amnt)
   realm_char_amount = amnt;
   ByteBuffer* pkt = new ByteBuffer;
   std::map<uint8, Realm>* realmlist = sRealm->get_realmlist();
-
+  
   uint16 listSize=0;
   std::map<uint8, Realm>::const_iterator i;
   for(i = realmlist->begin(); i != realmlist->end(); i++)
-      if(i->second.build == this->client_build)
-          ++listSize;
-      
+    if(i->second.build == this->client_build)
+      ++listSize;
+  
   
   *pkt << (uint32) 0;
   if(this->client_build == BUILD_1_12)
@@ -542,47 +542,45 @@ Realm_Socket::get_char_amount(std::map<uint8, uint8> amnt)
   else
     *pkt << (uint16) listSize;
   if (listSize > 0)
-  for(i = realmlist->begin(); i != realmlist->end(); i++)
-    {
+    for(i = realmlist->begin(); i != realmlist->end(); i++)
+      {
         if (i->second.build != this->client_build)
-            continue;
-
-      *pkt << (uint32) i->second.icon;
+	  continue;
+	
+	*pkt << (uint8) i->second.icon;
       if(this->client_build != BUILD_1_12)
-          *pkt << (uint8)(i->second.allowedSecurityLevel > this->acct.gmlevel ? 1:0);
+	*pkt << (uint8)(i->second.allowedSecurityLevel > this->acct.gmlevel ? 1:0);
       *pkt << (uint8) i->second.color;
       *pkt << i->second.name;
       *pkt << i->second.address;
       *pkt << (float)i->second.population;
       if(this->realm_char_amount.find(i->first) != realm_char_amount.end())
-	*pkt << this->realm_char_amount[i->first];
+	*pkt << (uint8)this->realm_char_amount[i->first];
       else
 	*pkt << (uint8) 0;
       *pkt << (uint8) i->second.timezone;
-      if(this->client_build == BUILD_1_12)
-        *pkt << (uint8) 0x00;
-      else
-        *pkt << (uint8) 0x2C;
-    }
-
+      
+      *pkt << (uint8) 0x00;
+      
+      }
+  
   if(this->client_build == BUILD_1_12)
-  {
-    *pkt << (uint8) 0x00;
-    *pkt << (uint8) 0x02;
-  }
+    {
+      *pkt << (uint8) 0x00;
+      *pkt << (uint8) 0x02;
+    }
   else
-  {
-    *pkt << (uint8) 0x10;
-    *pkt << (uint8) 0x00;
-  }
-
+    {
+      *pkt << (uint8) 0x10;
+      *pkt << (uint8) 0x00;
+    }
+  
   ByteBuffer *data = new ByteBuffer;
   *data << (uint8)REALM_LIST;
   *data << (uint16) pkt->size();
   data->append(*pkt);
   delete pkt;
   this->send(data);
-  //  this->send(pkt);
   this->set_vs();
   
 }
