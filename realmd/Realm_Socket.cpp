@@ -103,20 +103,26 @@ typedef struct AUTH_RECONNECT_PROOF_C
 #pragma pack(pop)
 #endif
 
-#define BUILD_1_12 0
-#define BUILD_2_43 1
-#define BUILD_3_20 2
-#define BUILD_MAX  3
-
-static const int supportedBuilds[BUILD_MAX] = {5875, 8606, 10505};
+enum SupportedClientBuilds
+{
+    BUILD_1_12 = 5875,
+    BUILD_2_43 = 8606,
+    BUILD_3_20 = 10505
+};
 
 bool
 isSupportedClientBuild(int build)
 {
-  for (int i = BUILD_1_12; i < BUILD_MAX; ++i)
-    if (build == supportedBuilds[i])
-      return true;
-  return false;
+    switch (build)
+    {
+        case BUILD_1_12:
+        case BUILD_2_43:
+        case BUILD_3_20:
+            return true;
+        default:
+            return false;
+    }
+    return false;
 }
 
 Realm_Socket::Realm_Socket()
@@ -411,14 +417,14 @@ Realm_Socket::handle_auth_logon_proof()
       op->add_string(4, this->login.c_str());
       sRealm->get_db()->enqueue(op);
       
-      ByteBuffer* pkt = new ByteBuffer(this->client_build == supportedBuilds[BUILD_1_12] ? 26 : 32);
+      ByteBuffer* pkt = new ByteBuffer(this->client_build == BUILD_1_12 ? 26 : 32);
       *pkt << (uint8) AUTH_LOGON_PROOF;
       *pkt << (uint8) 0;
       pkt->append(hamk_fin, SHA_DIGEST_LENGTH);
-      if(this->client_build != supportedBuilds[BUILD_1_12])
+      if(this->client_build != BUILD_1_12)
         *pkt << (uint32) 0x00800000;
       *pkt << (uint32) 0;
-      if(this->client_build != supportedBuilds[BUILD_1_12])
+      if(this->client_build != BUILD_1_12)
         *pkt << (uint16) 0;
       this->send(pkt);
       this->state = STATUS_AUTHED;
@@ -531,7 +537,7 @@ Realm_Socket::get_char_amount(std::map<uint8, uint8> amnt)
       
   
   *pkt << (uint32) 0;
-  if(this->client_build == supportedBuilds[BUILD_1_12])
+  if(this->client_build == BUILD_1_12)
     *pkt << (uint8) listSize;
   else
     *pkt << (uint16) listSize;
@@ -542,7 +548,7 @@ Realm_Socket::get_char_amount(std::map<uint8, uint8> amnt)
             continue;
 
       *pkt << (uint32) i->second.icon;
-      if(this->client_build != supportedBuilds[BUILD_1_12])
+      if(this->client_build != BUILD_1_12)
           *pkt << (uint8)(i->second.allowedSecurityLevel > this->acct.gmlevel ? 1:0);
       *pkt << (uint8) i->second.color;
       *pkt << i->second.name;
@@ -553,13 +559,13 @@ Realm_Socket::get_char_amount(std::map<uint8, uint8> amnt)
       else
 	*pkt << (uint8) 0;
       *pkt << (uint8) i->second.timezone;
-      if(this->client_build == supportedBuilds[BUILD_1_12])
+      if(this->client_build == BUILD_1_12)
         *pkt << (uint8) 0x00;
       else
         *pkt << (uint8) 0x2C;
     }
 
-  if(this->client_build == supportedBuilds[BUILD_1_12])
+  if(this->client_build == BUILD_1_12)
   {
     *pkt << (uint8) 0x00;
     *pkt << (uint8) 0x02;
