@@ -6,6 +6,17 @@
 #include "Service_Manager.h"
 #include "Realm_Service.h"
 
+#if PLATFORM == PLATFORM_WIN32
+extern "C"
+{
+    #ifdef _DEBUG
+        #pragma  comment (lib,"ACEd.lib")
+    #else
+        #pragma  comment (lib,"ACE.lib")
+    #endif
+}
+#endif
+
 int
 ACE_TMAIN(int argc, char* argv[])
 {

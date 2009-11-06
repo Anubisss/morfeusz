@@ -27,7 +27,11 @@
 #include "Database.h"
 
 #if HAVE_MYSQL
-#include <mysql/mysql.h>
+    #if PLATFORM == PLATFORM_WIN32
+        #include <mysql.h>
+    #else
+        #include <mysql/mysql.h>
+    #endif
 #endif
 
 namespace Trinity

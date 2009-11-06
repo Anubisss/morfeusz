@@ -37,7 +37,7 @@ namespace DatabaseAccess
 {
 
   RealmDatabaseConnection::RealmDatabaseConnection(ACE_Activation_Queue* q) 
-    : DatabaseConnection::DatabaseConnection(q)
+    : DatabaseConnection(q)
   {} 
 
   RealmDatabaseConnection::~RealmDatabaseConnection()

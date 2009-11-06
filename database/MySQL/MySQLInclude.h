@@ -36,9 +36,10 @@ extern "C"
 
 #undef _REENTRANT
 
-#if PLATFORM == PLATFORM_WIN32
-#include <my_global.h>
-#endif
+//this is not win32 compatible
+//#if PLATFORM == PLATFORM_WIN32 
+//#include <my_global.h>
+//#endif
 
 #include <errmsg.h>
 #include <mysql.h>
