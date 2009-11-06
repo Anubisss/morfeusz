@@ -1,10 +1,89 @@
+/*
+ * -*- C++ -*-
+ */
 /**
  * @mainpage
+ * @section main_toc Table of Contents
+ * - @ref intro
+ * - @ref guides
+ * - @ref links
+ * - @ref devs
  * @section intro Introduction to TrinityCore3
- * This is documentation for \b TrinityCore3 , a World Of Warcraft reference server implementation.\n
+ * This is documentation for \b TrinityCore3, a World Of Warcraft reference server implementation.\n
  * Aim for the project is to learn to write and manage distributed MMORPG game servers.\n
  *
+ * @section guides Build and Usage guides:
+ * - @ref windows_build
+ * - @ref linux_build
  * @section links Further Reading:
  * - <a href="http://www.trinitycore.org"> Project's homepage </a>
  * - <a href="http://www.trinitycore.info"> Project's wiki, contains helpful DB table references</a> 
- */
+ * - <a href="http://www.dev.trinitycore.org/trinitycore3"> Code repository, and bug tracker</a>
+ * @section devs People who helped this project:
+ We would like to thanks following people who helped this project:
+ - raczman
+ - thenecromancer
+ - krz
+ - streetrat
+
+ @page windows_build Windows Build
+
+
+ @page linux_build Linux Build
+ @section linux_build_toc Table Of Contents
+ - @ref linux_build_tools
+ - @ref linux_build_configuration
+ - @ref linux_build_compilation
+
+ @section linux_build_tools Tools and libraries you will need
+ - CMake
+ - mercurial
+ - g++
+ - libmysql (optional)
+ - OpenSSL
+ - libsqlite3 (optional)
+ - ACE
+
+ @section linux_build_configuration Configuring your build
+ First off, create a build directory somewhere on your hdd.\n 
+ <tt>mkdir build</tt>\n
+ This directory will contain makefiles used during compilation. To start configuration, type:\n
+ <tt>cmake /path/to/tc3/sources</tt>\n
+ If everything is well, you should see:\n
+ <tt>
+ @verbatim
+ -- The C compiler identification is GNU
+ -- The CXX compiler identification is GNU
+ -- Check for working C compiler: /usr/bin/gcc
+ -- Check for working C compiler: /usr/bin/gcc -- works
+ -- Detecting C compiler ABI info
+ -- Detecting C compiler ABI info - done
+ -- Check for working CXX compiler: /usr/bin/c++
+ -- Check for working CXX compiler: /usr/bin/c++ -- works
+ -- Detecting CXX compiler ABI info
+ -- Detecting CXX compiler ABI info - done
+ -- Found libcrypto: /usr/lib/libcrypto.so
+ -- Found OpenSSL: /usr/lib/libssl.so
+ -- Found openssl
+ -- Found ACE library: /usr/local/lib/libACE.so
+ -- Include dir is: /usr/local/include
+ -- Found MySQL: /usr/include/mysql, /usr/lib/libmysqlclient.so
+ -- MySQL found at: /usr/include/mysql, /usr/lib/libmysqlclient.so
+ -- Found SQLite3: /usr/include, /usr/lib/libsqlite3.so
+ -- SQLite3 found at: /usr/include, /usr/lib/libsqlite3.so
+ -- Configuring done
+ -- Generating done
+ -- Build files have been written to: /root/tc3build
+ @endverbatim
+ </tt>
+ 
+ Note that the paths to libraries may differ from the ones shown above. If any problem occurs, please make sure you have installed needed libraries, and have them installed in system include paths. If nothing works, you may try searching on forums - remember, probability that your problem has been solved by someone else is high! 
+ @section linux_build_compilation Compiling
+ If everything is good and you can see Makefiles created in build directory, issue command:
+ \n
+ <tt>
+ make
+ </tt>
+ \n
+ To start compilation. We \b try to ensure that code you received compiles fine. If not, please report it to us.
+*/
