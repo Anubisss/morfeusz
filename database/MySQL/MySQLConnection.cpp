@@ -96,7 +96,9 @@ MySQLConnection::MySQLConnection(const std::string& url) :
     }
 
     // set charset - default utf8
+    my_bool tmp = true;
     mysql_options(mysql, MYSQL_SET_CHARSET_NAME, "utf8");
+    mysql_options(mysql, MYSQL_OPT_RECONNECT, &tmp);
 
     if (!mysql_real_connect(mysql,
                             host.c_str(),

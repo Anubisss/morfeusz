@@ -59,7 +59,7 @@ MySQLPreparedResultSet::MySQLPreparedResultSet(MySQLPreparedStatement* stmt, MYS
     }
     numFields = mysql_stmt_field_count(mysqlStmt);
 
-        if(mysqlStmt->bind_result_done )
+    if(mysqlStmt->bind_result_done )
       {
 	delete[] mysqlStmt->bind->length;
 	delete[] mysqlStmt->bind->is_null;
@@ -179,8 +179,8 @@ MySQLPreparedResultSet::~MySQLPreparedResultSet()
       ACE_OS::free(bindResult[i].buffer);
 
     }
-	mysql_stmt_free_result(mysqlStmt);
-	delete[] bindResult;
+    mysql_stmt_free_result(mysqlStmt);
+    delete[] bindResult;
 
 }
 
