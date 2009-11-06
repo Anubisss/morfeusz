@@ -274,9 +274,10 @@ class DatabaseWorker : protected ACE_Task_Base
 public:
  DatabaseWorker(ACE_Activation_Queue* new_queue, DatabaseConnection* conn):queue(new_queue), db(conn) {this->activate();}
     int svc(void);
-    void activate()
+    int activate()
     {
         ACE_Task_Base::activate(THR_NEW_LWP |THR_DETACHED , 1);
+        return 0;
     }
 private:
     DatabaseWorker():ACE_Task_Base() {}
