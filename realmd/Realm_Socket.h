@@ -269,12 +269,12 @@ class Realm_Socket : public ACE_Svc_Handler<ACE_SOCK_STREAM, ACE_MT_SYNCH>
   /**
   * @brief Builds REALM_LIST data packet for 1.12 build
   */
-  ByteBuffer* build_realm_packet();
+  ByteBuffer* build_realm_packet(std::map<uint8, uint8> realm_char_amount);
 
   /**
   * @brief Builds REALM_LIST data packet for 2.4.3 and 3.2.0 builds (till they have same structure)
   */
-  ByteBuffer* build_expansion_realm_packet();
+  ByteBuffer* build_expansion_realm_packet(std::map<uint8, uint8> realm_char_amount);
 
   /**
   * @brief Builds AUTH_LOGON_PROOF data packet for 1.12 build

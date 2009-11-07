@@ -505,11 +505,11 @@ Realm_Socket::get_char_amount(std::map<uint8, uint8> amnt)
   switch(this->client_build)
   {
     case BUILD_1_12:
-        data = this->build_realm_packet();
+        data = this->build_realm_packet(amnt);
         break;
     case BUILD_2_43:
     case BUILD_3_20:
-        data = this->build_expansion_realm_packet();
+        data = this->build_expansion_realm_packet(amnt);
         break;
     default:
         // it won't happen but...
@@ -523,10 +523,8 @@ Realm_Socket::get_char_amount(std::map<uint8, uint8> amnt)
 }
 
 ByteBuffer*
-Realm_Socket::build_realm_packet()
+Realm_Socket::build_realm_packet(std::map<uint8, uint8> realm_char_amount)
 {
-  realm_char_amount = amnt;
-
   ByteBuffer* pkt = new ByteBuffer;
   std::map<uint8, Realm>* realmlist = sRealm->get_realmlist();
 
@@ -569,9 +567,8 @@ Realm_Socket::build_realm_packet()
 }
 
 ByteBuffer*
-Realm_Socket::build_expansion_realm_packet()
+Realm_Socket::build_expansion_realm_packet(std::map<uint8, uint8> realm_char_amount)
 {
-  realm_char_amount = amnt;
   ByteBuffer* pkt = new ByteBuffer;
   std::map<uint8, Realm>* realmlist = sRealm->get_realmlist();
 
@@ -632,9 +629,9 @@ Realm_Socket::build_expansion_logon_proof_packet(uint8* hamk_fin)
   *data << (uint8) AUTH_LOGON_PROOF;
   *data << (uint8) 0;
   data->append(hamk_fin, SHA_DIGEST_LENGTH);
-  *pkt << (uint32) 0x00800000;
-  *pkt << (uint32) 0;
-  *pkt << (uint16) 0;
+  *data << (uint32) 0x00800000;
+  *data << (uint32) 0;
+  *data << (uint16) 0;
   return data;
 }
 
