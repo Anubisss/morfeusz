@@ -105,6 +105,28 @@ typedef struct AUTH_RECONNECT_PROOF_C
 #pragma pack(pop)
 #endif
 
+enum SupportedClientBuilds
+{
+    BUILD_1_12 = 5875,
+    BUILD_2_43 = 8606,
+    BUILD_3_20 = 10505
+};
+
+bool
+isSupportedClientBuild(int build)
+{
+    switch (build)
+    {
+        case BUILD_1_12:
+        case BUILD_2_43:
+        case BUILD_3_20:
+            return true;
+        default:
+            return false;
+    }
+    return false;
+}
+
 Realm_Socket::Realm_Socket()
   :ptr(this), out_active(false), state(STATUS_CONNECTED)
 {

@@ -80,7 +80,6 @@ Realm_Service::update_realms(Trinity::SQL::ResultSet* res)
 
   if(!res)
     return;
-  realm_map.clear();
   Realm rlm;
   uint32 id;
   while(res->next())
@@ -97,22 +96,10 @@ Realm_Service::update_realms(Trinity::SQL::ResultSet* res)
       rlm.population = res->getFloat(9);
       rlm.build = res->getUint16(10);
       id = res->getUint32(1);
-
-      if(isSupportedClientBuild(rlm.build))
-        {
-          this->realm_map[id] = rlm;
-          REALM_LOG("Added realm %s (ID: %u) Population: %f Build: %u\n", rlm.name.c_str(), id, rlm.population, rlm.build);
-        }
-      else
-          REALM_LOG("Realm %s (ID: %u) Build: %u - Skipped, realm daemon doesn't support this build\n", rlm.name.c_str(), id, rlm.build);
+      this->realm_map[id] = rlm;
+      REALM_LOG("Added realm %s (ID: %u) %f\n",rlm.name.c_str(), res->getUint8(1), rlm.population);
     }
 
-  if(realm_map.empty())
-    {
-      REALM_LOG("Realm daemon hasn't got any appropriate realm. So stop it.\n");
-      sRealm->stop();
-      return;
-    }
 }
 
 int 
