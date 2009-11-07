@@ -548,6 +548,7 @@ Realm_Socket::get_char_amount(std::map<uint8, uint8> amnt)
 ByteBuffer*
 Realm_Socket::build_realm_packet(std::map<uint8, uint8> realm_char_amount)
 {
+  REALM_TRACE;
   ByteBuffer* pkt = new ByteBuffer;
   std::map<uint8, Realm>* realmlist = sRealm->get_realmlist();
 
@@ -592,6 +593,7 @@ Realm_Socket::build_realm_packet(std::map<uint8, uint8> realm_char_amount)
 ByteBuffer*
 Realm_Socket::build_expansion_realm_packet(std::map<uint8, uint8> realm_char_amount)
 {
+  REALM_TRACE;
   ByteBuffer* pkt = new ByteBuffer;
   std::map<uint8, Realm>* realmlist = sRealm->get_realmlist();
 
@@ -637,6 +639,7 @@ Realm_Socket::build_expansion_realm_packet(std::map<uint8, uint8> realm_char_amo
 ByteBuffer*
 Realm_Socket::build_logon_proof_packet(uint8* hamk_fin)
 {
+  REALM_TRACE;
   ByteBuffer* data = new ByteBuffer(26);
   *data << (uint8) AUTH_LOGON_PROOF;
   *data << (uint8) 0;
@@ -760,6 +763,7 @@ void Realm_Socket::account_checked(AccountState state)
 void
 Realm_Socket::get_sessionkey(bool result)
 {
+  REALM_TRACE;
   if(!result)
     {
       this->die();  //Client displays "Session Expired" on its own.
@@ -783,6 +787,7 @@ Realm_Socket::get_sessionkey(bool result)
 void
 Realm_Socket::set_vs()
 {
+  REALM_TRACE;
   sRealm->get_db()->fix_sv(login);
   BIGNUM* I;
   BIGNUM* x;

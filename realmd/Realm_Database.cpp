@@ -113,7 +113,7 @@ RealmDB::increment_failed_logins(uint64 id)
 }
 
 void
-RealmDB::fix_sv(std::string login)
+RealmDB::fix_sv(std::string& login)
 {
     SqlOperationRequest* fix = new SqlOperationRequest(REALMD_DB_FIX_SV);
     fix->add_string(1, login.c_str());
@@ -121,7 +121,7 @@ RealmDB::fix_sv(std::string login)
 }
 
 void
-RealmDB::set_sv(std::string login, const char* s_str, const char* v_str)
+RealmDB::set_sv(std::string& login, const char* s_str, const char* v_str)
 {
   SqlOperationRequest* sv = new SqlOperationRequest(REALMD_DB_SET_S_V);
 
@@ -139,8 +139,8 @@ RealmDB::update_account(std::string login, std::string ip, uint8* K_buff)
 {
   SqlOperationRequest* op = new SqlOperationRequest(REALMD_DB_UPDATE_ACCOUNT);
   BIGNUM* K = BN_new();
-  std::reverse((uint8*)K_buff, (uint8*)K_buff + sizeof(K_buff));
-  BN_bin2bn(K_buff, sizeof(K_buff), K);
+  std::reverse((uint8*)K_buff, (uint8*)K_buff + 40);
+  BN_bin2bn(K_buff, 40, K);
   const char* K_hexb = BN_bn2hex(K);
   BN_free(K);
 
