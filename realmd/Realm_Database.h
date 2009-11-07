@@ -36,7 +36,7 @@
 #include <ace/Refcounted_Auto_Ptr.h>
 #include <openssl/bn.h>
 
-class Realm_Socket;
+using namespace Trinity::Realmd;
 
 namespace Trinity
 {

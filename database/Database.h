@@ -43,7 +43,14 @@
 
 namespace Trinity
 {
-
+  /**
+   * @brief Abstraction layer for accessing database.
+   * @details This namespace contains classes and structures
+   *          used while accessing database, regardless of its
+   *          storage backend. If you are interested in 
+   *          actual connectors, please see Trinity::SQL 
+   *          namespace.
+   */
 namespace DatabaseAccess
 {
 
