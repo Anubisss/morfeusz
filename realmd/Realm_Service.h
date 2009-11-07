@@ -37,13 +37,18 @@
 #include "Realm_Database.h"
 
 class ACE_Reactor;
-class Realm_Socket;
+
 
 using namespace Trinity::DatabaseAccess;
 
 namespace Trinity
 {
-
+  /**
+   * @brief Realm service's namespace
+   * @details Contains classes and interfaces used by Realm Service.
+   */
+namespace Realmd
+{
 typedef ACE_Acceptor<Realm_Socket, ACE_SOCK_ACCEPTOR> RealmdAcceptor;
 
 /**
@@ -117,6 +122,7 @@ class Realm_Service : public ACE_Task_Base
 };
 
 }
+}
 
 /**
  * @brief Prefix for log macro.
@@ -134,6 +140,6 @@ class Realm_Service : public ACE_Task_Base
  * @brief For clarity, rest of the code references realm service
  *        singleton as sRealm.
  */
-#define sRealm Trinity::Realm_Service::instance()
+#define sRealm Trinity::Realmd::Realm_Service::instance()
 #else
 #endif

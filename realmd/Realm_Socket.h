@@ -45,6 +45,8 @@ class ByteBuffer;
 namespace Trinity
 {
 
+namespace Realmd
+{
 /**
  * @brief Holds account information retrieved from database.
  * @see RealmDB::get_account(Realm_Sock_Ptr)
@@ -267,8 +269,8 @@ class Realm_Socket : public ACE_Svc_Handler<ACE_SOCK_STREAM, ACE_MT_SYNCH>
 /**
  *  @brief Use this type when refering to refcounted pointer to Realm_Socket
  */
-typedef ACE_Refcounted_Auto_Ptr<Realm_Socket, ACE_Recursive_Thread_Mutex> Realm_Sock_Ptr;
-
+typedef ACE_Refcounted_Auto_Ptr<Trinity::Realmd::Realm_Socket, ACE_Recursive_Thread_Mutex> Realm_Sock_Ptr;
+};
 };
 #else
 #endif

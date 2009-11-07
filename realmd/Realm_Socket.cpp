@@ -37,6 +37,8 @@
 
 namespace Trinity
 {
+namespace Realmd
+{
 enum eAuthCmd
   {
     //AUTH_NO_CMD                 = 0xFF,
@@ -853,4 +855,5 @@ Realm_Socket::send(ByteBuffer* pkt)
     }
   
 }
+};
 };

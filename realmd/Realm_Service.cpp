@@ -36,6 +36,8 @@
 
 namespace Trinity
 {
+namespace Realmd
+{
 void
 Realm_Service::start()
 {
@@ -118,4 +120,5 @@ Realm_Service::stop()
 
 }
 
+}
 }

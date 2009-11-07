@@ -30,6 +30,8 @@
 
 namespace Trinity
 {
+namespace Realmd
+{
   /**
    * @brief Timer that performs tasks for realmd
    * @details This class, being an inherit from ACE_Event_Handler
@@ -68,4 +70,5 @@ class Unban_Timer : public ACE_Event_Handler
   }
 };
 
+}
 }
