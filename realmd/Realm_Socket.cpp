@@ -430,28 +430,29 @@ Realm_Socket::handle_auth_logon_proof()
       this->state = STATUS_AUTHED;
     }
   else
-    {
-      REALM_LOG("Wrong password for user %s (%s)\n", this->login.c_str(), this->ip.c_str());
-      if(sConfig->getBool("realmd","WrongPassBan"))
-	{
-	  this->acct.failed_logins++;
-	  sRealm->get_db()->increment_failed_logins(this->acct.id);
-	  if(this->acct.failed_logins > ( sConfig->getInt("realmd","WrongPassAmnt") ) )
-	    {
-	      if(sConfig->getString("realmd", "WrongPassBanType").compare("ip"))
-		sRealm->get_db()->ban_failed_logins(this->acct.id);
-	      else
-		sRealm->get_db()->ban_failed_logins(this->ip);
-	    }
-	}
-      ByteBuffer buf(4);
-      buf << (uint8) AUTH_LOGON_CHALLENGE;
-      buf << (uint8) 0;
-      buf << (uint8) REALM_AUTH_NO_MATCH;
-      this->send(new ByteBuffer(buf));
-      this->die();
-    }
+     handle_failed_login();
   
+}
+
+void Realm_Socket::handle_failed_login()
+{
+  REALM_LOG("Wrong password for user %s (%s)\n", this->login.c_str(), this->ip.c_str());
+
+  if(!sConfig->getBool("realmd","WrongPassBan"))
+    return;
+
+  this->acct.failed_logins++;
+  sRealm->get_db()->increment_failed_logins(this->acct.id);
+  if(this->acct.failed_logins > ( sConfig->getInt("realmd","WrongPassAmnt") ) )
+  {
+    if(sConfig->getString("realmd", "WrongPassBanType").compare("ip"))
+      sRealm->get_db()->ban_failed_logins(this->acct.id);
+    else
+      sRealm->get_db()->ban_failed_logins(this->ip);
+    }
+  }
+  account_checked(ACCOUNT_NOTFOUND);
+  this->die();
 }
 
 void
@@ -590,15 +591,10 @@ Realm_Socket::ip_ban_checked(bool result)
 {
   REALM_TRACE;
   if(result)
-    {
-      ByteBuffer buf(3);
-      buf << (uint8) AUTH_LOGON_CHALLENGE;
-      buf << (uint8) 0x00;
-      buf << (uint8) REALM_AUTH_ACCOUNT_BANNED;
-      this->send(new ByteBuffer(buf));
-      return;
-    }
-  
+  {
+    account_checked(ACCOUNT_BANNED);
+    return;
+  }
   sRealm->get_db()->get_account(this->ptr);
   
 }
@@ -713,11 +709,20 @@ Realm_Socket::get_sessionkey(bool result)
 }
 
 void
-Realm_Socket::set_vs()
+Realm_Socket::fix_sv(std::string str)
 {
   SqlOperationRequest* fix = new SqlOperationRequest(REALMD_DB_FIX_SV);
-  fix->add_string(1, this->login.c_str());
-  sRealm->get_db()->enqueue_with_priority(fix, PRIORITY_HIGH);
+  if(fix)
+  {
+    fix->add_string(1, str.c_str());
+    sRealm->get_db()->enqueue_with_priority(fix, PRIORITY_HIGH);
+  }
+}
+
+void
+Realm_Socket::set_vs()
+{
+  fix_sv(login);
   BIGNUM* I;
   BIGNUM* x;
   uint8 x_ch[SHA_DIGEST_LENGTH] = {0};
@@ -741,7 +746,7 @@ Realm_Socket::set_vs()
 
   BN_bin2bn(x_ch, SHA_DIGEST_LENGTH, x);
   BN_mod_exp(this->v, this->g, x, this->N, this->ctx);  
-  
+
 
   SqlOperationRequest* sv = new SqlOperationRequest(REALMD_DB_SET_S_V);
   const char* s_str = BN_bn2hex(s);
