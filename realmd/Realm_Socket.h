@@ -214,8 +214,6 @@ class Realm_Socket : public ACE_Svc_Handler<ACE_SOCK_STREAM, ACE_MT_SYNCH>
    */
   void set_vs();
 
-  void fix_sv(std::string str);
-
   /**
    * @brief Called by Reactor when socket is available for read.
    */
@@ -263,7 +261,30 @@ class Realm_Socket : public ACE_Svc_Handler<ACE_SOCK_STREAM, ACE_MT_SYNCH>
    */
   BIGNUM* s, *v, *g, *N, *b, *B, *reconnect_proof;
 
+  /**
+  * @brief Called when password doesn't match
+  */
   void handle_failed_login();
+
+  /**
+  * @brief Builds REALM_LIST data packet for 1.12 build
+  */
+  ByteBuffer* build_realm_packet(std::map<uint8, uint8> realm_char_amount);
+
+  /**
+  * @brief Builds REALM_LIST data packet for 2.4.3 and 3.2.0 builds (till they have same structure)
+  */
+  ByteBuffer* build_expansion_realm_packet(std::map<uint8, uint8> realm_char_amount);
+
+  /**
+  * @brief Builds AUTH_LOGON_PROOF data packet for 1.12 build
+  */
+  ByteBuffer* build_logon_proof_packet(uint8* hamk_fin);
+
+  /**
+  * @brief Builds AUTH_LOGON_PROOF data packet for 2.4.3 and 3.2.0 builds (till they have same structure)
+  */
+  ByteBuffer* build_expansion_logon_proof_packet(uint8* hamk_fin);
 };
 
 /**

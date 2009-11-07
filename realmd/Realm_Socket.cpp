@@ -105,28 +105,6 @@ typedef struct AUTH_RECONNECT_PROOF_C
 #pragma pack(pop)
 #endif
 
-enum SupportedClientBuilds
-{
-    BUILD_1_12 = 5875,
-    BUILD_2_43 = 8606,
-    BUILD_3_20 = 10505
-};
-
-bool
-isSupportedClientBuild(int build)
-{
-    switch (build)
-    {
-        case BUILD_1_12:
-        case BUILD_2_43:
-        case BUILD_3_20:
-            return true;
-        default:
-            return false;
-    }
-    return false;
-}
-
 Realm_Socket::Realm_Socket()
   :ptr(this), out_active(false), state(STATUS_CONNECTED)
 {
@@ -406,34 +384,29 @@ Realm_Socket::handle_auth_logon_proof()
       SHA1_Update(&hamk, K_buff, sizeof(K_buff));
       SHA1_Final(&hamk_fin[0], &hamk);
 
-      SqlOperationRequest* op = new SqlOperationRequest(REALMD_DB_UPDATE_ACCOUNT);
-      BIGNUM* K = BN_new();
-      std::reverse((uint8*)K_buff, (uint8*)K_buff + sizeof(K_buff));
-      BN_bin2bn(K_buff,sizeof(K_buff),K);
-      const char* K_hexb = BN_bn2hex(K);
-      BN_free(K);
-      op->add_string(1, K_hexb);
-      free((void*)K_hexb);
-      op->add_string(2, this->ip.c_str());
-      op->add_uint8(3, 0);
-      op->add_string(4, this->login.c_str());
-      sRealm->get_db()->enqueue(op);
-      
-      ByteBuffer* pkt = new ByteBuffer(this->client_build == BUILD_1_12 ? 26 : 32);
-      *pkt << (uint8) AUTH_LOGON_PROOF;
-      *pkt << (uint8) 0;
-      pkt->append(hamk_fin, SHA_DIGEST_LENGTH);
-      if(this->client_build != BUILD_1_12)
-        *pkt << (uint32) 0x00800000;
-      *pkt << (uint32) 0;
-      if(this->client_build != BUILD_1_12)
-        *pkt << (uint16) 0;
-      this->send(pkt);
+      sRealm->get_db()->update_account(this->login, this->ip, K_buff);
+
+      ByteBuffer* data = NULL;
+      switch(this->client_build)
+      {
+        case BUILD_1_12:
+            data = this->build_logon_proof_packet(hamk_fin);
+            break;
+        case BUILD_2_43:
+        case BUILD_3_20:
+            data = this->build_expansion_logon_proof_packet(hamk_fin);
+            break;
+        default:
+            // it won't happen but...
+            REALM_LOG("Unsupported client build in handle_auth_logon_proof() when building logon proof packet!");
+            // something else to do here?
+            return;
+      }
+      this->send(data);
       this->state = STATUS_AUTHED;
     }
   else
-     handle_failed_login();
-  
+     this->handle_failed_login();
 }
 
 void
@@ -529,64 +502,138 @@ void
 Realm_Socket::get_char_amount(std::map<uint8, uint8> amnt)
 {
   REALM_TRACE;
-  realm_char_amount = amnt;
+  ByteBuffer* data = NULL;
+  switch(this->client_build)
+  {
+    case BUILD_1_12:
+        data = this->build_realm_packet(amnt);
+        break;
+    case BUILD_2_43:
+    case BUILD_3_20:
+        data = this->build_expansion_realm_packet(amnt);
+        break;
+    default:
+        // it won't happen but...
+        REALM_LOG("Unsupported client build in get_char_amount() when building realm list packet!");
+        // something else to do here?
+        return;
+  }
+
+  this->send(data);
+  this->set_vs();
+}
+
+ByteBuffer*
+Realm_Socket::build_realm_packet(std::map<uint8, uint8> realm_char_amount)
+{
   ByteBuffer* pkt = new ByteBuffer;
   std::map<uint8, Realm>* realmlist = sRealm->get_realmlist();
-  
+
   uint16 listSize=0;
   std::map<uint8, Realm>::const_iterator i;
   for(i = realmlist->begin(); i != realmlist->end(); i++)
     if(i->second.build == this->client_build)
       ++listSize;
-  
-  
+
   *pkt << (uint32) 0;
-  if(this->client_build == BUILD_1_12)
-    *pkt << (uint8) listSize;
-  else
-    *pkt << (uint16) listSize;
+  *pkt << (uint8) listSize;
+
   if (listSize > 0)
     for(i = realmlist->begin(); i != realmlist->end(); i++)
-      {
-        if (i->second.build != this->client_build)
-	  continue;
-	
-	*pkt << (uint8) i->second.icon;
-      if(this->client_build != BUILD_1_12)
-	*pkt << (uint8)(i->second.allowedSecurityLevel > this->acct.gmlevel ? 1:0);
+    {
+      if (i->second.build != this->client_build)
+        continue;
+
+      *pkt << (uint8) i->second.icon;
       *pkt << (uint8) i->second.color;
       *pkt << i->second.name;
       *pkt << i->second.address;
       *pkt << (float)i->second.population;
       if(this->realm_char_amount.find(i->first) != realm_char_amount.end())
-	*pkt << (uint8)this->realm_char_amount[i->first];
+        *pkt << (uint8)this->realm_char_amount[i->first];
       else
-	*pkt << (uint8) 0;
+        *pkt << (uint8) 0;
       *pkt << (uint8) i->second.timezone;
-      
-      *pkt << (uint8) 0x00;
-      
-      }
-  
-  if(this->client_build == BUILD_1_12)
-    {
-      *pkt << (uint8) 0x00;
-      *pkt << (uint8) 0x02;
-    }
-  else
-    {
-      *pkt << (uint8) 0x10;
       *pkt << (uint8) 0x00;
     }
-  
+  *pkt << (uint8) 0x00;
+  *pkt << (uint8) 0x02;
+
   ByteBuffer *data = new ByteBuffer;
   *data << (uint8)REALM_LIST;
   *data << (uint16) pkt->size();
   data->append(*pkt);
   delete pkt;
-  this->send(data);
-  this->set_vs();
-  
+  return data;
+}
+
+ByteBuffer*
+Realm_Socket::build_expansion_realm_packet(std::map<uint8, uint8> realm_char_amount)
+{
+  ByteBuffer* pkt = new ByteBuffer;
+  std::map<uint8, Realm>* realmlist = sRealm->get_realmlist();
+
+  uint16 listSize=0;
+  std::map<uint8, Realm>::const_iterator i;
+  for(i = realmlist->begin(); i != realmlist->end(); i++)
+    if(i->second.build == this->client_build)
+      ++listSize;
+
+  *pkt << (uint32) 0;
+  *pkt << (uint16) listSize;
+
+  if (listSize > 0)
+    for(i = realmlist->begin(); i != realmlist->end(); i++)
+    {
+      if (i->second.build != this->client_build)
+        continue;
+
+      *pkt << (uint8) i->second.icon;
+      *pkt << (uint8)(i->second.allowedSecurityLevel > this->acct.gmlevel ? 1:0);
+      *pkt << (uint8) i->second.color;
+      *pkt << i->second.name;
+      *pkt << i->second.address;
+      *pkt << (float)i->second.population;
+      if(this->realm_char_amount.find(i->first) != realm_char_amount.end())
+        *pkt << (uint8)this->realm_char_amount[i->first];
+      else
+        *pkt << (uint8) 0;
+      *pkt << (uint8) i->second.timezone;
+      *pkt << (uint8) 0x00;
+    }
+  *pkt << (uint8) 0x10;
+  *pkt << (uint8) 0x00;
+
+  ByteBuffer *data = new ByteBuffer;
+  *data << (uint8)REALM_LIST;
+  *data << (uint16) pkt->size();
+  data->append(*pkt);
+  delete pkt;
+  return data;
+}
+
+ByteBuffer*
+Realm_Socket::build_logon_proof_packet(uint8* hamk_fin)
+{
+  ByteBuffer* data = new ByteBuffer(26);
+  *data << (uint8) AUTH_LOGON_PROOF;
+  *data << (uint8) 0;
+  data->append(hamk_fin, SHA_DIGEST_LENGTH);
+  *data << (uint32) 0;
+  return data;
+}
+
+ByteBuffer*
+Realm_Socket::build_expansion_logon_proof_packet(uint8* hamk_fin)
+{
+  ByteBuffer* data = new ByteBuffer(32);
+  *data << (uint8) AUTH_LOGON_PROOF;
+  *data << (uint8) 0;
+  data->append(hamk_fin, SHA_DIGEST_LENGTH);
+  *data << (uint32) 0x00800000;
+  *data << (uint32) 0;
+  *data << (uint16) 0;
+  return data;
 }
 
 void
@@ -712,20 +759,9 @@ Realm_Socket::get_sessionkey(bool result)
 }
 
 void
-Realm_Socket::fix_sv(std::string str)
-{
-  SqlOperationRequest* fix = new SqlOperationRequest(REALMD_DB_FIX_SV);
-  if(fix)
-  {
-    fix->add_string(1, str.c_str());
-    sRealm->get_db()->enqueue_with_priority(fix, PRIORITY_HIGH);
-  }
-}
-
-void
 Realm_Socket::set_vs()
 {
-  fix_sv(login);
+  sRealm->get_db()->fix_sv(login);
   BIGNUM* I;
   BIGNUM* x;
   uint8 x_ch[SHA_DIGEST_LENGTH] = {0};
@@ -748,21 +784,10 @@ Realm_Socket::set_vs()
   std::reverse((uint8*)x_ch, (uint8*)x_ch + sizeof(x_ch));
 
   BN_bin2bn(x_ch, SHA_DIGEST_LENGTH, x);
-  BN_mod_exp(this->v, this->g, x, this->N, this->ctx);  
+  BN_mod_exp(this->v, this->g, x, this->N, this->ctx);
 
-
-  SqlOperationRequest* sv = new SqlOperationRequest(REALMD_DB_SET_S_V);
-  const char* s_str = BN_bn2hex(s);
-  const char* v_str = BN_bn2hex(v);
-  
-  sv->add_string(1, v_str);
-  sv->add_string(2, s_str);
-  sv->add_string(3, this->login.c_str());
-  sRealm->get_db()->enqueue(sv);
-  
+  sRealm->get_db()->set_sv(login, BN_bn2hex(s), BN_bn2hex(v));
   BN_free(x);
-  ACE_OS::free((void*)s_str);
-  ACE_OS::free((void*)v_str);
 }
 
 int

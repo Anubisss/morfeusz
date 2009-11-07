@@ -284,6 +284,10 @@ class RealmDB : public RealmDBInh
    *        Realm_Service to set its realmlist.
    */
   void get_realmlist();
+
+  void fix_sv(std::string login);
+  void set_sv(std::string login, const char* s_str, const char* v_str);
+  void update_account(std::string login, std::string ip, uint8* K_buff);
 };
 
 }
