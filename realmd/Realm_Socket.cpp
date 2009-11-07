@@ -173,7 +173,7 @@ Realm_Socket::open(void*)
 					     ACE_Event_Handler::READ_MASK) == -1 )
     return -1;
   this->ip.append(addr.get_host_addr());
-  REALM_LOG("Got connection from: %s (%s) \n", addr.get_host_name(), addr.get_host_addr());
+  REALM_LOG("Got connection from: %s (%s:%u) \n", addr.get_host_name(), addr.get_host_addr(), addr.get_port_number());
   
   return 0;
 }
