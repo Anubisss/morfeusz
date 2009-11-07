@@ -135,7 +135,7 @@ RealmDB::set_sv(std::string login, const char* s_str, const char* v_str)
 }
 
 void
-RealmDB::update_account(std::string login, std::string ip, uint8 K_buff)
+RealmDB::update_account(std::string login, std::string ip, uint8* K_buff)
 {
   SqlOperationRequest* op = new SqlOperationRequest(REALMD_DB_UPDATE_ACCOUNT);
   BIGNUM* K = BN_new();

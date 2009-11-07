@@ -727,7 +727,7 @@ Realm_Socket::set_vs()
   BN_bin2bn(x_ch, SHA_DIGEST_LENGTH, x);
   BN_mod_exp(this->v, this->g, x, this->N, this->ctx);
 
-  sRealm->get_db()->set_sv(login, BN_bn2hex(s), BN_bn2hex(v))
+  sRealm->get_db()->set_sv(login, BN_bn2hex(s), BN_bn2hex(v));
   BN_free(x);
 }
 
