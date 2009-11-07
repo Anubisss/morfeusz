@@ -460,7 +460,31 @@ Realm_Socket::handle_realm_list()
       this->die();
       return;
     }
-  sRealm->get_db()->get_char_amount(this->ptr);
+
+  if(this->realm_char_amount.size())
+    {
+      ByteBuffer* data;
+      switch(this->client_build)
+	{
+	case BUILD_1_12:
+	  data = this->build_realm_packet();
+	  break;
+	case BUILD_2_43:
+	case BUILD_3_20:
+	  data = this->build_expansion_realm_packet();
+	  break;
+	default:
+	  // it won't happen but...
+	  REALM_LOG("Unsupported client build in get_char_amount() when building realm list packet!");
+	  this->die();
+	  return;
+	}
+      this->send(data);
+    }
+  else
+    {
+      sRealm->get_db()->get_char_amount(this->ptr);
+    }
 }
 
 void
@@ -525,14 +549,15 @@ Realm_Socket::get_char_amount(std::map<uint8, uint8> amnt)
 {
   REALM_TRACE;
   ByteBuffer* data = NULL;
+  this->realm_char_amount = amnt;
   switch(this->client_build)
   {
     case BUILD_1_12:
-        data = this->build_realm_packet(amnt);
+        data = this->build_realm_packet();
         break;
     case BUILD_2_43:
     case BUILD_3_20:
-        data = this->build_expansion_realm_packet(amnt);
+        data = this->build_expansion_realm_packet();
         break;
     default:
         // it won't happen but...
@@ -546,7 +571,7 @@ Realm_Socket::get_char_amount(std::map<uint8, uint8> amnt)
 }
 
 ByteBuffer*
-Realm_Socket::build_realm_packet(std::map<uint8, uint8> realm_char_amount)
+Realm_Socket::build_realm_packet()
 {
   REALM_TRACE;
   ByteBuffer* pkt = new ByteBuffer;
@@ -591,43 +616,40 @@ Realm_Socket::build_realm_packet(std::map<uint8, uint8> realm_char_amount)
 }
 
 ByteBuffer*
-Realm_Socket::build_expansion_realm_packet(std::map<uint8, uint8> realm_char_amount)
+Realm_Socket::build_expansion_realm_packet()
 {
   REALM_TRACE;
   ByteBuffer* pkt = new ByteBuffer;
   std::map<uint8, Realm>* realmlist = sRealm->get_realmlist();
-
+  
   uint16 listSize=0;
   std::map<uint8, Realm>::const_iterator i;
   for(i = realmlist->begin(); i != realmlist->end(); i++)
     if(i->second.build == this->client_build)
       ++listSize;
-
-  *pkt << (uint32) 0;
+  
+  *pkt << (uint32) 0x00;
   *pkt << (uint16) listSize;
-
+  
   if (listSize > 0)
     for(i = realmlist->begin(); i != realmlist->end(); i++)
-    {
+      {
       if (i->second.build != this->client_build)
         continue;
-
+      
       *pkt << (uint8) i->second.icon;
       *pkt << (uint8)(i->second.allowedSecurityLevel > this->acct.gmlevel ? 1:0);
       *pkt << (uint8) i->second.color;
       *pkt << i->second.name;
       *pkt << i->second.address;
       *pkt << (float)i->second.population;
-      if(this->realm_char_amount.find(i->first) != realm_char_amount.end())
-        *pkt << (uint8)this->realm_char_amount[i->first];
-      else
-        *pkt << (uint8) 0;
+      *pkt << (uint8)this->realm_char_amount[i->first];
       *pkt << (uint8) i->second.timezone;
       *pkt << (uint8) 0x00;
     }
   *pkt << (uint8) 0x10;
   *pkt << (uint8) 0x00;
-
+  
   ByteBuffer *data = new ByteBuffer;
   *data << (uint8)REALM_LIST;
   *data << (uint16) pkt->size();
