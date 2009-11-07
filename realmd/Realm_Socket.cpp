@@ -406,19 +406,8 @@ Realm_Socket::handle_auth_logon_proof()
       SHA1_Update(&hamk, K_buff, sizeof(K_buff));
       SHA1_Final(&hamk_fin[0], &hamk);
 
-      SqlOperationRequest* op = new SqlOperationRequest(REALMD_DB_UPDATE_ACCOUNT);
-      BIGNUM* K = BN_new();
-      std::reverse((uint8*)K_buff, (uint8*)K_buff + sizeof(K_buff));
-      BN_bin2bn(K_buff,sizeof(K_buff),K);
-      const char* K_hexb = BN_bn2hex(K);
-      BN_free(K);
-      op->add_string(1, K_hexb);
-      free((void*)K_hexb);
-      op->add_string(2, this->ip.c_str());
-      op->add_uint8(3, 0);
-      op->add_string(4, this->login.c_str());
-      sRealm->get_db()->enqueue(op);
-      
+      sRealm->get_db()->update_account(this->login, this->ip, K_buff);
+
       ByteBuffer* pkt = new ByteBuffer(this->client_build == BUILD_1_12 ? 26 : 32);
       *pkt << (uint8) AUTH_LOGON_PROOF;
       *pkt << (uint8) 0;
@@ -711,20 +700,9 @@ Realm_Socket::get_sessionkey(bool result)
 }
 
 void
-Realm_Socket::fix_sv(std::string str)
-{
-  SqlOperationRequest* fix = new SqlOperationRequest(REALMD_DB_FIX_SV);
-  if(fix)
-  {
-    fix->add_string(1, str.c_str());
-    sRealm->get_db()->enqueue_with_priority(fix, PRIORITY_HIGH);
-  }
-}
-
-void
 Realm_Socket::set_vs()
 {
-  fix_sv(login);
+  sRealm->get_db()->fix_sv(login);
   BIGNUM* I;
   BIGNUM* x;
   uint8 x_ch[SHA_DIGEST_LENGTH] = {0};
@@ -747,21 +725,10 @@ Realm_Socket::set_vs()
   std::reverse((uint8*)x_ch, (uint8*)x_ch + sizeof(x_ch));
 
   BN_bin2bn(x_ch, SHA_DIGEST_LENGTH, x);
-  BN_mod_exp(this->v, this->g, x, this->N, this->ctx);  
+  BN_mod_exp(this->v, this->g, x, this->N, this->ctx);
 
-
-  SqlOperationRequest* sv = new SqlOperationRequest(REALMD_DB_SET_S_V);
-  const char* s_str = BN_bn2hex(s);
-  const char* v_str = BN_bn2hex(v);
-  
-  sv->add_string(1, v_str);
-  sv->add_string(2, s_str);
-  sv->add_string(3, this->login.c_str());
-  sRealm->get_db()->enqueue(sv);
-  
+  sRealm->get_db()->set_sv(login, BN_bn2hex(s), BN_bn2hex(v))
   BN_free(x);
-  ACE_OS::free((void*)s_str);
-  ACE_OS::free((void*)v_str);
 }
 
 int

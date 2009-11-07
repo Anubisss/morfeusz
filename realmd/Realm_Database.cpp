@@ -113,6 +113,47 @@ RealmDB::increment_failed_logins(uint64 id)
 }
 
 void
+RealmDB::fix_sv(std::string login)
+{
+    SqlOperationRequest* fix = new SqlOperationRequest(REALMD_DB_FIX_SV);
+    fix->add_string(1, login.c_str());
+    this->enqueue_with_priority(fix, PRIORITY_HIGH);
+}
+
+void
+RealmDB::set_sv(std::string login, const char* s_str, const char* v_str)
+{
+  SqlOperationRequest* sv = new SqlOperationRequest(REALMD_DB_SET_S_V);
+
+  sv->add_string(1, v_str);
+  sv->add_string(2, s_str);
+  sv->add_string(3, login.c_str());
+  this->enqueue(sv);
+
+  ACE_OS::free((void*)s_str);
+  ACE_OS::free((void*)v_str);
+}
+
+void
+RealmDB::update_account(std::string login, std::string ip, uint8 K_buff)
+{
+  SqlOperationRequest* op = new SqlOperationRequest(REALMD_DB_UPDATE_ACCOUNT);
+  BIGNUM* K = BN_new();
+  std::reverse((uint8*)K_buff, (uint8*)K_buff + sizeof(K_buff));
+  BN_bin2bn(K_buff, sizeof(K_buff), K);
+  const char* K_hexb = BN_bn2hex(K);
+  BN_free(K);
+
+  op->add_string(1, K_hexb);
+  free((void*)K_hexb);
+
+  op->add_string(2, ip.c_str());
+  op->add_uint8(3, 0);
+  op->add_string(4, login.c_str());
+  this->enqueue(op);
+}
+
+void
 RealmDB::check_ip_ban(Realm_Sock_Ptr conn)
 {
   if(conn.null())

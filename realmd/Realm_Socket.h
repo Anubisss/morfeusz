@@ -214,8 +214,6 @@ class Realm_Socket : public ACE_Svc_Handler<ACE_SOCK_STREAM, ACE_MT_SYNCH>
    */
   void set_vs();
 
-  void fix_sv(std::string str);
-
   /**
    * @brief Called by Reactor when socket is available for read.
    */
