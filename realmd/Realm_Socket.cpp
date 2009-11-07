@@ -434,7 +434,8 @@ Realm_Socket::handle_auth_logon_proof()
   
 }
 
-void Realm_Socket::handle_failed_login()
+void
+Realm_Socket::handle_failed_login()
 {
   REALM_LOG("Wrong password for user %s (%s)\n", this->login.c_str(), this->ip.c_str());
 
@@ -450,7 +451,6 @@ void Realm_Socket::handle_failed_login()
     else
       sRealm->get_db()->ban_failed_logins(this->ip);
     }
-  }
   account_checked(ACCOUNT_NOTFOUND);
   this->die();
 }
