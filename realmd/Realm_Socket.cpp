@@ -399,7 +399,7 @@ Realm_Socket::handle_auth_logon_proof()
         default:
             // it won't happen but...
             REALM_LOG("Unsupported client build in handle_auth_logon_proof() when building logon proof packet!");
-            // something else to do here?
+            this->die();
             return;
       }
       this->send(data);
@@ -514,7 +514,7 @@ Realm_Socket::get_char_amount(std::map<uint8, uint8> amnt)
     default:
         // it won't happen but...
         REALM_LOG("Unsupported client build in get_char_amount() when building realm list packet!");
-        // something else to do here?
+        this->die();
         return;
   }
 
