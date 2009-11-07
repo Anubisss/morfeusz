@@ -463,6 +463,7 @@ Realm_Socket::handle_realm_list()
   if(this->state != STATUS_AUTHED)
     {
       this->die();
+      return;
     }
   sRealm->get_db()->get_char_amount(this->ptr);
 }

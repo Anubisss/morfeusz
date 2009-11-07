@@ -44,8 +44,8 @@ using namespace Trinity::DatabaseAccess;
 namespace Trinity
 {
   /**
-   * @brief Realm service's namespace
-   * @details Contains classes and interfaces used by Realm Service.
+   * @brief %Realm service's namespace
+   * @details Contains classes and interfaces used by %Realm Service.
    */
 namespace Realmd
 {
