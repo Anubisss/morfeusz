@@ -121,13 +121,13 @@ class Realm_Socket : public ACE_Svc_Handler<ACE_SOCK_STREAM, ACE_MT_SYNCH>
   const std::string& get_login(){return login;}
 
   /**
-   * @brief Callback called from checkIpBanObsv 
+   * @brief %Callback called from checkIpBanObsv 
    * @param result Indicates wether IP is banned.
    */
   void ip_ban_checked(bool result);
 
   /**
-   * @brief Callback from checkAcctObsv
+   * @brief %Callback from checkAcctObsv
    *        by the time this callback is received, 
    *        Realm_Socket::acct should be set in case 
    *        account exists and is usable.
@@ -148,13 +148,13 @@ class Realm_Socket : public ACE_Svc_Handler<ACE_SOCK_STREAM, ACE_MT_SYNCH>
   Account acct;
 
   /**
-   * @brief Callback from getCharAmntObsv 
+   * @brief %Callback from getCharAmntObsv 
    * @param amnt Contains information about character amount
    */
   void get_char_amount(std::map<uint8, uint8> amnt);
 
   /**
-   * @brief Callback from getSessionKeyObsv
+   * @brief %Callback from getSessionKeyObsv
    * @param result True means we have sessionkey, false means we do not.
    */
   void get_sessionkey(bool result);
@@ -261,7 +261,30 @@ class Realm_Socket : public ACE_Svc_Handler<ACE_SOCK_STREAM, ACE_MT_SYNCH>
    */
   BIGNUM* s, *v, *g, *N, *b, *B, *reconnect_proof;
 
+  /**
+  * @brief Called when password doesn't match
+  */
   void handle_failed_login();
+
+  /**
+  * @brief Builds REALM_LIST data packet for 1.12 build
+  */
+  ByteBuffer* build_realm_packet(std::map<uint8, uint8> realm_char_amount);
+
+  /**
+  * @brief Builds REALM_LIST data packet for 2.4.3 and 3.2.0 builds (till they have same structure)
+  */
+  ByteBuffer* build_expansion_realm_packet(std::map<uint8, uint8> realm_char_amount);
+
+  /**
+  * @brief Builds AUTH_LOGON_PROOF data packet for 1.12 build
+  */
+  ByteBuffer* build_logon_proof_packet(uint8* hamk_fin);
+
+  /**
+  * @brief Builds AUTH_LOGON_PROOF data packet for 2.4.3 and 3.2.0 builds (till they have same structure)
+  */
+  ByteBuffer* build_expansion_logon_proof_packet(uint8* hamk_fin);
 };
 
 /**
