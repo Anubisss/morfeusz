@@ -109,22 +109,24 @@ enum SupportedClientBuilds
 {
     BUILD_1_12 = 5875,
     BUILD_2_43 = 8606,
+    BUILD_3_13 = 9947,
     BUILD_3_20 = 10505
 };
 
 bool
 isSupportedClientBuild(int build)
 {
-    switch (build)
+  switch (build)
     {
-        case BUILD_1_12:
-        case BUILD_2_43:
-        case BUILD_3_20:
-            return true;
-        default:
-            return false;
+    case BUILD_1_12:
+    case BUILD_2_43:
+    case BUILD_3_20:
+    case BUILD_3_13:
+      return true;
+    default:
+      return false;
     }
-    return false;
+  return false;
 }
 
 Realm_Socket::Realm_Socket()
@@ -415,6 +417,7 @@ Realm_Socket::handle_auth_logon_proof()
             data = this->build_logon_proof_packet(hamk_fin);
             break;
         case BUILD_2_43:
+        case BUILD_3_13:
         case BUILD_3_20:
             data = this->build_expansion_logon_proof_packet(hamk_fin);
             break;
