@@ -473,6 +473,7 @@ Realm_Socket::handle_realm_list()
 	  data = this->build_realm_packet();
 	  break;
 	case BUILD_2_43:
+	case BUILD_3_13:
 	case BUILD_3_20:
 	  data = this->build_expansion_realm_packet();
 	  break;
@@ -559,6 +560,7 @@ Realm_Socket::get_char_amount(std::map<uint8, uint8> amnt)
         data = this->build_realm_packet();
         break;
     case BUILD_2_43:
+    case BUILD_3_13:
     case BUILD_3_20:
         data = this->build_expansion_realm_packet();
         break;
