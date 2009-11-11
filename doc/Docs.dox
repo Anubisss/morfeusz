@@ -15,6 +15,7 @@
  * @section guides Build and Usage guides:
  * - @ref windows_build
  * - @ref linux_build
+ * - @ref tao_conf
  * @section links Further Reading:
  * - <a href="http://www.trinitycore.org"> Project's homepage </a>
  * - <a href="http://www.trinitycore.info"> Project's wiki, contains helpful DB table references</a> 
@@ -89,4 +90,39 @@
  </tt>
  \n
  To start compilation. We \b try to ensure that code you received compiles fine. If not, please report it to us.
+
+
+ @page tao_conf How to configure CORBA services?
+ 
+ @section tao_conf_toc Table Of Contents
+ - @ref tao_conf_wtf_is_ec
+ - @ref tao_conf_ec_sh
+ - @ref tao_conf_ec_conf
+ - @ref tao_conf_tc3_conf
+
+ @section tao_conf_wtf_is_ec What is Event Channel service?
+ Event Channel service is what makes TC3 comply to distributability and transparency goals. It allows us to notify other nodes in cluster of events, at the same time doing it transparently - so we are not concerned about where in the network (or memory) other nodes are located, unless they can reach Event Channel, they can be notified of what is needed. In simpler terms, Event Channel is a more sophisticated RSS for TC3 nodes, it notifies of events and passes data other nodes need to cooperate.\n Without an active Event Channel present in cluster, nodes will be unable to work properly, the service is \b required to run TC3.\n
+ TC3 comes along with handy scripts that make running Event Channel a simple task - default configuration is what 90% of cases will need, and we encourage you to use provided scripts and configuration.
+
+ @section tao_conf_ec_sh What should i change in ec.sh ?
+ Default ec.sh is a simple script that should be used for testing, or running cluster on one machine. It binds Event Channel to localhost:6555, runs one dispatch thread and goes on to do its work.\n
+ More advanced users will surely want to make Event Channel visible in network, in order to make networked nodes see it. -ORBEndPoint command switch is what you should modify then. If, for example you want to bind Event Channel to 192.168.1.5, port 9955, modify the line so it says:\n
+ <tt>
+ @verbatim
+ CosEvent_Service -x -ORBEndPoint iiop://192.168.1.5:9955 -ORBSvcConf ec.conf
+ @endverbatim
+ </tt>
+ It is as simple as that.\n
+ Other parameters should \b NOT be modified, unless you know what you are doing. But you wouldn't need that guide then, am i right? 
+ @section tao_conf_ec_conf What is ec.conf?
+ If you are running TC3 on one machine, or are not concerned about performance, you do not need to read that section. If you want to host enormous amounts of people, with lots of nodes in cluster, you will certainly need information in that section.\n
+ As every of TAO's services, Event Channel service is build around ACE's service configurator framework. Which means that first TAO invokes ACE configurator to create Event Channel Factory, which in order builds up our event channel. In order to modify inner-workings of Event Channel, we need to notify Event Channel Factory of what do we want from Event Channel. By default, Event Channel is pretty timid, so in environment with lots of nodes it may be underperforming, bringing overall cluster performance down. In order to counter that, a basic ec.conf file is provided with source code that you can modify to crank Event Channel up. We will go through settings that you may find useful in next paragraphs.\n
+ -CECDispatching mt This option enables multithreaded dispath strategy for event channel. It is enabled by default.\n
+ -CECDispatchingThreads 1 This indicates how many threads should be used to dispatch events. If you find that your Event Channel underperforms, try increasing that value.\n
+ -CECConsumerControl reactive This option makes Event Channel periodically check for event consumers that are not available, and removes them to increase performance and avoid blocking. In environment like TC3, where nodes can go online and offline a lot, this option saves us restarting of Event Channel.\n
+ -CECConsumerControlPeriod 1 Amount of time, in seconds, before a nonresponsive event consumer will be disconnected from Event Channel forcibly.\n
+ All this options are held in ec.conf, and if you feel you need to, try experimenting with default values. But be aware that unless you run a large cluster, with lots of networked nodes, you do not need to modify that file.
+
+ @section tao_conf_tc3_conf How to configure TC3 to communicate with Event Channel?
+ TBD...
 */
