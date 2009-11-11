@@ -680,11 +680,11 @@ Realm_Socket::build_expansion_logon_proof_packet(uint8* hamk_fin)
 {
   ByteBuffer* data = new ByteBuffer(32);
   *data << (uint8) AUTH_LOGON_PROOF;
-  *data << (uint8) 0;
+  *data << (uint8) LOGIN_OK;
   data->append(hamk_fin, SHA_DIGEST_LENGTH);
   *data << (uint32) 0x00800000;
-  *data << (uint32) 0;
-  *data << (uint16) 0;
+  *data << (uint32) 0x00;
+  *data << (uint16) 0x00;
   return data;
 }
 
@@ -729,11 +729,10 @@ void Realm_Socket::account_checked(AccountState state)
 	if(this->acct.locked == true)
 	  if(this->ip != this->acct.last_ip)
 	    {
-	      REALM_LOG("IP lock kicked in yo!\n");
 	      ByteBuffer buf(3);
 	      buf << (uint8) AUTH_LOGON_CHALLENGE;
 	      buf << (uint8) 0x00;
-	      buf << (uint8) REALM_AUTH_ACCOUNT_BANNED;
+	      buf << (uint8) REALM_AUTH_ACCOUNT_LOCKED;
 	      this->send(new ByteBuffer(buf));
 	      return;
 	    }
