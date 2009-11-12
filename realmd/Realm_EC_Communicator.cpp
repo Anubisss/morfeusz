@@ -34,6 +34,8 @@ namespace Realmd
 void
 EC_Communicator::connect()
 {
+  REALM_LOG("Connecting to Event Channel...\n");
+
   try
     {
       CORBA::Object_var _object = 
