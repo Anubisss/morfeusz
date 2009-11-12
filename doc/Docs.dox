@@ -123,7 +123,7 @@
  More advanced users will surely want to make Event Channel visible in network, in order to make networked nodes see it. -ORBEndPoint command switch is what you should modify then. If, for example you want to bind Event Channel to 192.168.1.5, port 9955, modify the line so it says:\n
  <tt>
  @verbatim
- CosEvent_Service -r -ORBEndPoint iiop://192.168.1.5:9955 -ORBSvcConf ec.conf
+ CosEvent_Service -r -ORBEndPoint iiop://192.168.1.5:9955 -ORBInitRef NameService=corbaloc:iiop:localhost:9966/NameService  -ORBSvcConf ec.conf
  @endverbatim
  </tt>
  It is as simple as that.\n
