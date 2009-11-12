@@ -42,6 +42,7 @@ module Trinity
      * @brief Address of proxy node, in ip:port form.
      */
     string address;
+    float load;
   };
 
   /**

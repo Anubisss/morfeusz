@@ -35,16 +35,23 @@ namespace Trinity
 namespace Realmd
 {
 
+  /**
+   * @brief This class is responsible for communicating with Event Channel
+   */
   class EC_Communicator : private virtual POA_CosEventComm::PushConsumer
-    {
-    public:
-      EC_Communicator(CORBA::ORB_ptr _orb):
-	orb(CORBA::ORB::_duplicate(_orb)){};
-      void connect();
-      virtual void push( const CORBA::Any &data){};
-      virtual void disconnect_push_consumer(){};
-    private:
-      CORBA::ORB_var orb;
+  {
+  public:
+    EC_Communicator(CORBA::ORB_ptr _orb):
+      orb(CORBA::ORB::_duplicate(_orb)){};
+    void connect();
+    virtual void push( const CORBA::Any &data);
+    virtual void disconnect_push_consumer();
+    void request_proxies_for_realm(uint8 id);
+  private:
+    CORBA::ORB_var orb;
+    CosEventChannelAdmin::ProxyPushConsumer_var pusher;
+    CosEventChannelAdmin::ProxyPushSupplier_var supplier_proxy;
+    PortableServer::POA_var poa;
   };
   
 };

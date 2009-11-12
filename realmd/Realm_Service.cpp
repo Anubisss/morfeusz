@@ -142,5 +142,45 @@ Realm_Service::stop()
 
 }
 
+void
+Realm_Service::add_proxy(uint8 realm, std::string ip, float load)
+{
+
+  std::pair<std::multimap<uint8, Proxy_Info>::iterator, 
+    std::multimap<uint8, Proxy_Info>::iterator> ret;  //Fuck you stl.
+  
+  std::multimap<uint8, Proxy_Info>::iterator itr;
+  ret = proxies.equal_range(realm);
+  
+  //Ignore nodes we know about.
+  for(itr = ret.first;itr != ret.second; ++itr)
+    if(!itr->second.ip.compare(ip))
+      {
+	itr->second.load = load;
+	return;
+      }
+  
+  Proxy_Info info;
+  info.ip = ip;
+  info.load = 0;
+  
 }
+
+void
+Realm_Service::add_proxy_load_report(std::string ip, float load)
+{
+
+  std::multimap<uint8, Proxy_Info>::iterator itr;
+  for(itr = proxies.begin();itr != proxies.end(); ++itr)
+    {
+      if(!itr->second.ip.compare(ip))
+	{
+	  itr->second.load = load;
+	  return;
+	}
+    }
+
 }
+
+};
+};

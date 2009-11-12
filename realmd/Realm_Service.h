@@ -31,6 +31,7 @@
 
 #ifndef sRealm
 #include <map>
+
 #include <ace/Singleton.h>
 #include <ace/Acceptor.h>
 #include <ace/SOCK_Acceptor.h>
@@ -68,6 +69,12 @@ struct Realm
   uint8 allowedSecurityLevel;
   float population;
   uint16 build;
+};
+
+struct Proxy_Info
+{
+  std::string ip;
+  float load;
 };
 
 /**
@@ -111,8 +118,13 @@ class Realm_Service : public ACE_Task_Base
    * @see getRealmListObsv
    */
   void update_realms(Trinity::SQL::ResultSet*);
+
+  void add_proxy(uint8 realm, std::string ip, float load);
+
+  void add_proxy_load_report(std::string ip, float load);
  private:
   std::map<uint8, Realm> realm_map;
+  std::multimap<uint8, Proxy_Info> proxies;
   Realm_Service(){}
   ACE_Reactor* reactor;
   RealmdAcceptor* acceptor;

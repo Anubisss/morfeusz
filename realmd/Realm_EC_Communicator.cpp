@@ -25,6 +25,7 @@
  */
 #include "Realm_Service.h"
 #include "Realm_EC_Communicator.h"
+#include "Proxy_EventsC.h"
 #include <orbsvcs/CosNamingC.h>
 
 namespace Trinity
@@ -51,16 +52,19 @@ EC_Communicator::connect()
 	CosEventChannelAdmin::EventChannel::_unchecked_narrow(naming_context->resolve(ec_name));
 
       _object = orb->resolve_initial_references("RootPOA");
-      PortableServer::POA_var poa = 
-	PortableServer::POA::_narrow(_object.in());
+      this->poa = PortableServer::POA::_narrow(_object.in());
       
       PortableServer::ObjectId_var oid = poa->activate_object(this);
       CORBA::Object_var consumer_obj = poa->id_to_reference(oid.in());
       
       CosEventComm::PushConsumer_var consumer = 
 	CosEventComm::PushConsumer::_unchecked_narrow(consumer_obj.in());
-      channel->for_consumers()->obtain_push_supplier()->connect_push_consumer(consumer);
-    
+      this->supplier_proxy = channel->for_consumers()->obtain_push_supplier();
+      this->supplier_proxy->connect_push_consumer(consumer);
+
+      this->pusher = channel->for_suppliers()->obtain_push_consumer();
+      this->pusher->connect_push_supplier(CosEventComm::PushSupplier::_nil());
+      
     }
   catch(CORBA::Exception &e)
     {
@@ -68,6 +72,46 @@ EC_Communicator::connect()
       return;
     }
   REALM_LOG("Connected to Event Channel.\n");
+}
+
+void
+EC_Communicator::request_proxies_for_realm(uint8 id)
+{
+  Trinity::Proxy_Request req;
+  req.realm_id = id;
+
+  CORBA::Any any;
+  any <<= req;
+  this->pusher->push(any);
+}
+
+void
+EC_Communicator::push(const CORBA::Any &data)
+{
+  
+  Trinity::Proxy_Announce* ann;
+  Trinity::Proxy_Load_Report* report;
+
+  if(data >>= ann)
+    {
+      sRealm->add_proxy(ann->realm_id, std::string(ann->address.out()),
+			ann->load);
+    }
+  else if(data >>= report)
+    {
+      sRealm->add_proxy_load_report(std::string(report->address.out()),
+				    report->load);
+    }
+  else 
+    {
+      REALM_LOG("Received unknown event type!\n");
+    }
+}
+
+void
+EC_Communicator::disconnect_push_consumer()
+{
+  this->supplier_proxy->disconnect_push_supplier ();
 }
 
 };
