@@ -30,9 +30,11 @@
 #include "Configuration.h"
 #include "Realm_Database.h"
 #include "Realm_Timer.h"
+#include "Realm_EC_Communicator.h"
 #include <sstream>
 #include <ace/TP_Reactor.h>
 #include <ace/Dev_Poll_Reactor.h>
+#include <ace/ARGV.h>
 
 namespace Trinity
 {
@@ -65,10 +67,26 @@ Realm_Service::start()
   this->database = new RealmDB(sConfig->getInt("realmd", "DBThreads"));
   this->database->open(sConfig->getString("realmd", "DBengine"),sConfig->getString("realmd", "DBUrl") );
   this->database->get_realmlist();
+
+  ACE_ARGV *orb_args = new ACE_ARGV;
+  orb_args->add("");
+  orb_args->add("-ORBInitRef");
+  std::string str = "NameService=";
+  str += sConfig->getString("corba","NSLocation");
+  str += "/NameService";
+  orb_args->add(str.c_str());
+  int argc = orb_args->argc();
+  REALM_LOG("%s\n", str.c_str());
+  this->orb = CORBA::ORB_init(argc, orb_args->argv(),NULL);
+  delete orb_args;
+  event_channel = new EC_Communicator(this->orb.in());
+  event_channel->connect();
+
   this->is_running = true;
   this->activate(THR_NEW_LWP | THR_JOINABLE, sConfig->getInt("realmd", "NetThreads"));
   this->reactor->schedule_timer(new Realm_Timer(), 0, tm, tm);
   this->reactor->schedule_timer(new Unban_Timer(), 0, ACE_Time_Value(1), ACE_Time_Value(60));
+  REALM_LOG("Started\n");
   ACE_Thread_Manager::instance()->wait();
   return;
 }
@@ -106,8 +124,12 @@ int
 Realm_Service::svc()
 {
   while(this->is_running)
-    this->reactor->handle_events();
-  
+    {
+      if(this->reactor->work_pending())
+	this->reactor->handle_events();
+      if(this->orb->work_pending())
+	this->orb->perform_work();
+    }
   return 0;
 }
 

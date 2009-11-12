@@ -34,6 +34,7 @@
 #include <ace/Singleton.h>
 #include <ace/Acceptor.h>
 #include <ace/SOCK_Acceptor.h>
+#include <tao/corba.h>
 #include "Realm_Database.h"
 
 class ACE_Reactor;
@@ -50,6 +51,8 @@ namespace Trinity
 namespace Realmd
 {
 typedef ACE_Acceptor<Realm_Socket, ACE_SOCK_ACCEPTOR> RealmdAcceptor;
+
+  class EC_Communicator;
 
 /**
  * @brief This structure is used to pass information
@@ -115,6 +118,8 @@ class Realm_Service : public ACE_Task_Base
   RealmdAcceptor* acceptor;
   RealmDB* database;
 
+  CORBA::ORB_var orb;
+  EC_Communicator* event_channel;
   /**
    * @brief Used to indicate service's status.
    */

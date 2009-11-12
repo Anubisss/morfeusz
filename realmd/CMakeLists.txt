@@ -5,6 +5,7 @@ set(realmd_SRCS
   Realm_Socket.h
   Realm_Database.h
   Realm_Database.cpp
+  Realm_EC_Communicator.cpp
   )
 
 include_directories(
@@ -19,4 +20,8 @@ target_link_libraries(
   trinityconfig
   trinitydatabase
   ${OPENSSL_LIBRARIES}
+  ${TAO_LIBRARY}
+  ${TAO_PortableServer_LIB}
+  ${TAO_CosEvent_Skel_LIB}
+  ${TAO_CosNaming_LIB}
   )
