@@ -39,6 +39,13 @@ ELSE(SQLITE3_FOUND)
   MESSAGE(STATUS "Couldn't find SQLite3 include files and/or library")
 ENDIF(SQLITE3_FOUND)
 
+find_package(TAO)
+if(TAO_FOUND)
+message(STATUS "TAO found: ${TAO_INCLUDE_DIR}, ${TAO_LIBRARY}")
+else(TAO_FOUND)
+message(SEND_ERROR "Couldn't find TAO!")
+endif(TAO_FOUND)
+
 add_custom_target(doc cd ${trinitycore3_SOURCE_DIR} && doxygen ${trinitycore3_SOURCE_DIR}/Doxyfile)
 
 if(WIN32)
