@@ -96,6 +96,8 @@
  
  @section tao_conf_toc Table Of Contents
  - @ref tao_conf_wtf_is_ec
+ - @ref tao_conf_wtf_is_ns
+ - @ref tao_conf_ns_conf
  - @ref tao_conf_ec_sh
  - @ref tao_conf_ec_conf
  - @ref tao_conf_tc3_conf
@@ -104,12 +106,24 @@
  Event Channel service is what makes TC3 comply to distributability and transparency goals. It allows us to notify other nodes in cluster of events, at the same time doing it transparently - so we are not concerned about where in the network (or memory) other nodes are located, unless they can reach Event Channel, they can be notified of what is needed. In simpler terms, Event Channel is a more sophisticated RSS for TC3 nodes, it notifies of events and passes data other nodes need to cooperate.\n Without an active Event Channel present in cluster, nodes will be unable to work properly, the service is \b required to run TC3.\n
  TC3 comes along with handy scripts that make running Event Channel a simple task - default configuration is what 90% of cases will need, and we encourage you to use provided scripts and configuration.
 
+ @section tao_conf_wtf_is_ns What is Naming Service?
+ Naming Service lets CORBA services find themself over network. This service is needed for TC3 to find Event Channel in cluster. TC3 comes with simple ns.sh script that runs Naming Service with state data file, and bind point at localhost.
+
+ @section tao_conf_ns_conf How to configure Naming Service?
+ If you want to host a TC3 cluster that is distributed across network, you need to modify ns.sh to supply binding network interface binding for Naming Service. For example:\n
+ <tt>
+ @verbtim
+ Naming_Service -f state.dat -ORBEndpoint iiop://192.168.1.14:9966 -m 1
+ @endverbatim
+ </tt>
+ It will make Name Service available from network to other TC3 nodes. To compliment that change, you need to reconfigure each TC3 node in cluster. For this, see @ref tao_conf_tc3_conf.
+
  @section tao_conf_ec_sh What should i change in ec.sh ?
  Default ec.sh is a simple script that should be used for testing, or running cluster on one machine. It binds Event Channel to localhost:6555, runs one dispatch thread and goes on to do its work.\n
  More advanced users will surely want to make Event Channel visible in network, in order to make networked nodes see it. -ORBEndPoint command switch is what you should modify then. If, for example you want to bind Event Channel to 192.168.1.5, port 9955, modify the line so it says:\n
  <tt>
  @verbatim
- CosEvent_Service -x -ORBEndPoint iiop://192.168.1.5:9955 -ORBSvcConf ec.conf
+ CosEvent_Service -r -ORBEndPoint iiop://192.168.1.5:9955 -ORBSvcConf ec.conf
  @endverbatim
  </tt>
  It is as simple as that.\n
@@ -120,9 +134,9 @@
  -CECDispatching mt This option enables multithreaded dispath strategy for event channel. It is enabled by default.\n
  -CECDispatchingThreads 1 This indicates how many threads should be used to dispatch events. If you find that your Event Channel underperforms, try increasing that value.\n
  -CECConsumerControl reactive This option makes Event Channel periodically check for event consumers that are not available, and removes them to increase performance and avoid blocking. In environment like TC3, where nodes can go online and offline a lot, this option saves us restarting of Event Channel.\n
- -CECConsumerControlPeriod 1 Amount of time, in seconds, before a nonresponsive event consumer will be disconnected from Event Channel forcibly.\n
+ -CECConsumerControlPeriod  Amount of time, in microseconds, before a nonresponsive event consumer will be disconnected from Event Channel forcibly.\n
  All this options are held in ec.conf, and if you feel you need to, try experimenting with default values. But be aware that unless you run a large cluster, with lots of networked nodes, you do not need to modify that file.
 
  @section tao_conf_tc3_conf How to configure TC3 to communicate with Event Channel?
- TBD...
+ TC3's trinity.conf file contains section "corba", which carries NSLocation setting. It should be set accordingly to ORBEndpoint option on your Name Service.
 */
