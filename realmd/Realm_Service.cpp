@@ -130,6 +130,7 @@ Realm_Service::svc()
       if(this->orb->work_pending())
 	this->orb->perform_work();
     }
+
   return 0;
 }
 

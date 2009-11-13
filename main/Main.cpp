@@ -2,9 +2,11 @@
 #include <ace/Arg_Shifter.h>
 #include <ace/ARGV.h>
 #include <ace/Process_Manager.h>
+#include <ace/Time_Value.h>
 
 #include "Service_Manager.h"
 #include "Realm_Service.h"
+#include "Proxy_Service.h"
 
 #if PLATFORM == PLATFORM_WIN32
 extern "C"
@@ -32,7 +34,8 @@ ACE_TMAIN(int argc, char* argv[])
     }
   else if (ACE_OS::strcmp(args.argv()[1], "rungamed") == 0)
     {
-      // game/proxy service
+      sProxy->start();
+      return 0;
     }
 
   //If we got to this point, it means we are not in slave mode. Yay!
@@ -50,10 +53,19 @@ ACE_TMAIN(int argc, char* argv[])
 	{
 	  sServiceManager->run_realmd();
 	}
+      else 
+	if(ACE_OS::strcmp(shifty.get_current(), "-proxy") == 0)
+	  {
+	    sServiceManager->run_proxyd();
+	  }
       
       shifty.consume_arg();
     }
-
-  ACE_Process_Manager::instance()->wait(); // for now.
-
+  ACE_Time_Value time;
+  time.sec(1);
+  while(1)
+    {
+      ACE_Process_Manager::instance()->wait(time); // for now.
+      sServiceManager->update_services();
+    }
 }

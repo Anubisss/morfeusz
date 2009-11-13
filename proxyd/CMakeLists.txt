@@ -1,0 +1,16 @@
+set(proxyd_SRCS
+  Proxy_Service.h
+  Proxy_Service.cpp
+  Proxy_Socket.h
+  Proxy_Socket.cpp
+  )
+
+include_directories(
+  ${CMAKE_SOURCE_DIR}/configuration
+  )
+
+add_library(proxyd STATIC ${proxyd_SRCS})
+target_link_libraries(
+  proxyd
+  trinityconfig
+  )

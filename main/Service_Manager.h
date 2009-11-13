@@ -32,6 +32,7 @@ class Service_Manager
  public:
   ACE_ARGV args;
   bool run_realmd();
+  bool run_proxyd();
   void update_services();
   static Service_Manager* instance(){return ACE_Singleton<Service_Manager, ACE_Thread_Mutex>::instance();}
  private:

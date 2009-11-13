@@ -24,6 +24,28 @@ Service_Manager::run_realmd()
   
 }
 
+bool
+Service_Manager::run_proxyd()
+{
+  ACE_ARGV proxyd_args;
+  proxyd_args.add(this->args.argv()[0]);
+  proxyd_args.add("rungamed");
+
+  ACE_Process_Manager* pmgr = ACE_Process_Manager::instance();
+  ACE_Process_Options pop;
+  pop.command_line(proxyd_args.argv());
+  pid_t proxyd_pid = pmgr->spawn(pop);
+  if(proxyd_pid == ACE_INVALID_PID)
+    {
+      return false;
+    }
+  ServiceInfo* si = new ServiceInfo(proxyd_pid);
+  this->svcs.insert(std::pair<TrinityServices, ServiceInfo*>(GAMESERVER,si));
+  ACE_DEBUG((LM_DEBUG,"Proxyd runs at pid %u\n", proxyd_pid));
+  return true;
+
+}
+
 void 
 Service_Manager::update_services()
 {
@@ -64,10 +86,17 @@ Service_Manager::update_services()
 	    {
 	    case LOGINSERVER:
 	      this->run_realmd();
+	      ACE_DEBUG((LM_DEBUG,"Restarting Realm Service\n"));
+	      break;
+	    case GAMESERVER:
+	      this->run_proxyd();
+	      ACE_DEBUG((LM_DEBUG,"Restarting Realm Service\n"));
 	      break;
 	    default:
 	      break;
 	    }
+	  svcs.erase(iter);
+	  continue;
 	}
 
     }

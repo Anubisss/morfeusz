@@ -5,6 +5,7 @@ SET(main_SRCS
 
 include_directories(
   ${CMAKE_SOURCE_DIR}/realmd
+  ${CMAKE_SOURCE_DIR}/proxyd
   ${CMAKE_SOURCE_DIR}/database
   ${CMAKE_SOURCE_DIR}/common
   )
@@ -15,6 +16,7 @@ target_link_libraries(
   trinity
   trinitydatabase
   realmd
+  proxyd
   ${ACE_LIBRARY}
   )
 
