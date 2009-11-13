@@ -57,7 +57,7 @@ Service_Manager::update_services()
       if (iter->second->status == OFF)
 	continue;
       bool is_dead = false;
-      char* path = new char[ 6 + 6 + 5];
+      char path[ 6 + 6 + 5];
       ACE_OS::sprintf(path,"/proc/%u/stat", iter->second->pid);
       ACE_HANDLE status_file = ACE_OS::open(path, GENERIC_READ);
       
@@ -72,7 +72,7 @@ Service_Manager::update_services()
 	  strtok(buf,delim);
 	  strtok(NULL,delim);
 	  char * status = strtok(NULL, delim);
-	  delete buf;
+	  delete[] buf;
 	  if (*status == 'Z')
 	    {
 	      is_dead = true;
