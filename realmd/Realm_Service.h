@@ -80,7 +80,7 @@ struct Proxy_Info
 /**
  * @brief Realm Daemon service
  * @details This class is providing logon server
- *          functionality. It starts and shuts down networking
+ *          functionality. It starts and shuts down networking,
  *          database connections and is responsible for 
  *          load balancing players across Game Servers.
  */

@@ -18,9 +18,9 @@
 
 /**
  *  @file
- *  @brief   <brief>
- *  @author  <author> <<email>>
- *  @date    <date>
+ *  @brief   Realmd::EC_Communicator implementation.
+ *  @author  raczman <raczman@gmail.com>
+ *  @date    2009-11-13
  *
  */
 #include "Realm_Service.h"
