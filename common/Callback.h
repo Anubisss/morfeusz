@@ -53,6 +53,8 @@ public:
 	}
       else
 	{
+	  if(object.null())
+	    return;
 	  C* objPtr = NULL;
 	  objPtr = object.get();
 	  if(objPtr)
