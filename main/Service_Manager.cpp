@@ -28,6 +28,48 @@ void
 Service_Manager::update_services()
 {
 
-  
+  std::map<TrinityServices, ServiceInfo*>::iterator iter;
+
+  for(iter = svcs.begin();iter != svcs.end(); iter++)
+    {
+      if (iter->second->status == OFF)
+	continue;
+      bool is_dead = false;
+      char* path = new char[ 6 + 6 + 5];
+      ACE_OS::sprintf(path,"/proc/%u/stat", iter->second->pid);
+      ACE_HANDLE status_file = ACE_OS::open(path, GENERIC_READ);
+      
+      if (status_file == ACE_INVALID_HANDLE)
+	is_dead = true;
+      
+      if (!is_dead)
+	{
+	  char *buf = new char[100]; //please excuse me this waste of bytes.
+	  char delim[] = " ";
+	  ACE_OS::read(status_file,buf,100);
+	  strtok(buf,delim);
+	  strtok(NULL,delim);
+	  char * status = strtok(NULL, delim);
+	  delete buf;
+	  if (*status == 'Z')
+	    {
+	      is_dead = true;
+	      ACE_OS::kill(iter->second->pid, SIGKILL);
+	    }
+	}
+
+      if(is_dead)
+	{
+	  switch(iter->first)
+	    {
+	    case LOGINSERVER:
+	      this->run_realmd();
+	      break;
+	    default:
+	      break;
+	    }
+	}
+
+    }
 
 }
