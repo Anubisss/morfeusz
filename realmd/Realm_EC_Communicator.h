@@ -43,9 +43,25 @@ namespace Realmd
   public:
     EC_Communicator(CORBA::ORB_ptr _orb):
       orb(CORBA::ORB::_duplicate(_orb)){};
+
+    /**
+     * @brief Connects to event channel.
+     */
     void connect();
+
+    /**
+     * @brief This function receives data pushed by other nodes
+     */
     virtual void push( const CORBA::Any &data);
+
+    /**
+     * @brief called by event channel when we are disconnected from channel
+     */
     virtual void disconnect_push_consumer();
+
+    /**
+     * @brief Realm Service calls this function to poll for proxy nodes
+     */
     void request_proxies_for_realm(uint8 id);
   private:
     CORBA::ORB_var orb;

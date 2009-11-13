@@ -111,6 +111,7 @@ EC_Communicator::push(const CORBA::Any &data)
 void
 EC_Communicator::disconnect_push_consumer()
 {
+  REALM_LOG("WARNING: Disconnected from Event Channel!\n");
   this->supplier_proxy->disconnect_push_supplier ();
 }
 
