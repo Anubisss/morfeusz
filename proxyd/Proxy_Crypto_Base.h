@@ -24,6 +24,9 @@
  *
  */
 
+#include "Common.h"
+#include <openssl/bn.h>
+
 namespace Trinity
 {
 namespace Proxyd
@@ -48,6 +51,11 @@ class Proxy_Crypto_Base
    * @brief Decrypts received data.
    */
   virtual void decrypt(uint8* data, size_t len) = 0;
+
+  /**
+   * @brief Sets key for encryption algorithm.
+   */
+  virtual void set_key(BIGNUM* key) = 0;
 };
 
 };

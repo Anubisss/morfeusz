@@ -24,6 +24,8 @@
  *
  */
 
+#include "Common.h"
+
 namespace Trinity
 {
 namespace Proxyd

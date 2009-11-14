@@ -24,7 +24,11 @@
  *
  */
 
-#include "../Proxy_Crypto_Base.h"
+#include "Proxy_Crypto_Base.h"
+#include "Crypto_Keys.h"
+
+#include <openssl/hmac.h>
+#include <openssl/sha.h>
 
 namespace Trinity
 {
@@ -34,8 +38,17 @@ namespace Proxyd
 class Proxy_Crypto : public Proxy_Crypto_Base
 {
  public:
-  void encrypt(uint8* data, size_t len){}
-  void decrypt(uint8* data, size_t len){}
+  Proxy_Crypto();
+  void encrypt(uint8* data, size_t len);
+  void decrypt(uint8* data, size_t len);
+  void set_key(BIGNUM* key);
+ private:
+  const static uint8 CRYPTED_SEND_LEN = 4;
+  const static uint8 CRYPTED_RECV_LEN = 6;
+  uint8 key[SHA_DIGEST_LENGTH];
+  bool is_initialised;
+  uint8 send_i, send_j;
+  uint8 recv_i, recv_j;
 };
 
 };
