@@ -3,12 +3,14 @@ set(proxyd_SRCS
   Proxy_Service.cpp
   Proxy_Socket.h
   Proxy_Socket.cpp
+  ${_CLIENT_BUILD}/Proxy_Crypto.cpp
   )
 
 include_directories(
   ${CMAKE_SOURCE_DIR}/configuration
   ${CMAKE_SOURCE_DIR}/common
   ${CMAKE_SOURCE_DIR}/proxyd/${_CLIENT_BUILD}
+  ${CMAKE_SOURCE_DIR}/proxyd
   )
 
 add_library(proxyd STATIC ${proxyd_SRCS})
