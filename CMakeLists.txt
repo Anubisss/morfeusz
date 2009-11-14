@@ -9,6 +9,19 @@ cmake_minimum_required(VERSION 2.6 FATAL_ERROR)
 
 FIND_LIBRARY(SSLLIB NAMES ssl DOC "SSL library")
 
+#Client versions to build for:
+# 0 - prebc
+# 1 - tbc
+# 2 - wlk
+
+#OPTION(_CLIENT_BUILD "Client to build for" tbc)
+
+if(_CLIENT_BUILD)
+message(STATUS "Will build for client version: ${_CLIENT_BUILD}")
+else()
+message(SEND_ERROR "Please specify client build to compile for! (-D_CLIENT_BUILD=\"build\")\n Available builds:\n prebc \n tbc\n wlk")
+endif()
+
 if(OPENSSL_FOUND)
   message(STATUS "Found openssl")
 else(OPENSSL_FOUND)
