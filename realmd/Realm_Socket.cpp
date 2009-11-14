@@ -701,7 +701,8 @@ Realm_Socket::ip_ban_checked(bool result)
   
 }
 
-void Realm_Socket::account_checked(AccountState state)
+void 
+Realm_Socket::account_checked(AccountState state)
 {
   REALM_TRACE;
   switch(state)
