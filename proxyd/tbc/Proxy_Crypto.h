@@ -31,7 +31,7 @@ namespace Trinity
 namespace Proxyd
 {
 
-class TBC_Crypto : public Proxy_Crypto_Base
+class Proxy_Crypto : public Proxy_Crypto_Base
 {
  public:
   void encrypt(uint8* data, size_t len){}

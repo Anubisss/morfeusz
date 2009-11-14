@@ -33,7 +33,7 @@ namespace Proxyd
 {
 
 Proxy_Socket::Proxy_Socket()
-  :ptr(this)
+  :ptr(this), crypto(new Proxy_Crypto)
 {}
 
 int
