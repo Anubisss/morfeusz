@@ -43,9 +43,24 @@ class Proxy_Crypto : public Proxy_Crypto_Base
   void decrypt(uint8* data, size_t len);
   void set_key(BIGNUM* key);
  private:
+  /**
+   * @brief Header size for TBC server->client packets.
+   */
   const static uint8 CRYPTED_SEND_LEN = 4;
+  
+  /**
+   * @brief Header size for TBC client->server packets.
+   */
   const static uint8 CRYPTED_RECV_LEN = 6;
+
+  /**
+   * @brief Encryption key.
+   */
   uint8 key[SHA_DIGEST_LENGTH];
+
+  /**
+   * @brief We use this variable to check if key was set.
+   */
   bool is_initialised;
   uint8 send_i, send_j;
   uint8 recv_i, recv_j;

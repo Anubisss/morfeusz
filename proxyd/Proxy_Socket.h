@@ -55,7 +55,8 @@ typedef ACE_Refcounted_Auto_Ptr<Trinity::Proxyd::Proxy_Socket, ACE_Recursive_Thr
 class Proxy_Socket : public ACE_Svc_Handler<ACE_SOCK_STREAM, ACE_MT_SYNCH>
 {
 public:
-  Proxy_Socket();  
+  Proxy_Socket();
+  ~Proxy_Socket();
   int open(void*);
   int close(u_long);
   int handle_input(ACE_HANDLE);
@@ -64,7 +65,8 @@ public:
 private:
   void die();
   Proxy_Sock_Ptr ptr;
-  
+  size_t expected_data;
+  char raw_buf[4096];
   std::list<ByteBuffer*> packet_queue;
   ACE_Recursive_Thread_Mutex queue_mtx;
 

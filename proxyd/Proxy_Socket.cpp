@@ -33,8 +33,15 @@ namespace Proxyd
 {
 
 Proxy_Socket::Proxy_Socket()
-  :ptr(this), crypto(new Proxy_Crypto)
-{}
+  :ptr(this), crypto(new Proxy_Crypto),expected_data(0)
+{
+  ACE_OS::memset(this->raw_buf, 0, 4096);
+}
+
+Proxy_Socket::~Proxy_Socket()
+{
+  delete crypto;
+}
 
 int
 Proxy_Socket::open(void*)
