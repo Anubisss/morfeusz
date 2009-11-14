@@ -18,66 +18,26 @@
 
 /**
  *  @file
- *  @brief   Proxy_Socket class implementation.
+ *  @brief   Contains encryption keys used by different client versions.
  *  @author  raczman <raczman@gmail.com>
- *  @date    2009-11-13
+ *  @date    2009-11-14
  *
  */
-#include "Proxy_Socket.h"
-#include "Proxy_Service.h"
-#include "Proxy_Crypto.h"
 
 namespace Trinity
 {
 namespace Proxyd
 {
+#define SEED_KEY_SIZE 16
 
-Proxy_Socket::Proxy_Socket()
-  :ptr(this)
-{}
+static uint8 tbc_encryption_key[SEED_KEY_SIZE] =   { 0x38, 0xA7, 0x83, 0x15, 0xF8, 0x92, 0x25, 0x30, 
+						     0x71, 0x98, 0x67, 0xB1, 0x8C, 0x04, 0xE2, 0xAA };
 
-int
-Proxy_Socket::open(void*)
-{
-  
-  return sProxy->get_reactor()->
-    register_handler(this, ACE_Event_Handler::READ_MASK);
-						
-}
+static uint8 wlk_encryption_key[SEED_KEY_SIZE] = { 0x22, 0xBE, 0xE5, 0xCF, 0xBB, 0x07, 0x64, 0xD9, 
+						   0x00, 0x45, 0x1B, 0xD0, 0x24, 0xB8, 0xD5, 0x45 };
 
-int
-Proxy_Socket::close(u_long)
-{
-  this->die();
-  return 0;
-}
-
-int
-Proxy_Socket::handle_input(ACE_HANDLE)
-{
-  return 0;
-}
-
-int
-Proxy_Socket::handle_output(ACE_HANDLE)
-{
-  return 0;
-}
-
-int
-Proxy_Socket::handle_close(ACE_HANDLE, ACE_Reactor_Mask mask)
-{
-  if(mask == ACE_Event_Handler::WRITE_MASK)
-    return 0;
-  this->die();
-  return 0;
-}
-
-void
-Proxy_Socket::die()
-{
-  this->ptr.release();
-}
+static uint8 wlk_decryption_key[SEED_KEY_SIZE] =  { 0xF4, 0x66, 0x31, 0x59, 0xFC, 0x83, 0x6E, 0x31, 
+						    0x31, 0x02, 0x51, 0xD5, 0x44, 0x31, 0x67, 0x98 };
 
 };
 };

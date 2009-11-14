@@ -30,12 +30,18 @@
 #include <ace/Svc_Handler.h>
 #include <ace/SOCK_Stream.h>
 #include <ace/Refcounted_Auto_Ptr.h>
+#include <openssl/hmac.h>
+#include <openssl/sha.h>
+#include <openssl/bn.h>
+
 #include "ByteBuffer.h"
+
 
 namespace Trinity
 {
 namespace Proxyd
 {
+class Proxy_Crypto;
 class Proxy_Socket;
 typedef ACE_Refcounted_Auto_Ptr<Trinity::Proxyd::Proxy_Socket, ACE_Recursive_Thread_Mutex> Proxy_Sock_Ptr;
   
@@ -61,6 +67,11 @@ private:
   
   std::list<ByteBuffer*> packet_queue;
   ACE_Recursive_Thread_Mutex queue_mtx;
+
+  /**
+   * @brief Encryption interface.
+   */
+  Proxy_Crypto* crypto;
 };
 
 };

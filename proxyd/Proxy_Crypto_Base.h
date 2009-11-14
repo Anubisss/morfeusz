@@ -18,66 +18,37 @@
 
 /**
  *  @file
- *  @brief   Proxy_Socket class implementation.
+ *  @brief   Abstract class for packet encryption.
  *  @author  raczman <raczman@gmail.com>
- *  @date    2009-11-13
+ *  @date    2009-11-14
  *
  */
-#include "Proxy_Socket.h"
-#include "Proxy_Service.h"
-#include "Proxy_Crypto.h"
 
 namespace Trinity
 {
 namespace Proxyd
 {
 
-Proxy_Socket::Proxy_Socket()
-  :ptr(this)
-{}
-
-int
-Proxy_Socket::open(void*)
+  /**
+   * @brief Base class for encryption.
+   * @details Encryption method varies across versions,
+   *          so to preserve flexibility we use abstract
+   *          class that will have to be implemented in 
+   *          version specific encryption classes.
+   */
+class Proxy_Crypto_Base
 {
-  
-  return sProxy->get_reactor()->
-    register_handler(this, ACE_Event_Handler::READ_MASK);
-						
-}
-
-int
-Proxy_Socket::close(u_long)
-{
-  this->die();
-  return 0;
-}
-
-int
-Proxy_Socket::handle_input(ACE_HANDLE)
-{
-  return 0;
-}
-
-int
-Proxy_Socket::handle_output(ACE_HANDLE)
-{
-  return 0;
-}
-
-int
-Proxy_Socket::handle_close(ACE_HANDLE, ACE_Reactor_Mask mask)
-{
-  if(mask == ACE_Event_Handler::WRITE_MASK)
-    return 0;
-  this->die();
-  return 0;
-}
-
-void
-Proxy_Socket::die()
-{
-  this->ptr.release();
-}
+ public:
+  /**
+   * @brief Encrypts data sent to client.
+   */
+  virtual void encrypt(uint8* data, size_t len) = 0;
+ 
+  /**
+   * @brief Decrypts received data.
+   */
+  virtual void decrypt(uint8* data, size_t len) = 0;
+};
 
 };
 };
