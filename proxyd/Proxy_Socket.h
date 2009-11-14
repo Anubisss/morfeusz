@@ -26,18 +26,41 @@
 #ifndef PROXY_SOCKET_H
 #define PROXY_SOCKET_H
 
+#include <list>
 #include <ace/Svc_Handler.h>
 #include <ace/SOCK_Stream.h>
 #include <ace/Refcounted_Auto_Ptr.h>
+#include "ByteBuffer.h"
 
 namespace Trinity
 {
 namespace Proxyd
 {
-
+class Proxy_Socket;
+typedef ACE_Refcounted_Auto_Ptr<Trinity::Proxyd::Proxy_Socket, ACE_Recursive_Thread_Mutex> Proxy_Sock_Ptr;
+  
+  /**
+   * @brief Network socket for Proxy Service.
+   * @details As this class is based on ACE's handler class,
+   *          there are elements that are common with 
+   *          Trinity::Realmd::Realm_Socket class.
+   * @sa Trinity::Realmd::Realm_Socket          
+   */
 class Proxy_Socket : public ACE_Svc_Handler<ACE_SOCK_STREAM, ACE_MT_SYNCH>
 {
-
+public:
+  Proxy_Socket();  
+  int open(void*);
+  int close(u_long);
+  int handle_input(ACE_HANDLE);
+  int handle_output(ACE_HANDLE);
+  int handle_close(ACE_HANDLE, ACE_Reactor_Mask);
+private:
+  void die();
+  Proxy_Sock_Ptr ptr;
+  
+  std::list<ByteBuffer*> packet_queue;
+  ACE_Recursive_Thread_Mutex queue_mtx;
 };
 
 };

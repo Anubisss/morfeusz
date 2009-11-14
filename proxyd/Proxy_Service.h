@@ -58,6 +58,7 @@ public:
   void stop();
   static Proxy_Service* instance(){return ACE_Singleton<Proxy_Service, ACE_Recursive_Thread_Mutex>::instance();}
   int svc();
+  ACE_Reactor* get_reactor(){return this->reactor;}
 private:
   Proxy_Service(){}
   ACE_Reactor* reactor;

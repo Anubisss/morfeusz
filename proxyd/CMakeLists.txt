@@ -7,6 +7,7 @@ set(proxyd_SRCS
 
 include_directories(
   ${CMAKE_SOURCE_DIR}/configuration
+  ${CMAKE_SOURCE_DIR}/common
   )
 
 add_library(proxyd STATIC ${proxyd_SRCS})
