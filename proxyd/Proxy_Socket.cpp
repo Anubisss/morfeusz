@@ -26,6 +26,9 @@
 #include "Proxy_Socket.h"
 #include "Proxy_Service.h"
 #include "Proxy_Crypto.h"
+#include "Util.h"
+
+using namespace Utils::ByteConverter;
 
 namespace Trinity
 {
@@ -62,6 +65,26 @@ Proxy_Socket::close(u_long)
 int
 Proxy_Socket::handle_input(ACE_HANDLE)
 {
+  if(!expected_data)  // We are not expecting new data.
+    {
+      size_t bytes_read = this->peer().recv(this->raw_buf, 4096);
+      ClientPktHeader* header= ((ClientPktHeader*)this->raw_buf);
+
+      this->crypto->decrypt(this->raw_buf, sizeof(ClientPktHeader));
+
+      Utils::EndianConvertReverse(header->size);
+      Utils::EndianConvert(header->cmd);
+      PROXY_LOG("CMD: %u SIZE: %u \n",header->cmd, header->size);
+      if(bytes_read == ((ClientPktHeader*)this->raw_buf)->size + 6)
+	{
+	  PROXY_LOG("Received packet at once\n");
+	}
+    }
+  else
+    {
+
+    }
+
   return 0;
 }
 
@@ -69,6 +92,7 @@ int
 Proxy_Socket::handle_output(ACE_HANDLE)
 {
   return 0;
+
 }
 
 int

@@ -41,6 +41,31 @@ namespace Trinity
 {
 namespace Proxyd
 {
+
+#if defined( __GNUC__ )
+#pragma pack(1)
+#else
+#pragma pack(push,1)
+#endif
+
+struct ServerPktHeader
+{
+  uint16 size;
+  uint16 cmd;
+};
+
+struct ClientPktHeader
+{
+  uint16 size;
+  uint32 cmd;
+};
+
+#if defined( __GNUC__ )
+#pragma pack()
+#else
+#pragma pack(pop)
+#endif
+
 class Proxy_Crypto;
 class Proxy_Socket;
 typedef ACE_Refcounted_Auto_Ptr<Trinity::Proxyd::Proxy_Socket, ACE_Recursive_Thread_Mutex> Proxy_Sock_Ptr;
@@ -66,10 +91,10 @@ private:
   void die();
   Proxy_Sock_Ptr ptr;
   size_t expected_data;
-  char raw_buf[4096];
+  uint8 raw_buf[4096];
   std::list<ByteBuffer*> packet_queue;
   ACE_Recursive_Thread_Mutex queue_mtx;
-
+  
   /**
    * @brief Encryption interface.
    */
