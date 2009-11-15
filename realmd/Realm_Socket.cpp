@@ -600,7 +600,16 @@ Realm_Socket::build_realm_packet()
       *pkt << (uint8) i->second.icon;
       *pkt << (uint8) i->second.color;
       *pkt << i->second.name;
-      *pkt << i->second.address;
+      
+      if(i->second.address == ":")
+	{
+	  *pkt << sRealm->get_proxy_for_realm(i->first);
+	}
+      else
+	{
+	  *pkt << i->second.address;
+	}
+
       *pkt << (float)i->second.population;
       if(this->realm_char_amount.find(i->first) != realm_char_amount.end())
         *pkt << (uint8)this->realm_char_amount[i->first];
@@ -646,7 +655,16 @@ Realm_Socket::build_expansion_realm_packet()
       *pkt << (uint8)(i->second.allowedSecurityLevel > this->acct.gmlevel ? 1:0);
       *pkt << (uint8) i->second.color;
       *pkt << i->second.name;
-      *pkt << i->second.address;
+
+      if(i->second.address == ":")
+	{
+	  *pkt << sRealm->get_proxy_for_realm(i->first);
+	}
+      else
+	{
+	  *pkt << i->second.address;
+	}
+
       *pkt << (float)i->second.population;
       *pkt << (uint8)this->realm_char_amount[i->first];
       *pkt << (uint8) i->second.timezone;

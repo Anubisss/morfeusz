@@ -115,6 +115,12 @@ Realm_Service::update_realms(Trinity::SQL::ResultSet* res)
       rlm.build = res->getUint16(10);
       id = res->getUint32(1);
       this->realm_map[id] = rlm;
+
+      if(rlm.address == ":")
+	{
+	  if(this->proxies.find(id) == proxies.end())
+	    this->event_channel->request_proxies_for_realm(id);
+	}
       REALM_LOG("Added realm %s (ID: %u) %f\n",rlm.name.c_str(), res->getUint8(1), rlm.population);
     }
 
@@ -181,6 +187,23 @@ Realm_Service::add_proxy_load_report(std::string ip, float load)
 	}
     }
 
+}
+
+std::string 
+Realm_Service::get_proxy_for_realm(uint8 id)
+{
+  std::multimap<uint8, Proxy_Info>::iterator ret, itr;
+  std::pair< std::multimap<uint8, Proxy_Info>::iterator,
+    std::multimap<uint8, Proxy_Info>::iterator > proxies_for_realm;
+
+  proxies_for_realm = this->proxies.equal_range(id);
+  ret = proxies_for_realm.first;
+  for(itr = ret; itr != proxies_for_realm.second; itr++)
+    {
+      if(itr->second.load < ret->second.load)
+	ret = itr;
+    }
+  return ret->second.ip;
 }
 
 };

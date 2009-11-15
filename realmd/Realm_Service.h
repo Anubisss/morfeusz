@@ -122,6 +122,8 @@ class Realm_Service : public ACE_Task_Base
   void add_proxy(uint8 realm, std::string ip, float load);
 
   void add_proxy_load_report(std::string ip, float load);
+
+  std::string get_proxy_for_realm(uint8 id);
  private:
   std::map<uint8, Realm> realm_map;
   std::multimap<uint8, Proxy_Info> proxies;
