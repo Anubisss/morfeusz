@@ -49,10 +49,15 @@ Proxy_Socket::~Proxy_Socket()
 int
 Proxy_Socket::open(void*)
 {
+  if(sProxy->load == 1)
+    return -1;
   
-  return sProxy->get_reactor()->
-    register_handler(this, ACE_Event_Handler::READ_MASK);
-						
+  sProxy->update_connections(true);
+  if(sProxy->get_reactor()->
+     register_handler(this, ACE_Event_Handler::READ_MASK) == -1)
+    return -1;
+  
+  return 0;
 }
 
 int
@@ -107,6 +112,7 @@ Proxy_Socket::handle_close(ACE_HANDLE, ACE_Reactor_Mask mask)
 void
 Proxy_Socket::die()
 {
+  sProxy->update_connections(false);
   this->ptr.release();
 }
 

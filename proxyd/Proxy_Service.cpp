@@ -40,6 +40,10 @@ Proxy_Service::start()
 {
   //Boilerplate code goes in here.
   PROXY_LOG("Starting...\n");
+
+  this->load = 0;
+  this->connection_limit = sConfig->getInt("proxyd","ConnectionLimit");
+  this->current_connections = 0;
   
   #if defined (ACE_HAS_EVENT_POLL) || defined (ACE_HAS_DEV_POLL)
   this->reactor = new ACE_Reactor(new ACE_Dev_Poll_Reactor());
@@ -48,7 +52,7 @@ Proxy_Service::start()
   this->reactor = new ACE_Reactor(new ACE_TP_Reactor(), 1);
 #endif
   this->acceptor = new ProxydAcceptor();
-
+  
   if(this->acceptor->
      open(ACE_INET_Addr(sConfig->getString("proxyd","BindAddr").c_str()),
 	  this->reactor) == -1)
@@ -101,6 +105,18 @@ Proxy_Service::svc()
 	this->reactor->handle_events();
     }
   return 0;
+}
+
+void
+Proxy_Service::update_connections(bool change)
+{
+  if(change)
+    this->current_connections++;
+  else
+    this->current_connections--;
+
+  this->load = this->current_connections.value() / this->connection_limit;
+
 }
 
 };

@@ -28,6 +28,7 @@
 #define PROXY_SERVICE_H
 
 #include <tao/ORB.h>
+#include <ace/Atomic_Op.h>
 #include <ace/Singleton.h>
 #include <ace/Task.h>
 #include <ace/Acceptor.h>
@@ -46,7 +47,7 @@ namespace Proxyd
 {
   typedef ACE_Acceptor<Proxy_Socket, ACE_SOCK_ACCEPTOR> ProxydAcceptor;
   class EC_Communicator;
-
+  typedef ACE_Atomic_Op<ACE_Recursive_Thread_Mutex, uint32> tsafe_uint32;
   /**
    * @brief Proxy service main class.
    * @details Most of it is same as in Realm_Service
@@ -62,13 +63,22 @@ public:
   static Proxy_Service* instance(){return ACE_Singleton<Proxy_Service, ACE_Recursive_Thread_Mutex>::instance();}
   int svc();
   ACE_Reactor* get_reactor(){return this->reactor;}
+
+  /**
+   * @brief Helps keep track of opened connections.
+   * @param change true for +1, false for -1
+   */
+  void update_connections(bool change);
+  float load;
 private:
   Proxy_Service(){}
+  tsafe_uint32 current_connections;
   ACE_Reactor* reactor;
   ProxydAcceptor* acceptor;
   bool is_running;
   CORBA::ORB_var orb;
   EC_Communicator* event_channel;
+  uint16 connection_limit;
 };
 
 };
