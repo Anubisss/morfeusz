@@ -18,25 +18,26 @@
 
 /**
  *  @file
- *  @brief   Realmd::EC_Communicator implementation.
- *  @author  raczman <raczman@gmail.com>
- *  @date    2009-11-13
+ *  @brief   <brief>
+ *  @author  <author> <<email>>
+ *  @date    <date>
  *
  */
-#include "Realm_Service.h"
-#include "Realm_EC_Communicator.h"
-#include "Proxy_EventsC.h"
+
+#include "Proxy_Service.h"
+#include "Proxyd_EC_Communicator.h"
 #include <orbsvcs/CosNamingC.h>
 
 namespace Trinity
 {
-namespace Realmd
+namespace Proxyd
 {
+
 void
 EC_Communicator::connect()
   try
     {
-      REALM_LOG("Connecting to Event Channel...\n");
+      PROXY_LOG("Connecting to Event Channel...\n");
       CORBA::Object_var _object = 
 	orb->resolve_initial_references("NameService");
       CosNaming::NamingContext_var naming_context = 
@@ -62,54 +63,27 @@ EC_Communicator::connect()
 
       this->pusher = channel->for_suppliers()->obtain_push_consumer();
       this->pusher->connect_push_supplier(CosEventComm::PushSupplier::_nil());
-      REALM_LOG("Connected to Event Channel.\n");
+      PROXY_LOG("Connected to Event Channel.\n");
     }
   catch(CORBA::Exception &e)
     {
-      REALM_LOG("Couldn't connect to Event Channel!\nException thrown was of type: %s\n",e._name());
+      PROXY_LOG("Couldn't connect to Event Channel!\nException thrown was of type: %s\n",e._name());
       return;
     }
 
 void
-EC_Communicator::request_proxies_for_realm(uint8 id)
-{
-  Trinity::Proxy_Request req;
-  req.realm_id = id;
-
-  CORBA::Any any;
-  any <<= req;
-  this->pusher->push(any);
-}
-
-void
-EC_Communicator::push(const CORBA::Any &data)
-{
-  
-  Trinity::Proxy_Announce* ann;
-  Trinity::Proxy_Load_Report* report;
-
-  if(data >>= ann)
-    {
-      sRealm->add_proxy(ann->realm_id, std::string(ann->address.out()),
-			ann->load);
-    }
-  else if(data >>= report)
-    {
-      sRealm->add_proxy_load_report(std::string(report->address.out()),
-				    report->load);
-    }
-  else 
-    {
-      REALM_LOG("Received unknown event type!\n");
-    }
-}
-
-void
 EC_Communicator::disconnect_push_consumer()
-{
-  REALM_LOG("WARNING: Disconnected from Event Channel!\n");
-  this->supplier_proxy->disconnect_push_supplier ();
-}
+  try
+    {
+      PROXY_LOG("WARNING: Disconnected from Event Channel!\n");
+      this->supplier_proxy->disconnect_push_supplier ();
+    }
+  catch(CORBA::Exception &e)
+    {
+      return;
+    }
+
+
 
 };
 };

@@ -26,8 +26,10 @@
 
 #include <ace/Thread_Manager.h>
 #include <ace/Dev_Poll_Reactor.h>
+#include <ace/ARGV.h>
 #include "Configuration.h"
 #include "Proxy_Service.h"
+#include "Proxyd_EC_Communicator.h"
 
 namespace Trinity
 {
@@ -56,6 +58,30 @@ Proxy_Service::start()
       delete this->acceptor;
       return;
     }
+
+  ACE_ARGV* orb_args = new ACE_ARGV;
+
+  try
+    {
+      orb_args->add("");
+      orb_args->add("-ORBInitRef");
+      std::string str = "NameService=";
+      str += sConfig->getString("corba","NSLocation");
+      str += "/NameService";
+      int argc = orb_args->argc();
+      this->orb = CORBA::ORB_init(argc, orb_args->argv(), NULL);
+      //Although EC_Communicator catches exceptions, we dont wanna call
+      //its functions in case of a CORBA exception.
+      this->event_channel = new EC_Communicator(this->orb.in());
+      this->event_channel->connect();
+    }
+  catch(CORBA::Exception &e)
+    {
+      delete orb_args;
+      return;
+    }
+
+  delete orb_args;
 
   this->is_running = true;
   this->activate(THR_NEW_LWP | THR_JOINABLE,

@@ -27,11 +27,13 @@
 #ifndef PROXY_SERVICE_H
 #define PROXY_SERVICE_H
 
+#include <tao/ORB.h>
 #include <ace/Singleton.h>
 #include <ace/Task.h>
 #include <ace/Acceptor.h>
 #include <ace/SOCK_Acceptor.h>
 #include "Proxy_Socket.h"
+
 
 class ACE_Reactor;
 
@@ -43,6 +45,7 @@ namespace Trinity
 namespace Proxyd
 {
   typedef ACE_Acceptor<Proxy_Socket, ACE_SOCK_ACCEPTOR> ProxydAcceptor;
+  class EC_Communicator;
 
   /**
    * @brief Proxy service main class.
@@ -64,6 +67,8 @@ private:
   ACE_Reactor* reactor;
   ProxydAcceptor* acceptor;
   bool is_running;
+  CORBA::ORB_var orb;
+  EC_Communicator* event_channel;
 };
 
 };
