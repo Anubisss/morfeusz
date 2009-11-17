@@ -6,6 +6,8 @@ set(proxyd_SRCS
   Proxyd_EC_Communicator.h
   Proxyd_EC_Communicator.cpp
   ${_CLIENT_BUILD}/Proxy_Crypto.cpp
+  ${CMAKE_SOURCE_DIR}/proxyd/Proxy_EventsC.h
+  ${CMAKE_SOURCE_DIR}/proxyd/Proxy_EventsC.cpp
   )
 
 include_directories(
@@ -17,7 +19,19 @@ include_directories(
   ${CMAKE_SOURCE_DIR}/proxyd
   )
 
+add_custom_target(proxyd_idl 
+  ${TAO_IDL_COMPILER} ${CMAKE_SOURCE_DIR}/idl/Proxy_Events.idl 
+  WORKING_DIRECTORY ${CMAKE_SOURCE_DIR}/proxyd)
+
+set_source_files_properties( 
+  Proxy_EventsC.cpp
+  Proxy_EventsC.h
+  PROPERTIES
+  GENERATED TRUE
+  LANGUAGE CXX)
+
 add_library(proxyd STATIC ${proxyd_SRCS})
+add_dependencies(proxyd proxyd_idl)
 target_link_libraries(
   proxyd
   trinityconfig

@@ -7,6 +7,7 @@ set(realmd_SRCS
   Realm_Database.cpp
   Realm_EC_Communicator.cpp
   #we need ${CMAKE_SOURCE_DIR} for generated files.
+  ${CMAKE_SOURCE_DIR}/realmd/Proxy_EventsC.h
   ${CMAKE_SOURCE_DIR}/realmd/Proxy_EventsC.cpp
   )
 
@@ -15,9 +16,11 @@ include_directories(
   ${CMAKE_SOURCE_DIR}/database
   ${CMAKE_SOURCE_DIR}/common
   )
+
 add_custom_target(realmd_idl 
   ${TAO_IDL_COMPILER} ${CMAKE_SOURCE_DIR}/idl/Proxy_Events.idl 
   WORKING_DIRECTORY ${CMAKE_SOURCE_DIR}/realmd)
+
 set_source_files_properties( 
   Proxy_EventsC.cpp
   PROPERTIES
