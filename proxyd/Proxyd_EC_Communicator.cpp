@@ -26,6 +26,8 @@
 
 #include "Proxy_Service.h"
 #include "Proxyd_EC_Communicator.h"
+#include "Proxy_EventsC.h"
+#include "Configuration.h"
 #include <orbsvcs/CosNamingC.h>
 
 namespace Trinity
@@ -63,6 +65,8 @@ EC_Communicator::connect()
 
       this->pusher = channel->for_suppliers()->obtain_push_consumer();
       this->pusher->connect_push_supplier(CosEventComm::PushSupplier::_nil());
+      poa->the_POAManager()->activate();
+
       PROXY_LOG("Connected to Event Channel.\n");
     }
   catch(CORBA::Exception &e)
@@ -83,7 +87,35 @@ EC_Communicator::disconnect_push_consumer()
       return;
     }
 
+void
+EC_Communicator::announce()
+  try
+    {
+      Trinity::Proxy_Announce ann;
+      ann.realm_id = sProxy->get_realmid();
+      ann.address = CORBA::string_dup(sConfig->getString("proxyd","BindAddr").c_str());
+      ann.load = sProxy->load;
+      
+      CORBA::Any any;
+      any <<= ann;
+      this->pusher->push(any);
+    }
+  catch(CORBA::Exception &e)
+    {
+      PROXY_LOG("Exception thrown!\n");
+      return;
+    }
 
+void
+EC_Communicator::push( const CORBA::Any &data)
+  try
+    {
+      PROXY_LOG("Received data\n");
+    }
+  catch(CORBA::Exception &e)
+    {
+
+    }
 
 };
 };

@@ -82,6 +82,7 @@ Realm_Service::start()
   event_channel = new EC_Communicator(this->orb.in());
   event_channel->connect();
 
+
   this->is_running = true;
   this->activate(THR_NEW_LWP | THR_JOINABLE, sConfig->getInt("realmd", "NetThreads"));
   this->reactor->schedule_timer(new Realm_Timer(), 0, tm, tm);
@@ -129,14 +130,19 @@ Realm_Service::update_realms(Trinity::SQL::ResultSet* res)
 int 
 Realm_Service::svc()
 {
+  ACE_Time_Value tm;
+  
   while(this->is_running)
     {
+      tm.msec(100);
       if(this->reactor->work_pending())
-	this->reactor->handle_events();
+	this->reactor->run_event_loop(tm);
+      tm.msec(100);    
       if(this->orb->work_pending())
-	this->orb->perform_work();
+	{
+	  this->orb->run(tm);
+	}
     }
-
   return 0;
 }
 
@@ -170,13 +176,14 @@ Realm_Service::add_proxy(uint8 realm, std::string ip, float load)
   Proxy_Info info;
   info.ip = ip;
   info.load = 0;
-  
+  proxies.insert(std::pair<uint8, Proxy_Info>(realm,info));
+  REALM_LOG("Received new proxy server for realm %u: %s\n",realm,ip.c_str());  
 }
 
 void
 Realm_Service::add_proxy_load_report(std::string ip, float load)
 {
-
+  REALM_LOG("%s\n",__PRETTY_FUNCTION__);
   std::multimap<uint8, Proxy_Info>::iterator itr;
   for(itr = proxies.begin();itr != proxies.end(); ++itr)
     {

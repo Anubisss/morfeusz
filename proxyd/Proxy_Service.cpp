@@ -43,7 +43,9 @@ Proxy_Service::start()
 
   this->load = 0;
   this->connection_limit = sConfig->getInt("proxyd","ConnectionLimit");
+  this->realm_id = sConfig->getInt("proxyd","RealmID");
   this->current_connections = 0;
+  
   
   #if defined (ACE_HAS_EVENT_POLL) || defined (ACE_HAS_DEV_POLL)
   this->reactor = new ACE_Reactor(new ACE_Dev_Poll_Reactor());
@@ -78,6 +80,7 @@ Proxy_Service::start()
       //its functions in case of a CORBA exception.
       this->event_channel = new EC_Communicator(this->orb.in());
       this->event_channel->connect();
+      this->event_channel->announce();
     }
   catch(CORBA::Exception &e)
     {
@@ -98,11 +101,18 @@ Proxy_Service::start()
 int
 Proxy_Service::svc()
 {
-
+  ACE_Time_Value tm;
+  tm.msec(100);
   while(this->is_running)
     {
+      tm.msec(100);
       if(this->reactor->work_pending())
-	this->reactor->handle_events();
+	this->reactor->run_event_loop(tm);
+      tm.msec(100);
+      if(this->orb->work_pending())
+	{
+	  this->orb->run(tm);
+	}
     }
   return 0;
 }

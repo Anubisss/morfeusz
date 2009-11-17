@@ -38,7 +38,7 @@ namespace Realmd
   /**
    * @brief This class is responsible for communicating with Event Channel
    */
-  class EC_Communicator : private virtual POA_CosEventComm::PushConsumer
+  class EC_Communicator : public POA_CosEventComm::PushConsumer
   {
   public:
     EC_Communicator(CORBA::ORB_ptr _orb):
@@ -52,12 +52,12 @@ namespace Realmd
     /**
      * @brief This function receives data pushed by other nodes
      */
-    virtual void push( const CORBA::Any &data);
+    void push( const CORBA::Any &data);
 
     /**
      * @brief called by event channel when we are disconnected from channel
      */
-    virtual void disconnect_push_consumer();
+    void disconnect_push_consumer();
 
     /**
      * @brief Realm Service calls this function to poll for proxy nodes

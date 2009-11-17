@@ -69,6 +69,8 @@ public:
    * @param change true for +1, false for -1
    */
   void update_connections(bool change);
+  
+  uint8 get_realmid(){return this->realm_id;}
   float load;
 private:
   Proxy_Service(){}
@@ -79,6 +81,7 @@ private:
   CORBA::ORB_var orb;
   EC_Communicator* event_channel;
   uint16 connection_limit;
+  uint8 realm_id;
 };
 
 };

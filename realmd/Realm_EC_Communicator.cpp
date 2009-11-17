@@ -47,7 +47,7 @@ EC_Communicator::connect()
       ec_name[0].id = CORBA::string_dup("CosEventService");
 
       CosEventChannelAdmin::EventChannel_var channel = 
-	CosEventChannelAdmin::EventChannel::_unchecked_narrow(naming_context->resolve(ec_name));
+	CosEventChannelAdmin::EventChannel::_narrow(naming_context->resolve(ec_name));
 
       _object = orb->resolve_initial_references("RootPOA");
       this->poa = PortableServer::POA::_narrow(_object.in());
@@ -56,12 +56,14 @@ EC_Communicator::connect()
       CORBA::Object_var consumer_obj = poa->id_to_reference(oid.in());
       
       CosEventComm::PushConsumer_var consumer = 
-	CosEventComm::PushConsumer::_unchecked_narrow(consumer_obj.in());
+	CosEventComm::PushConsumer::_narrow(consumer_obj.in());
       this->supplier_proxy = channel->for_consumers()->obtain_push_supplier();
-      this->supplier_proxy->connect_push_consumer(consumer);
+      this->supplier_proxy->connect_push_consumer(consumer.in());
 
       this->pusher = channel->for_suppliers()->obtain_push_consumer();
       this->pusher->connect_push_supplier(CosEventComm::PushSupplier::_nil());
+      poa->the_POAManager()->activate();
+
       REALM_LOG("Connected to Event Channel.\n");
     }
   catch(CORBA::Exception &e)
@@ -87,15 +89,15 @@ EC_Communicator::push(const CORBA::Any &data)
   
   Trinity::Proxy_Announce* ann;
   Trinity::Proxy_Load_Report* report;
-
+ 
   if(data >>= ann)
     {
-      sRealm->add_proxy(ann->realm_id, std::string(ann->address.out()),
+      sRealm->add_proxy(ann->realm_id, std::string(ann->address),
 			ann->load);
     }
   else if(data >>= report)
     {
-      sRealm->add_proxy_load_report(std::string(report->address.out()),
+      sRealm->add_proxy_load_report(std::string(report->address),
 				    report->load);
     }
   else 

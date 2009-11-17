@@ -43,8 +43,13 @@ public:
   EC_Communicator(CORBA::ORB_ptr _orb):
     orb(CORBA::ORB::_duplicate(_orb)){};
   void connect();
-  virtual void push( const CORBA::Any &data){}
+  virtual void push( const CORBA::Any &data);
   virtual void disconnect_push_consumer();
+
+  /**
+   * @brief Announces proxy node in cluster.
+   */
+  void announce();
 private:
   CosEventChannelAdmin::ProxyPushConsumer_var pusher;
   CosEventChannelAdmin::ProxyPushSupplier_var supplier_proxy;
