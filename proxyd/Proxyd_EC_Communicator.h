@@ -50,6 +50,11 @@ public:
    * @brief Announces proxy node in cluster.
    */
   void announce();
+
+  /**
+   * @brief Sends load reports.
+   */
+  void report_load();
 private:
   CosEventChannelAdmin::ProxyPushConsumer_var pusher;
   CosEventChannelAdmin::ProxyPushSupplier_var supplier_proxy;

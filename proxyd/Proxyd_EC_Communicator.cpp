@@ -114,7 +114,24 @@ EC_Communicator::push( const CORBA::Any &data)
     }
   catch(CORBA::Exception &e)
     {
+      return;
+    }
 
+void
+EC_Communicator::report_load()
+  try
+    {
+      Trinity::Proxy_Load_Report rep;
+      rep.address = CORBA::string_dup(sConfig->getString("proxyd","BindAddr").c_str());
+      rep.load = sProxy->load;
+
+      CORBA::Any any;
+      any <<= rep;
+      this->pusher->push(any);
+    }
+  catch(CORBA::Exception &e)
+    {
+      return;
     }
 
 };
