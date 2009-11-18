@@ -85,12 +85,12 @@ Service_Manager::update_services()
 	  switch(iter->first)
 	    {
 	    case LOGINSERVER:
-	      this->run_realmd();
 	      ACE_DEBUG((LM_DEBUG,"Restarting Realm Service\n"));
+	      this->run_realmd();
 	      break;
 	    case GAMESERVER:
+	      ACE_DEBUG((LM_DEBUG,"Restarting Proxy Service\n"));
 	      this->run_proxyd();
-	      ACE_DEBUG((LM_DEBUG,"Restarting Realm Service\n"));
 	      break;
 	    default:
 	      break;
