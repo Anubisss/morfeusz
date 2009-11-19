@@ -182,7 +182,7 @@ Realm_Service::add_proxy(uint8 realm, std::string ip, float load)
 void
 Realm_Service::add_proxy_load_report(std::string ip, float load)
 {
-  REALM_LOG("%s\n",__PRETTY_FUNCTION__);
+
   std::multimap<uint8, Proxy_Info>::iterator itr;
   for(itr = proxies.begin();itr != proxies.end(); ++itr)
     {
