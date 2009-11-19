@@ -43,7 +43,7 @@ namespace Realmd
 void
 Realm_Service::start()
 {
-
+  REALM_TRACE;
   REALM_LOG("Starting realmd\n");
 
 #if defined (ACE_HAS_EVENT_POLL) || defined (ACE_HAS_DEV_POLL)
@@ -95,6 +95,7 @@ Realm_Service::start()
 void
 Realm_Service::update_realms(Trinity::SQL::ResultSet* res)
 {
+  REALM_TRACE;
   REALM_LOG("Updating realms\n");
 
   if(!res)
@@ -130,6 +131,7 @@ Realm_Service::update_realms(Trinity::SQL::ResultSet* res)
 int 
 Realm_Service::svc()
 {
+  REALM_TRACE;
   ACE_Time_Value tm;
   
   while(this->is_running)
@@ -148,6 +150,7 @@ Realm_Service::svc()
 void
 Realm_Service::stop()
 {
+  REALM_TRACE;
   this->is_running = false;
   this->reactor->end_reactor_event_loop();
   this->database->close();
@@ -157,7 +160,7 @@ Realm_Service::stop()
 void
 Realm_Service::add_proxy(uint8 realm, std::string ip, float load)
 {
-
+  REALM_TRACE;
   std::pair<std::multimap<uint8, Proxy_Info>::iterator, 
     std::multimap<uint8, Proxy_Info>::iterator> ret;  //Fuck you stl.
   
@@ -182,7 +185,7 @@ Realm_Service::add_proxy(uint8 realm, std::string ip, float load)
 void
 Realm_Service::add_proxy_load_report(std::string ip, float load)
 {
-
+  REALM_TRACE;
   std::multimap<uint8, Proxy_Info>::iterator itr;
   for(itr = proxies.begin();itr != proxies.end(); ++itr)
     {
@@ -198,6 +201,7 @@ Realm_Service::add_proxy_load_report(std::string ip, float load)
 std::string 
 Realm_Service::get_proxy_for_realm(uint8 id)
 {
+  REALM_TRACE;
   std::multimap<uint8, Proxy_Info>::iterator ret, itr;
   std::pair< std::multimap<uint8, Proxy_Info>::iterator,
     std::multimap<uint8, Proxy_Info>::iterator > proxies_for_realm;

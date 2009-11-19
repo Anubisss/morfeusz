@@ -39,6 +39,7 @@ namespace Proxyd
 void
 Proxy_Service::start()
 {
+  PROXY_TRACE;
   //Boilerplate code goes in here.
   PROXY_LOG("Starting...\n");
 
@@ -103,6 +104,7 @@ Proxy_Service::start()
 int
 Proxy_Service::svc()
 {
+  PROXY_TRACE; 
   ACE_Time_Value tm;
   tm.msec(100);
   while(this->is_running)
@@ -121,6 +123,7 @@ Proxy_Service::svc()
 void
 Proxy_Service::update_connections(bool change)
 {
+  PROXY_TRACE; 
   if(change)
     this->current_connections++;
   else

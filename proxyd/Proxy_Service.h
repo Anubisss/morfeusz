@@ -90,5 +90,12 @@ private:
 //Logging macros
 #define PROXY_PREFIX ACE_TEXT("PROXYD: ")
 #define PROXY_LOG(...) ACE_DEBUG((LM_INFO, PROXY_PREFIX __VA_ARGS__))
+
+#ifdef _TRINITY_DEBUG
+#define PROXY_TRACE ACE_DEBUG((LM_DEBUG,"%s\n", __PRETTY_FUNCTION__))
+#else
+#define PROXY_TRACE NULL
+#endif
+
 #define sProxy Trinity::Proxyd::Proxy_Service::instance()
 #endif //PROXY_SERVICE_H

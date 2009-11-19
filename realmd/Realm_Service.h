@@ -152,9 +152,12 @@ class Realm_Service : public ACE_Task_Base
  * @brief Logging macro. Outputs messages in "REALMD: %s" format.
  */
 #define REALM_LOG(...) ACE_DEBUG((LM_INFO, REALM_PREFIX __VA_ARGS__))
-//#define REALM_TRACE ACE_DEBUG((LM_DEBUG,"%s\n", __PRETTY_FUNCTION__))
-#define REALM_TRACE NULL
 
+#ifdef _TRINITY_DEBUG
+#define REALM_TRACE ACE_DEBUG((LM_DEBUG,"%s\n", __PRETTY_FUNCTION__))
+#else
+#define REALM_TRACE NULL
+#endif
 /**
  * @brief For clarity, rest of the code references realm service
  *        singleton as sRealm.

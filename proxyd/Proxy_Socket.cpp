@@ -38,17 +38,20 @@ namespace Proxyd
 Proxy_Socket::Proxy_Socket()
   :ptr(this), crypto(new Proxy_Crypto),expected_data(0)
 {
+  PROXY_TRACE; 
   ACE_OS::memset(this->raw_buf, 0, 4096);
 }
 
 Proxy_Socket::~Proxy_Socket()
 {
+  PROXY_TRACE; 
   delete crypto;
 }
 
 int
 Proxy_Socket::open(void*)
 {
+  PROXY_TRACE; 
   if(sProxy->load == 1)
     return -1;
   
@@ -63,6 +66,7 @@ Proxy_Socket::open(void*)
 int
 Proxy_Socket::close(u_long)
 {
+  PROXY_TRACE; 
   this->die();
   return 0;
 }
@@ -70,6 +74,7 @@ Proxy_Socket::close(u_long)
 int
 Proxy_Socket::handle_input(ACE_HANDLE)
 {
+  PROXY_TRACE; 
   if(!expected_data)  // We are not expecting new data.
     {
       size_t bytes_read = this->peer().recv(this->raw_buf, 4096);
@@ -96,6 +101,7 @@ Proxy_Socket::handle_input(ACE_HANDLE)
 int
 Proxy_Socket::handle_output(ACE_HANDLE)
 {
+  PROXY_TRACE; 
   return 0;
 
 }
@@ -103,6 +109,7 @@ Proxy_Socket::handle_output(ACE_HANDLE)
 int
 Proxy_Socket::handle_close(ACE_HANDLE, ACE_Reactor_Mask mask)
 {
+  PROXY_TRACE; 
   if(mask == ACE_Event_Handler::WRITE_MASK)
     return 0;
   this->die();
@@ -112,6 +119,7 @@ Proxy_Socket::handle_close(ACE_HANDLE, ACE_Reactor_Mask mask)
 void
 Proxy_Socket::die()
 {
+  PROXY_TRACE; 
   sProxy->update_connections(false);
   this->ptr.release();
 }
