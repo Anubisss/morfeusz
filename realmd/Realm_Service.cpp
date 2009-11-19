@@ -135,9 +135,8 @@ Realm_Service::svc()
   while(this->is_running)
     {
       tm.msec(100);
-      if(this->reactor->work_pending())
-	this->reactor->run_event_loop(tm);
-      tm.msec(100);    
+      this->reactor->handle_events(tm);
+      tm.msec(100);
       if(this->orb->work_pending())
 	{
 	  this->orb->run(tm);
