@@ -165,7 +165,7 @@ Realm_Service::add_proxy(uint8 realm, std::string ip, float load)
     return;
   if(realm_map[realm].address.compare(":"))
     {
-      REALM_LOG("Received incorrect Proxy Server for realm with TC1/TC2 gameserver!\n");
+      REALM_LOG("Received incorrect Proxy Server (%s) for realm with TC1/TC2 gameserver!\n", ip.c_str());
       return;
     }
 
@@ -203,7 +203,7 @@ Realm_Service::add_proxy_load_report(std::string ip, float load)
 	  return;
 	}
     }
-
+  REALM_LOG("Received load report for node (%s) that is not registered as proxy server. This shouldn't happen.\n");
 }
 
 std::string 
