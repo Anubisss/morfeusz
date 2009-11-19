@@ -161,6 +161,14 @@ void
 Realm_Service::add_proxy(uint8 realm, std::string ip, float load)
 {
   REALM_TRACE;
+  if(realm_map.find(realm) == realm_map.end())
+    return;
+  if(realm_map[realm].address.compare(":"))
+    {
+      REALM_LOG("Received incorrect Proxy Server for realm with TC1/TC2 gameserver!\n");
+      return;
+    }
+
   std::pair<std::multimap<uint8, Proxy_Info>::iterator, 
     std::multimap<uint8, Proxy_Info>::iterator> ret;  //Fuck you stl.
   
