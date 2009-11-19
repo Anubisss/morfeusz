@@ -30,6 +30,7 @@
 #include "Configuration.h"
 #include "Proxy_Service.h"
 #include "Proxyd_EC_Communicator.h"
+#include "Proxy_Timer.h"
 
 namespace Trinity
 {
@@ -66,6 +67,7 @@ Proxy_Service::start()
     }
 
   ACE_ARGV* orb_args = new ACE_ARGV;
+  ACE_Time_Value tm(60);
 
   try
     {
@@ -80,7 +82,6 @@ Proxy_Service::start()
       //its functions in case of a CORBA exception.
       this->event_channel = new EC_Communicator(this->orb.in());
       this->event_channel->connect();
-      this->event_channel->announce();
     }
   catch(CORBA::Exception &e)
     {
@@ -93,7 +94,8 @@ Proxy_Service::start()
   this->is_running = true;
   this->activate(THR_NEW_LWP | THR_JOINABLE,
 		 sConfig->getInt("proxyd","NetThreads"));
-
+  this->event_channel->announce();
+  this->reactor->schedule_timer(new Proxy_Timer(), 0, tm, tm);
   ACE_Thread_Manager::instance()->wait();
   return;
 }
@@ -106,8 +108,7 @@ Proxy_Service::svc()
   while(this->is_running)
     {
       tm.msec(100);
-      if(this->reactor->work_pending())
-	this->reactor->run_event_loop(tm);
+      this->reactor->handle_events(tm);
       tm.msec(100);
       if(this->orb->work_pending())
 	{

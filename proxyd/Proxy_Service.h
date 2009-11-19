@@ -35,7 +35,6 @@
 #include <ace/SOCK_Acceptor.h>
 #include "Proxy_Socket.h"
 
-
 class ACE_Reactor;
 
 namespace Trinity
@@ -70,6 +69,7 @@ public:
    */
   void update_connections(bool change);
   
+  EC_Communicator* get_event_channel(){return event_channel;}
   uint8 get_realmid(){return this->realm_id;}
   float load;
 private:
