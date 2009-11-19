@@ -22,6 +22,13 @@ else()
 message(SEND_ERROR "Please specify client build to compile for! (-D_CLIENT_BUILD=\"build\")\n Available builds:\n prebc \n tbc\n wlk")
 endif()
 
+if(_DEBUG)
+message(STATUS "Debug build")
+add_definitions(-D_TRINITY_DEBUG)
+else()
+message(STATUS "Normal build")
+endif()
+
 if(OPENSSL_FOUND)
   message(STATUS "Found openssl")
 else(OPENSSL_FOUND)
