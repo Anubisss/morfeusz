@@ -112,9 +112,9 @@ EC_Communicator::push( const CORBA::Any &data)
     {
       PROXY_LOG("Received data\n");
       Trinity::Proxy_Request* req;
-      if(req <<= data)
+      if(data >>= req)
 	{
-	  if(req.realm_id == sProxy->get_realmid())
+	  if(req->realm_id == sProxy->get_realmid())
 	    this->announce();
 	}
     }
