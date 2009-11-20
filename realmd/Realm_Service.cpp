@@ -66,7 +66,7 @@ Realm_Service::start()
  
   this->database = new RealmDB(sConfig->getInt("realmd", "DBThreads"));
   this->database->open(sConfig->getString("realmd", "DBengine"),sConfig->getString("realmd", "DBUrl") );
-  this->database->get_realmlist();
+
 
   ACE_ARGV *orb_args = new ACE_ARGV;
   orb_args->add("");
@@ -85,6 +85,7 @@ Realm_Service::start()
 
   this->is_running = true;
   this->activate(THR_NEW_LWP | THR_JOINABLE, sConfig->getInt("realmd", "NetThreads"));
+  this->database->get_realmlist();
   this->reactor->schedule_timer(new Realm_Timer(), 0, tm, tm);
   this->reactor->schedule_timer(new Unban_Timer(), 0, ACE_Time_Value(1), ACE_Time_Value(60));
   REALM_LOG("Started\n");
@@ -118,7 +119,7 @@ Realm_Service::update_realms(Trinity::SQL::ResultSet* res)
       id = res->getUint32(1);
       this->realm_map[id] = rlm;
 
-      if(rlm.address == ":")
+      if(!rlm.address.compare(":0"))
 	{
 	  if(this->proxies.find(id) == proxies.end())
 	    this->event_channel->request_proxies_for_realm(id);
@@ -163,7 +164,7 @@ Realm_Service::add_proxy(uint8 realm, std::string ip, float load)
   REALM_TRACE;
   if(realm_map.find(realm) == realm_map.end())
     return;
-  if(realm_map[realm].address.compare(":"))
+  if(realm_map[realm].address.compare(":0"))
     {
       REALM_LOG("Received incorrect Proxy Server (%s) for realm with TC1/TC2 gameserver!\n", ip.c_str());
       return;
@@ -187,7 +188,7 @@ Realm_Service::add_proxy(uint8 realm, std::string ip, float load)
   info.ip = ip;
   info.load = 0;
   proxies.insert(std::pair<uint8, Proxy_Info>(realm,info));
-  REALM_LOG("Received new proxy server for realm %u: %s\n",realm,ip.c_str());  
+  REALM_LOG("Received new proxy server for realm %u: %s\n",realm,ip.c_str());
 }
 
 void

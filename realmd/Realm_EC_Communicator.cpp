@@ -75,6 +75,7 @@ EC_Communicator::connect()
 void
 EC_Communicator::request_proxies_for_realm(uint8 id)
 {
+  REALM_TRACE;
   Trinity::Proxy_Request req;
   req.realm_id = id;
 
@@ -92,12 +93,12 @@ EC_Communicator::push(const CORBA::Any &data)
  
   if(data >>= ann)
     {
-      sRealm->add_proxy(ann->realm_id, std::string(ann->address),
+      sRealm->add_proxy(ann->realm_id, std::string(CORBA::string_dup(ann->address)),
 			ann->load);
     }
   else if(data >>= report)
     {
-      sRealm->add_proxy_load_report(std::string(report->address),
+      sRealm->add_proxy_load_report(std::string(CORBA::string_dup(report->address)),
 				    report->load);
     }
   else 
