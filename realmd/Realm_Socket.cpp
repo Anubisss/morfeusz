@@ -656,7 +656,7 @@ Realm_Socket::build_expansion_realm_packet()
       *pkt << (uint8) i->second.color;
       *pkt << i->second.name;
 
-      if(i->second.address == ":")
+      if(!i->second.address.compare(":0"))
 	{
 	  *pkt << sRealm->get_proxy_for_realm(i->first);
 	}
