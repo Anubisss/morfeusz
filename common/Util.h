@@ -22,6 +22,7 @@
 #define _UTIL_H
 
 #include "Common.h"
+#include "MTRand.h"
 #include <ace/Log_Msg.h>
 #include <sstream>
 #include <string.h>
@@ -31,6 +32,14 @@
 
 namespace Utils
 {
+
+inline uint32 urand32()
+{
+
+  return static_cast<uint32>(sRand->genrand_int32());
+
+}
+
 inline std::vector<std::string> StrSplit(const std::string &src, const std::string &sep)
 {
     std::vector<std::string> r;
