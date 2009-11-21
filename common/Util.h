@@ -36,7 +36,7 @@ namespace Utils
 inline uint32 urand32()
 {
 
-  return static_cast<uint32>(sRand->genrand_int32());
+  return (uint32)sRand->genrand_int32();
 
 }
 

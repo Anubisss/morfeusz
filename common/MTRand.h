@@ -70,7 +70,7 @@ class MersenneTwist {
 
   static MersenneTwist* instance(){return ACE_Singleton<MersenneTwist, ACE_Recursive_Thread_Mutex>::instance();}
   
- MersenneTwist() : mti(N+1) {init_genrand(time(NULL));}
+ MersenneTwist() /*: mti(N+1) */{init_genrand(static_cast<unsigned long>(time(NULL)));}
   
   /* initializes mt[N] with a seed */
   //   Note:  Initializing TWISTER to the scalar integer state 0 actually
