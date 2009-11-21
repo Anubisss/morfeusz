@@ -15,6 +15,7 @@ include_directories(
   ${TAO_INCLUDE_DIR}
   ${CMAKE_SOURCE_DIR}/configuration
   ${CMAKE_SOURCE_DIR}/common
+  ${CMAKE_SOURCE_DIR}/common/${_CLIENT_BUILD}
   ${CMAKE_SOURCE_DIR}/proxyd/${_CLIENT_BUILD}
   ${CMAKE_SOURCE_DIR}/proxyd
   )
