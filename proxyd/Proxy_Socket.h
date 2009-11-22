@@ -114,6 +114,7 @@ private:
   std::list<ByteBuffer*> packet_queue;
   ACE_Recursive_Thread_Mutex queue_mtx;
   bool out_active;
+  bool continue_send;
   /**
    * @brief Encryption interface.
    */

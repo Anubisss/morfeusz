@@ -39,7 +39,8 @@ namespace Proxyd
 
 Proxy_Socket::Proxy_Socket()
   :ptr(this), crypto(new Proxy_Crypto),expected_data(0),
-   in_packet(NULL), seed(urand32()), out_active(false)
+   in_packet(NULL), seed(urand32()), out_active(false),
+   continue_send(false)
 {
   PROXY_TRACE; 
 
@@ -65,7 +66,8 @@ Proxy_Socket::open(void*)
     return -1;
   
   ByteBuffer* pkt = new ByteBuffer(8);
-  *pkt << (uint16)6;
+  *pkt << (uint8)0x00;
+  *pkt << (uint8)0x06;
   *pkt << (uint16)SMSG_AUTH_CHALLENGE;
   *pkt << seed;
   this->send(pkt);
@@ -78,7 +80,12 @@ Proxy_Socket::send(ByteBuffer* pkt)
 {
   ACE_Guard<ACE_Recursive_Thread_Mutex> g(this->queue_mtx);
   packet_queue.push_back(pkt);
-  this->out_active = true;
+  if(!this->out_active)
+    {
+      sProxy->get_reactor()->register_handler(this,
+					    ACE_Event_Handler::WRITE_MASK);
+      this->out_active = true;
+    }
 }
 
 int
@@ -107,7 +114,7 @@ Proxy_Socket::handle_input(ACE_HANDLE)
       this->crypto->decrypt(this->raw_buf, sizeof(ClientPktHeader));
       this->in_packet = new ClientPkt(bytes_read);
       this->in_packet->append(raw_buf, bytes_read);
-
+      
       if(bytes_read != (this->in_packet->PeekSize() + 2 ) )
 	{
 	  this->expected_data = this->in_packet->PeekSize() - bytes_read - 6;
@@ -131,7 +138,7 @@ Proxy_Socket::process_incoming()
 
   if(!in_packet)
     return;
-
+  PROXY_LOG("Received packet %u, size: %u\n",this->in_packet->PeekOpcode(), this->in_packet->PeekSize());
   delete in_packet;
 }
 
@@ -140,10 +147,48 @@ Proxy_Socket::handle_output(ACE_HANDLE)
 {
   PROXY_TRACE; 
   ACE_Guard<ACE_Recursive_Thread_Mutex> g(this->queue_mtx);
+  int error;
+  size_t sent_bytes = 0;
 
+  while(!this->packet_queue.empty())
+    {
+      ByteBuffer* buffer = this->packet_queue.front();
+      
+      if(!this->continue_send)
+	this->crypto->encrypt(const_cast<uint8*>(buffer->contents()), 4);
+      this->continue_send = false;
+      sent_bytes = this->peer().send(buffer->contents(), buffer->size());
+      error = errno;
+      if(sent_bytes < buffer->size() && sent_bytes > 0)
+	{
+	  buffer->rpos(sent_bytes - 1);
+	  buffer->read((uint8*)buffer->contents(),buffer->size() - sent_bytes);
+	  buffer->resize(buffer->size() - sent_bytes);
+	  this->continue_send = true;
+	  break;
+	}
+      else
+	if(sent_bytes == -1)
+	  {
+	    return -1;
+	  }
+	else
+	  {
+	    delete buffer;
+	    packet_queue.pop_front();
+	  }
+
+    };
   
-
-  return 0;
+  if(this->packet_queue.empty())
+    {
+      sProxy->get_reactor()->cancel_wakeup(this,
+					   ACE_Event_Handler::WRITE_MASK);
+      this->out_active = false;
+      return 0;
+    }
+  else
+    return 1;
 
 }
 
