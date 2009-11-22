@@ -38,7 +38,7 @@ class ByteBuffer
             _storage.reserve(DEFAULT_SIZE);
         }
         // constructor
-        ByteBuffer(size_t res): _rpos(0), _wpos(0)
+	ByteBuffer(size_t res): _rpos(0), _wpos(0)
         {
             _storage.reserve(res);
         }
@@ -399,6 +399,35 @@ class ByteBuffer
 
         size_t _rpos, _wpos;
         std::vector<uint8> _storage;
+};
+
+class ClientPkt : public ByteBuffer
+{
+ public:
+ ClientPkt(size_t siz): ByteBuffer(siz){}
+ ClientPkt():ByteBuffer(){}
+  uint32 PeekOpcode()
+  {
+    size_t tmp;
+    uint32 ret;
+    tmp = _rpos;
+    _rpos = 2;
+    ret = read<uint32>();
+    _rpos = tmp;
+    return ret;
+  }
+
+  uint16 PeekSize()
+  {
+    size_t tmp;
+    uint16 ret;
+    tmp = _rpos;
+    _rpos = 0;
+    ret = read<uint16>();
+    _rpos = tmp;
+    return ret;
+  }
+
 };
 
 template <typename T> ByteBuffer &operator<<(ByteBuffer &b, std::vector<T> v)
