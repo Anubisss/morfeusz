@@ -110,9 +110,7 @@ Proxy_Socket::handle_input(ACE_HANDLE)
 
       if(bytes_read != (this->in_packet->PeekSize() + 2 ) )
 	{
-	  this->expected_data = ((ClientPktHeader*)this->raw_buf)->size - bytes_read - 6;
-	  this->in_packet = new ClientPkt(((ClientPktHeader*)this->raw_buf)->size + 6);
-	  this->in_packet->append(raw_buf, bytes_read);
+	  this->expected_data = this->in_packet->PeekSize() - bytes_read - 6;
 	  return 0;
 	}
     }
