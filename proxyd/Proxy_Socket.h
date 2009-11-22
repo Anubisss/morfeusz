@@ -87,14 +87,33 @@ public:
   int handle_input(ACE_HANDLE);
   int handle_output(ACE_HANDLE);
   int handle_close(ACE_HANDLE, ACE_Reactor_Mask);
+  void send(ByteBuffer*);
 private:
   void die();
+
+  /**
+   * @brief This function decides wether we forward packet to zone,
+   *        or handle it in here.
+   */
+  void process_incoming();
   Proxy_Sock_Ptr ptr;
   size_t expected_data;
   uint8 raw_buf[4096];
+  
+  /**
+   * @brief Seed used to authenticate with client.
+   */
+  uint32 seed;
+
+  /**
+   * @brief If we receive packet, we keep it in here
+   *        so we can either receive rest (partial packet)
+   *        or process it with process_incoming.
+   */
+  ClientPkt* in_packet;
   std::list<ByteBuffer*> packet_queue;
   ACE_Recursive_Thread_Mutex queue_mtx;
-  
+  bool out_active;
   /**
    * @brief Encryption interface.
    */
