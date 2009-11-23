@@ -20,7 +20,7 @@
 
 /**
  *  @file
- *  @brief   List of opcodes
+ *  @brief   List of opcodes for TBC client.
  *  @author  Unknown
  *  @date    ???
  *
