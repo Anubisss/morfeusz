@@ -101,10 +101,7 @@ EC_Communicator::push(const CORBA::Any &data)
       sRealm->add_proxy_load_report(std::string(CORBA::string_dup(report->address)),
 				    report->load);
     }
-  else 
-    {
-      REALM_LOG("Received unknown event type!\n");
-    }
+
 }
 
 void

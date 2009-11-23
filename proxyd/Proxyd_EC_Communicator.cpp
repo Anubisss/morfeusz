@@ -110,7 +110,6 @@ void
 EC_Communicator::push( const CORBA::Any &data)
   try
     {
-      PROXY_LOG("Received data\n");
       Trinity::Proxy_Request* req;
       if(data >>= req)
 	{
