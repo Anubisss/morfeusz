@@ -401,11 +401,20 @@ class ByteBuffer
         std::vector<uint8> _storage;
 };
 
+/**
+ * @brief Packet recieved by server.
+ * @detail This class was created only to allow
+ *         for easy acces into opcode and size of recv'd data.
+ */
 class ClientPkt : public ByteBuffer
 {
  public:
  ClientPkt(size_t siz): ByteBuffer(siz){}
  ClientPkt():ByteBuffer(){}
+  
+  /**
+   * @brief Peek opcode, without moving internal read position
+   */
   uint32 PeekOpcode()
   {
     size_t tmp;
@@ -417,6 +426,9 @@ class ClientPkt : public ByteBuffer
     return ret;
   }
 
+  /**
+   * @brief Analogous to PeekOpcode, but for size.
+   */
   uint16 PeekSize()
   {
     size_t tmp;
@@ -428,6 +440,50 @@ class ClientPkt : public ByteBuffer
     return ret;
   }
 
+};
+
+/**
+ * @brief Packet sent by server.
+ */
+class ServerPkt : public ByteBuffer
+{
+ public:
+
+  /**
+   * @brief We add +4 so when passing length of 
+   *        data do not add header length.
+   */
+ ServerPkt(size_t siz) : ByteBuffer(siz + 4){_wpos = 4;}
+
+  /**
+   * @brief By default, reserve only header.
+   */
+ ServerPkt() : ByteBuffer(4){_wpos = 4;}
+  void SetOpcode(uint16 op)
+    {
+      size_t tmp;
+      tmp = _wpos;
+      _wpos = 2;
+      
+      append<uint16>(op);
+      _wpos = tmp;
+
+    }
+
+  /**
+   * @brief When setting size, we are ONLY talking 
+   *        about size of data, size of header is 
+   *        added to size of payload.
+   */
+  void SetSize(uint16 size)
+    {
+      size_t tmp;
+      size += 2;
+      tmp = _wpos;
+      _wpos = 0;
+      append<uint16>(size);
+      _wpos = tmp;
+    }
 };
 
 template <typename T> ByteBuffer &operator<<(ByteBuffer &b, std::vector<T> v)

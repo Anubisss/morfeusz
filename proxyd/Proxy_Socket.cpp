@@ -64,11 +64,10 @@ Proxy_Socket::open(void*)
   if(sProxy->get_reactor()->
      register_handler(this, ACE_Event_Handler::READ_MASK) == -1)
     return -1;
-  
-  ByteBuffer* pkt = new ByteBuffer(8);
-  *pkt << (uint8)0x00;
-  *pkt << (uint8)0x06;
-  *pkt << (uint16)SMSG_AUTH_CHALLENGE;
+
+  ServerPkt* pkt = new ServerPkt(4);
+  pkt->SetOpcode(SMSG_AUTH_CHALLENGE);
+  pkt->SetSize(4);
   *pkt << seed;
   this->send(pkt);
 
