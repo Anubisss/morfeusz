@@ -409,8 +409,8 @@ class ByteBuffer
 class ClientPkt : public ByteBuffer
 {
  public:
- ClientPkt(size_t siz): ByteBuffer(siz){}
- ClientPkt():ByteBuffer(){}
+ ClientPkt(size_t siz): ByteBuffer(siz){_rpos = 6;}
+ ClientPkt():ByteBuffer(){_rpos = 6;}
   
   /**
    * @brief Peek opcode, without moving internal read position
