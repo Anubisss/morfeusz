@@ -65,6 +65,7 @@ Proxy_Socket::open(void*)
      register_handler(this, ACE_Event_Handler::READ_MASK) == -1)
     return -1;
 
+
   ServerPkt* pkt = new ServerPkt(4);
   pkt->SetOpcode(SMSG_AUTH_CHALLENGE);
   pkt->SetSize(4);
@@ -138,7 +139,16 @@ Proxy_Socket::process_incoming()
   if(!in_packet)
     return;
   PROXY_LOG("Received packet %u, size: %u\n",this->in_packet->PeekOpcode(), this->in_packet->PeekSize());
-  delete in_packet;
+
+  switch(this->in_packet->PeekOpcode() )
+    {
+    case CMSG_AUTH_SESSION:
+      this->handle_cmsg_auth_session();
+      break;
+    default:
+      break;
+    }
+   delete in_packet;
 }
 
 int

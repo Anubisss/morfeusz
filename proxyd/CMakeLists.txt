@@ -6,6 +6,7 @@ set(proxyd_SRCS
   Proxyd_EC_Communicator.h
   Proxyd_EC_Communicator.cpp
   ${_CLIENT_BUILD}/Proxy_Crypto.cpp
+  ${_CLIENT_BUILD}/Proxy_Handlers.cpp
   ${CMAKE_SOURCE_DIR}/proxyd/Proxy_EventsC.h
   ${CMAKE_SOURCE_DIR}/proxyd/Proxy_EventsC.cpp
   )

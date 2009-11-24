@@ -91,6 +91,7 @@ public:
 private:
   void die();
 
+  void handle_cmsg_auth_session();
   /**
    * @brief This function decides wether we forward packet to zone,
    *        or handle it in here.
@@ -111,6 +112,11 @@ private:
    *        or process it with process_incoming.
    */
   ClientPkt* in_packet;
+
+  std::string login;
+
+  uint8* client_digest;
+  uint32 client_seed;
   std::list<ByteBuffer*> packet_queue;
   ACE_Recursive_Thread_Mutex queue_mtx;
   bool out_active;
