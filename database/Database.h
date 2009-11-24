@@ -24,6 +24,8 @@
  *
  */
 
+#ifndef _DATABASE_H
+#define _DATABASE_H
 #include "Common.h"
 #include "Callback.h"
 #include <vector>
@@ -397,3 +399,5 @@ protected:
 }
 
 }
+
+#endif
