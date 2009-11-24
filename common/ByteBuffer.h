@@ -464,7 +464,7 @@ class ServerPkt : public ByteBuffer
       size_t tmp;
       tmp = _wpos;
       _wpos = 2;
-      
+      Utils::EndianConvert<uint16>(op);
       append<uint16>(op);
       _wpos = tmp;
 
@@ -481,6 +481,7 @@ class ServerPkt : public ByteBuffer
       size += 2;
       tmp = _wpos;
       _wpos = 0;
+      Utils::EndianConvertReverse<uint16>(size);
       append<uint16>(size);
       _wpos = tmp;
     }
