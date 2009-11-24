@@ -34,6 +34,7 @@
 #include <ace/Acceptor.h>
 #include <ace/SOCK_Acceptor.h>
 #include "Proxy_Socket.h"
+#include "Proxy_Database.h"
 
 class ACE_Reactor;
 

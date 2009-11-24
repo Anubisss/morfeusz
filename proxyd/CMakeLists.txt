@@ -3,6 +3,8 @@ set(proxyd_SRCS
   Proxy_Service.cpp
   Proxy_Socket.h
   Proxy_Socket.cpp
+  Proxy_Database.h
+  Proxy_Database.cpp
   Proxyd_EC_Communicator.h
   Proxyd_EC_Communicator.cpp
   ${_CLIENT_BUILD}/Proxy_Crypto.cpp
@@ -16,6 +18,7 @@ include_directories(
   ${TAO_INCLUDE_DIR}
   ${CMAKE_SOURCE_DIR}/configuration
   ${CMAKE_SOURCE_DIR}/common
+  ${CMAKE_SOURCE_DIR}/database
   ${CMAKE_SOURCE_DIR}/common/${_CLIENT_BUILD}
   ${CMAKE_SOURCE_DIR}/proxyd/${_CLIENT_BUILD}
   ${CMAKE_SOURCE_DIR}/proxyd
