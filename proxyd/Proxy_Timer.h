@@ -38,7 +38,6 @@ namespace Proxyd
   {
     int handle_timeout(const ACE_Time_Value &, const void*)
     {
-      PROXY_LOG("Sending load report...\n");
       sProxy->get_event_channel()->report_load();
       return 0;
     }
