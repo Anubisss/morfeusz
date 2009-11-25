@@ -66,9 +66,7 @@ Proxy_Socket::open(void*)
     return -1;
 
 
-  ServerPkt* pkt = new ServerPkt(4);
-  pkt->SetOpcode(SMSG_AUTH_CHALLENGE);
-  pkt->SetSize(4);
+  ServerPkt* pkt = new ServerPkt(SMSG_AUTH_CHALLENGE, 4);
   *pkt << seed;
   this->send(pkt);
 
