@@ -459,7 +459,7 @@ class ServerPkt : public ByteBuffer
    *        data do not add header length.
    */
  ServerPkt(size_t siz) : ByteBuffer(siz + 4){_wpos = 4;}
-
+ ServerPkt(uint16 op, size_t siz): ByteBuffer(siz + 4){ _wpos = 4; SetOpcode(op); SetSize(siz); }
   /**
    * @brief By default, reserve only header.
    */
