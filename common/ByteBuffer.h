@@ -328,26 +328,21 @@ class ByteBuffer
 
         void hexlike() const
         {
-	  /*           if(!sLog.IsOutDebug())                          // optimize disabled debug output
-                return;
 
             uint32 j = 1, k = 1;
-            sLog.outDebug("STORAGE_SIZE: %u", size() );
-
-            if(sLog.IsIncludeTime())
-                sLog.outDebugInLine("         ");
-
+            ACE_DEBUG((LM_DEBUG, "STORAGE_SIZE: %u\n", size() ));
+	    
             for(uint32 i = 0; i < size(); i++)
             {
                 if ((i == (j*8)) && ((i != (k*16))))
                 {
                     if (read<uint8>(i) < 0x0F)
                     {
-                        sLog.outDebugInLine("| 0%X ", read<uint8>(i) );
+		      ACE_DEBUG((LM_DEBUG, "| 0%X ", read<uint8>(i) ));
                     }
                     else
                     {
-                        sLog.outDebugInLine("| %X ", read<uint8>(i) );
+		      ACE_DEBUG((LM_DEBUG, "| %X ", read<uint8>(i)) );
                     }
                     ++j;
                 }
@@ -355,19 +350,13 @@ class ByteBuffer
                 {
                     if (read<uint8>(i) < 0x0F)
                     {
-                        sLog.outDebugInLine("\n");
-                        if(sLog.IsIncludeTime())
-                            sLog.outDebugInLine("         ");
-
-                        sLog.outDebugInLine("0%X ", read<uint8>(i) );
+		      ACE_DEBUG((LM_DEBUG, "\n"));
+		      ACE_DEBUG((LM_DEBUG, "0%X ", read<uint8>(i) ));
                     }
                     else
                     {
-                        sLog.outDebugInLine("\n");
-                        if(sLog.IsIncludeTime())
-                            sLog.outDebugInLine("         ");
-
-                        sLog.outDebugInLine("%X ", read<uint8>(i) );
+		      ACE_DEBUG((LM_DEBUG, "\n"));
+		      ACE_DEBUG((LM_DEBUG, "%X ", read<uint8>(i) ));
                     }
 
                     ++k;
@@ -377,16 +366,16 @@ class ByteBuffer
                 {
                     if (read<uint8>(i) < 0x0F)
                     {
-                        sLog.outDebugInLine("0%X ", read<uint8>(i) );
+		      ACE_DEBUG((LM_DEBUG, "0%X ", read<uint8>(i)) );
                     }
                     else
                     {
-                        sLog.outDebugInLine("%X ", read<uint8>(i) );
+		      ACE_DEBUG((LM_DEBUG, "%X ", read<uint8>(i) ));
                     }
                 }
             }
-            sLog.outDebugInLine("\n");
-	  */}
+	    ACE_DEBUG((LM_DEBUG, "\n"));
+	   }
 
     protected:
         bool PrintPosError(bool add, size_t pos, size_t esize) const
