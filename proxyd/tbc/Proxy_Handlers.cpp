@@ -36,6 +36,9 @@ void
 Proxy_Socket::handle_cmsg_auth_session()
 {
   uint32 tmp;
+  if(!this->in_packet->CheckSize(4 + 4+ 1 + 4 + 20))
+    return;
+
   *this->in_packet >> tmp;
   *this->in_packet >> tmp;
   *this->in_packet >> this->login;
