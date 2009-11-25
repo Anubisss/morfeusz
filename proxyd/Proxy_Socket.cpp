@@ -136,7 +136,11 @@ Proxy_Socket::process_incoming()
 
   if(!in_packet)
     return;
+
+#ifdef _TRINITY_DEBUG
   PROXY_LOG("Received packet %u, size: %u\n",this->in_packet->PeekOpcode(), this->in_packet->PeekSize());
+  this->in_packet->hexlike();
+#endif
 
   switch(this->in_packet->PeekOpcode() )
     {
