@@ -440,6 +440,11 @@ class ClientPkt : public ByteBuffer
     return ret;
   }
 
+  bool CheckSize(size_t siz)
+  {
+    return this->PeekSize() >= siz;
+  }
+
 };
 
 /**
