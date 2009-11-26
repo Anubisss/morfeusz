@@ -30,6 +30,8 @@
 #include "Realm_Socket.h"
 #include "Realm_Service.h"
 
+using namespace Trinity::DatabaseAccess::Realmd;
+
 namespace Trinity
 {
 

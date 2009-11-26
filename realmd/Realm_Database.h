@@ -69,6 +69,8 @@ enum RealmdDatabaseStatements
   REALMD_DB_STMT_MAX
 };
 
+namespace Realmd
+{
   /**
    * @brief Observer for retrieveing sessionkey from database, used when reconnecting.
    * @see Realm_Socket::get_sessionkey(bool)
@@ -212,6 +214,7 @@ template <class C>
       delete this;
     }
   };
+};
 
 class RealmDatabaseConnection : protected DatabaseConnection
 {
