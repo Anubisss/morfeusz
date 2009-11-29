@@ -93,6 +93,10 @@ Proxy_Service::start()
   delete orb_args;
 
   this->is_running = true;
+  this->database = new ProxyDB(sConfig->getInt("proxyd","DBThreads"));
+  this->database->open(sConfig->getString("proxyd","DBengine"),
+		       sConfig->getString("proxyd","DBUrl"));
+
   this->activate(THR_NEW_LWP | THR_JOINABLE,
 		 sConfig->getInt("proxyd","NetThreads"));
   this->event_channel->announce();

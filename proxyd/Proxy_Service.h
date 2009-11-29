@@ -37,6 +37,7 @@
 #include "Proxy_Database.h"
 
 class ACE_Reactor;
+using namespace Trinity::DatabaseAccess;
 
 namespace Trinity
 {
@@ -70,6 +71,7 @@ public:
    */
   void update_connections(bool change);
   
+  ProxyDB* get_db(){return this->database;}
   EC_Communicator* get_event_channel(){return event_channel;}
   uint8 get_realmid(){return this->realm_id;}
   float load;
@@ -81,6 +83,7 @@ private:
   bool is_running;
   CORBA::ORB_var orb;
   EC_Communicator* event_channel;
+  ProxyDB* database;
   uint16 connection_limit;
   uint8 realm_id;
 };
