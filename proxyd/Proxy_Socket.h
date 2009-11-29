@@ -66,6 +66,17 @@ struct ClientPktHeader
 #pragma pack(pop)
 #endif
 
+struct Account
+{
+  uint64 id;
+  uint8 gmlevel;
+  std::string sessionkey;
+  std::string sha_pass_hash;
+  std::string v;
+  std::string s;
+  uint8 expansion;
+};
+
 class Proxy_Crypto;
 class Proxy_Socket;
 typedef ACE_Refcounted_Auto_Ptr<Trinity::Proxyd::Proxy_Socket, ACE_Recursive_Thread_Mutex> Proxy_Sock_Ptr;
@@ -88,6 +99,9 @@ public:
   int handle_output(ACE_HANDLE);
   int handle_close(ACE_HANDLE, ACE_Reactor_Mask);
   void send(ByteBuffer*);
+  std::string& get_login(){return this->login;}
+  void set_account(Account act){this->acct = act;}
+  void account_retrieved(bool state);
 private:
   void die();
 
@@ -112,7 +126,8 @@ private:
    *        or process it with process_incoming.
    */
   ClientPkt* in_packet;
-
+  
+  Account acct;
   std::string login;
 
   uint8* client_digest;

@@ -115,6 +115,7 @@ Proxy_Socket::handle_input(ACE_HANDLE)
       
       if(bytes_read != (this->in_packet->PeekSize() + 2 ) )
 	{
+	  PROXY_LOG("test; %u %u\n",bytes_read,this->in_packet->PeekSize() + 2);
 	  this->expected_data = this->in_packet->PeekSize() - bytes_read - 6;
 	  return 0;
 	}
@@ -164,7 +165,9 @@ Proxy_Socket::handle_output(ACE_HANDLE)
   while(!this->packet_queue.empty())
     {
       ByteBuffer* buffer = this->packet_queue.front();
-      
+#ifdef _TRINITY_DEBUG
+      buffer->hexlike();
+#endif      
       if(!this->continue_send)
 	this->crypto->encrypt(const_cast<uint8*>(buffer->contents()), 4);
       this->continue_send = false;
