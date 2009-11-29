@@ -115,6 +115,7 @@ inline uint32 typeToSize(enum_field_types t)
     case MYSQL_TYPE_VARCHAR:
     case MYSQL_TYPE_VAR_STRING:
     case MYSQL_TYPE_STRING:
+    case MYSQL_TYPE_BLOB:
         return 0;
 
     case MYSQL_TYPE_INT24:
@@ -129,11 +130,10 @@ inline uint32 typeToSize(enum_field_types t)
     case MYSQL_TYPE_TINY_BLOB:
     case MYSQL_TYPE_MEDIUM_BLOB:
     case MYSQL_TYPE_LONG_BLOB:
-    case MYSQL_TYPE_BLOB:
     case MYSQL_TYPE_GEOMETRY:
     default:
-        throw MySQLException("MySQLPreparedResultSet, unsupported data type");
-        return 0;
+      throw MySQLException("MySQLPreparedResultSet, unsupported data type");
+      return 0;
     }
 }
 
