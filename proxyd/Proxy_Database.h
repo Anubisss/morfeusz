@@ -28,11 +28,20 @@
 #define _PROXY_DATABASE_H
 #include "Database.h"
 #include "Callback.h"
+#include "Proxy_Socket.h"
+
+using namespace Trinity::Proxyd;
 
 namespace Trinity
 {
 namespace DatabaseAccess
 {
+
+enum ProxyDatabaseStatements
+  {
+    PROXYD_DB_GET_ACCT,
+    PROXYD_DB_STMT_MAX
+  };
 
 class ProxyDatabaseConnection : protected DatabaseConnection
 {
@@ -42,10 +51,11 @@ class ProxyDatabaseConnection : protected DatabaseConnection
   bool open(const std::string& driver, const std::string& url);
 };
 
-class ProxyDB : protected DatabaseHolder<ProxyDatabaseConnection>
+class ProxyDB : public DatabaseHolder<ProxyDatabaseConnection>
 {
  public:
  ProxyDB(int c): DatabaseHolder<ProxyDatabaseConnection>(c){}
+  void get_account(Proxy_Sock_Ptr sock);
 };
 
 };
