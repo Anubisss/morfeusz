@@ -117,7 +117,6 @@ namespace Realmd
       if(res->rowsCount() == 0)
 	{
 	  SqlOperationObserver<C, std::map<uint8, uint8> > ::callback.call(amnt);
-	  return;
 	}
 
       while(res->next())
