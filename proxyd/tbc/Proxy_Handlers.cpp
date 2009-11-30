@@ -184,7 +184,13 @@ Proxy_Socket::account_retrieved(bool state)
 
   this->crypto->set_key(K);
 
-  
+  ServerPkt* pkt = new ServerPkt(SMSG_AUTH_RESPONSE, 1 + 4 + 1 + 4 + 1);
+  *pkt << (uint8)0x0C;  //AUTH_OK
+  *pkt << (uint32)0x00;
+  *pkt << (uint8)0x00;
+  *pkt << (uint32)0x00;
+  *pkt << (uint8)this->acct.expansion;
+  this->send(pkt);
 
   BN_free(K);
   BN_free(N);
