@@ -18,9 +18,9 @@
 
 /**
  *  @file
- *  @brief   <brief>
- *  @author  <author> <<email>>
- *  @date    <date>
+ *  @brief   Proxy_Timer definition.
+ *  @author  raczman <raczman@gmail.com>
+ *  @date    2009-11-10
  *
  */
 
@@ -34,6 +34,11 @@ namespace Trinity
 namespace Proxyd
 {
 
+  /**
+   * @brief This timer gets caled every minute,
+   *        to broadcast load to existing realmd
+   *        nodes.
+   */
   class Proxy_Timer : public ACE_Event_Handler
   {
     int handle_timeout(const ACE_Time_Value &, const void*)

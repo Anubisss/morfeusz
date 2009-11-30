@@ -101,10 +101,20 @@ public:
   void send(ByteBuffer*);
   std::string& get_login(){return this->login;}
   void set_account(Account act){this->acct = act;}
+
+  /**
+   * @brief Callback from ProxyDB::get_account
+   * @sa handle_cmsg_auth_session
+   */
   void account_retrieved(bool state);
 private:
   void die();
 
+  /**
+   * @brief Handles CMSG_AUTH_SESSION
+   *        This function verifies that client has
+   *        indeed authenticated via realmd.
+   */
   void handle_cmsg_auth_session();
   /**
    * @brief This function decides wether we forward packet to zone,

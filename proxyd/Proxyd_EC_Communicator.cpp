@@ -18,9 +18,9 @@
 
 /**
  *  @file
- *  @brief   <brief>
- *  @author  <author> <<email>>
- *  @date    <date>
+ *  @brief   Event channel communicator impl.
+ *  @author  raczman <raczman@gmail.com>
+ *  @date    2009-11-10
  *
  */
 

@@ -55,6 +55,11 @@ class ProxyDB : public DatabaseHolder<ProxyDatabaseConnection>
 {
  public:
  ProxyDB(int c): DatabaseHolder<ProxyDatabaseConnection>(c){}
+
+  /**
+   * @brief Retrieves user account from database
+   * @sa Proxy_Socket::handle_cmsg_auth_session
+   */
   void get_account(Proxy_Sock_Ptr sock);
 };
 
