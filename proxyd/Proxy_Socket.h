@@ -111,16 +111,23 @@ private:
   void die();
 
   /**
+   * @brief This function decides wether we forward packet to zone,
+   *        or handle it in here.
+   */
+  void process_incoming();
+
+  /**
    * @brief Handles CMSG_AUTH_SESSION
    *        This function verifies that client has
    *        indeed authenticated via realmd.
    */
   void handle_cmsg_auth_session();
+
   /**
-   * @brief This function decides wether we forward packet to zone,
-   *        or handle it in here.
+   * @brief Handles CMSG_PING
+   *        which makes client know its latency.
    */
-  void process_incoming();
+  void handle_cmsg_ping();
   Proxy_Sock_Ptr ptr;
   size_t expected_data;
   uint8 raw_buf[4096];

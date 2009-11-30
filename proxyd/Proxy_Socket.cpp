@@ -99,35 +99,61 @@ Proxy_Socket::handle_input(ACE_HANDLE)
 {
   PROXY_TRACE; 
 
-  size_t bytes_read = this->peer().recv(this->raw_buf, 4096);
+  size_t bytes_read = 0;
   
-  if(bytes_read == -1 || bytes_read == 0)
-    return -1;
+
 
   if(!expected_data)  // We are not expecting new data.
     {
-      this->crypto->decrypt(this->raw_buf, sizeof(ClientPktHeader));
+      bytes_read = this->peer().recv(this->raw_buf, 6);
 
+      //I'm sorry, but something's wrong. Please try again.
+      if(bytes_read < 6)
+	return -1;
+
+      //header's read, lets decrypt it.
+      this->crypto->decrypt(this->raw_buf, sizeof(ClientPktHeader));
+      
+      //Endian switch.
       Utils::EndianConvertReverse(*((int16*)&raw_buf[0]));
       Utils::EndianConvert(*((int32*)&raw_buf[2]));
-  
 
-      this->in_packet = new ClientPkt(bytes_read);
-      this->in_packet->append(raw_buf, bytes_read);
-      PROXY_LOG("test; %u %u\n",bytes_read,this->in_packet->PeekSize() + 2);
+      //Now let's receive rest of data.
+      //Actually size field in packet excludes size of that field in itself...
+      //So real packet size is reported size+2
+      //*((uint16*)raw_buf) - 4 because we have received whole header.
+      bytes_read = this->peer().recv(this->raw_buf + 6, *((uint16*)raw_buf) - 4);
 
-      if(bytes_read != (this->in_packet->PeekSize() + 2 ) )
+      //+6 since we have header already.
+      this->in_packet = new ClientPkt(bytes_read + 6);
+      this->in_packet->append(raw_buf, bytes_read + 6);
+
+      //If the size of received data + 4 (opcode size) isnt same as size declared in packet,
+      //We need to get rest before we proceed.
+      if(bytes_read + 4 != (this->in_packet->PeekSize()) )
 	{
-	  this->expected_data = this->in_packet->PeekSize() - bytes_read - 6;
+	  this->expected_data = this->in_packet->PeekSize() - bytes_read - 4;
 	  return 0;
 	}
     }
   else
     {
+      //Try to read remaining data
+      bytes_read = this->peer().recv(this->raw_buf, expected_data);
+      
+      if(bytes_read == -1 || bytes_read == 0)
+	return -1;
      
+      //Add the data into waiting packet.
       this->in_packet->append(raw_buf, bytes_read);
-      if(this->in_packet->size() != this->in_packet->PeekSize() + 2)
-	return 0;
+      
+      //If we still did not read whole packet at once,
+      //Give it another chance.
+      if(bytes_read != expected_data)
+	{
+	  expected_data -= bytes_read;
+	  return 0;
+	}
     }
   this->process_incoming();
   return 0;
@@ -150,6 +176,9 @@ Proxy_Socket::process_incoming()
     case CMSG_AUTH_SESSION:
       this->handle_cmsg_auth_session();
       break;
+    case CMSG_PING:
+      this->handle_cmsg_ping();
+      break;
     default:
       break;
     }
@@ -168,6 +197,7 @@ Proxy_Socket::handle_output(ACE_HANDLE)
     {
       ByteBuffer* buffer = this->packet_queue.front();
 #ifdef _TRINITY_DEBUG
+      PROXY_LOG("Sending packet:\n");
       buffer->hexlike();
 #endif      
       if(!this->continue_send)
@@ -224,6 +254,17 @@ Proxy_Socket::die()
   PROXY_TRACE; 
   sProxy->update_connections(false);
   this->ptr.release();
+}
+
+void
+Proxy_Socket::handle_cmsg_ping()
+{
+  uint32 seq;
+  *this->in_packet >> seq;
+  PROXY_LOG("PING: %u\n",seq);
+  ServerPkt* pkt = new ServerPkt(SMSG_PONG, 4);
+  *pkt << seq;
+  this->send(pkt);
 }
 
 };
