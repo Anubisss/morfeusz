@@ -24,6 +24,7 @@
  *
  */
 
+#include <algorithm>
 #include "Proxy_Crypto.h"
 
 namespace Trinity
@@ -43,16 +44,20 @@ Proxy_Crypto::set_key(BIGNUM* key)
 {
   HMAC_CTX ctx;
   uint8* hmac_key = new uint8[SEED_KEY_SIZE];
-  HMAC_CTX_init(&ctx);
   memcpy(hmac_key, &tbc_encryption_key, SEED_KEY_SIZE);
-  HMAC_Init_ex(&ctx, hmac_key, SEED_KEY_SIZE, EVP_sha1(), NULL);
+  
   uint8* tmp = new uint8[BN_num_bytes(key)];
   BN_bn2bin(key, tmp);
+  std::reverse(tmp, tmp + BN_num_bytes(key));
+
+  HMAC_CTX_init(&ctx);
+  HMAC_Init_ex(&ctx, hmac_key, SEED_KEY_SIZE, EVP_sha1(), NULL);
   HMAC_Update(&ctx, tmp, BN_num_bytes(key));
-  delete[] tmp;
-  HMAC_Final(&ctx, &this->key[0], NULL);
+  HMAC_Final(&ctx, this->key, NULL);
+  HMAC_CTX_cleanup(&ctx); 
+  
   delete[] hmac_key;
-  HMAC_CTX_cleanup(&ctx);
+  delete[] tmp;
   this->is_initialised = true;
 }
 
@@ -61,11 +66,11 @@ Proxy_Crypto::encrypt(uint8* data, size_t)
 {
   if(!this->is_initialised)
     return;
-  uint8 x = 0;
+
   for(uint8 t = 0; t < CRYPTED_SEND_LEN; t++)
     {
       send_i %= SHA_DIGEST_LENGTH;
-      x = (data[t] ^ this->key[send_i]) + send_j;
+      uint8 x = (data[t] ^ (this->key[send_i])) + send_j;
       ++send_i;
       data[t] = send_j = x;
     }
@@ -76,12 +81,12 @@ Proxy_Crypto::decrypt(uint8* data, size_t)
 {
   if(!this->is_initialised)
     return;
-  uint8 x = 0;
+
   for(uint8 t = 0; t < CRYPTED_RECV_LEN; t++)
     {
       recv_i %= SHA_DIGEST_LENGTH;
-      x = (data[t] - recv_j) ^ this->key[recv_i];
-      recv_i++;
+      uint8 x = (data[t] - recv_j) ^ (this->key[recv_i]);
+      ++recv_i;
       recv_j = data[t];
       data[t] = x;
     }

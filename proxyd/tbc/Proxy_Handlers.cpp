@@ -137,6 +137,7 @@ Proxy_Socket::account_retrieved(bool state)
       ACE_OS::free(v_char);
       delete[] s_bin;
       this->die();
+      return;
     }
   
 
@@ -145,7 +146,7 @@ Proxy_Socket::account_retrieved(bool state)
   uint8 check_digest[SHA_DIGEST_LENGTH];
   uint32 trailer = 0x00;
   BN_hex2bn(&K, this->acct.sessionkey.c_str());
-  this->crypto->set_key(K);
+
   uint8* k_char = new uint8[BN_num_bytes(K)];
   BN_bn2bin(K, k_char);
   std::reverse(k_char, k_char + 40);
@@ -156,13 +157,34 @@ Proxy_Socket::account_retrieved(bool state)
   SHA1_Update(sha, &trailer, 4);
   SHA1_Update(sha, &this->client_seed, 4);
   SHA1_Update(sha, &this->seed, 4);
-  SHA1_Update(sha, k_char, sizeof(k_char));
+  SHA1_Update(sha, k_char, BN_num_bytes(K));
   SHA1_Final(check_digest, sha);
   delete sha;
 
   //std::reverse(check_digest, check_digest + SHA_DIGEST_LENGTH);
 
   PROXY_LOG("memcmp %u\n",memcmp(check_digest, this->client_digest,20));
+
+  if(memcmp(check_digest, this->client_digest, 20))
+    {
+      BN_free(K);
+      BN_free(N);
+      BN_free(g);
+      BN_free(I);
+      BN_free(s);
+      BN_free(v);
+      BN_free(x);
+      BN_CTX_free(ctx);
+      ACE_OS::free(s_char);
+      ACE_OS::free(v_char);
+
+      this->die();
+      return;
+    }
+
+  this->crypto->set_key(K);
+
+  
 
   BN_free(K);
   BN_free(N);

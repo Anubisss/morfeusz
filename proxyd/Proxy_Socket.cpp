@@ -106,16 +106,18 @@ Proxy_Socket::handle_input(ACE_HANDLE)
 
   if(!expected_data)  // We are not expecting new data.
     {
+      this->crypto->decrypt(this->raw_buf, sizeof(ClientPktHeader));
+
       Utils::EndianConvertReverse(*((int16*)&raw_buf[0]));
       Utils::EndianConvert(*((int32*)&raw_buf[2]));
   
-      this->crypto->decrypt(this->raw_buf, sizeof(ClientPktHeader));
+
       this->in_packet = new ClientPkt(bytes_read);
       this->in_packet->append(raw_buf, bytes_read);
-      
+      PROXY_LOG("test; %u %u\n",bytes_read,this->in_packet->PeekSize() + 2);
+
       if(bytes_read != (this->in_packet->PeekSize() + 2 ) )
 	{
-	  PROXY_LOG("test; %u %u\n",bytes_read,this->in_packet->PeekSize() + 2);
 	  this->expected_data = this->in_packet->PeekSize() - bytes_read - 6;
 	  return 0;
 	}
