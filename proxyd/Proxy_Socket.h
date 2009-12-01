@@ -128,6 +128,15 @@ private:
    *        which makes client know its latency.
    */
   void handle_cmsg_ping();
+
+  /**
+   * @brief Handles CMSG_REALM_SPLIT
+   *        realm splits were a way of offy
+   *        to divide overpopulated realms.
+   *        The handler just sends back data
+   *        that indicates no split. 
+   */
+  void handle_cmsg_realm_split();
   Proxy_Sock_Ptr ptr;
   size_t expected_data;
   uint8 raw_buf[4096];

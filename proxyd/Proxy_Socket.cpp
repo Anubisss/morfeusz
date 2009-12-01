@@ -179,6 +179,9 @@ Proxy_Socket::process_incoming()
     case CMSG_PING:
       this->handle_cmsg_ping();
       break;
+    case CMSG_REALM_SPLIT:
+      this->handle_cmsg_realm_split();
+      break;
     default:
       break;
     }
@@ -265,6 +268,22 @@ Proxy_Socket::handle_cmsg_ping()
   ServerPkt* pkt = new ServerPkt(SMSG_PONG, 4);
   *pkt << seq;
   this->send(pkt);
+}
+
+void
+Proxy_Socket::handle_cmsg_realm_split()
+{
+  uint32 unk;
+  std::string date = "01/01/01"; //Magic taken from tc1.
+
+  *this->in_packet >> unk;
+  
+  ServerPkt* pkt = new ServerPkt(SMSG_REALM_SPLIT, 4+4+date.size()+1);
+  *pkt << unk;
+  *pkt << (uint32)0x00;
+  *pkt << date;
+  this->send(pkt);
+
 }
 
 };
