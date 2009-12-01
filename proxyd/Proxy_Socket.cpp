@@ -262,6 +262,7 @@ Proxy_Socket::die()
 void
 Proxy_Socket::handle_cmsg_ping()
 {
+  PROXY_TRACE;
   uint32 seq;
   *this->in_packet >> seq;
   PROXY_LOG("PING: %u\n",seq);
@@ -273,6 +274,7 @@ Proxy_Socket::handle_cmsg_ping()
 void
 Proxy_Socket::handle_cmsg_realm_split()
 {
+  PROXY_TRACE;
   uint32 unk;
   std::string date = "01/01/01"; //Magic taken from tc1.
 
