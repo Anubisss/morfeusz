@@ -166,7 +166,10 @@ PreparedStatement* MySQLConnection::prepareStatement(const std::string& sql)
     if (mysql_stmt_prepare(stmt, sql.c_str(), static_cast<unsigned long>(sql.length())))
     {
         mysql_stmt_close(stmt);
-        throw MySQLException("MySQLConnection: mysql_stmt_prepare error",mysql);
+	std::string error;
+	error += "MySQLConnection: mysql_stmt_prepare error:\n";
+	error += mysql_stmt_error(stmt);
+        throw MySQLException(error.c_str(),mysql);
     }
 
     return new MySQLPreparedStatement(this,stmt);
