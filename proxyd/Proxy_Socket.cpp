@@ -182,6 +182,9 @@ Proxy_Socket::process_incoming()
     case CMSG_REALM_SPLIT:
       this->handle_cmsg_realm_split();
       break;
+    case CMSG_CHAR_ENUM:
+      this->handle_cmsg_char_enum();
+      break;
     default:
       break;
     }
@@ -199,6 +202,7 @@ Proxy_Socket::handle_output(ACE_HANDLE)
   while(!this->packet_queue.empty())
     {
       ByteBuffer* buffer = this->packet_queue.front();
+      ((ServerPkt*)buffer)->SetSize(buffer->size() - 4);
 #ifdef _TRINITY_DEBUG
       PROXY_LOG("Sending packet:\n");
       buffer->hexlike();

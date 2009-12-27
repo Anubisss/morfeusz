@@ -40,6 +40,7 @@ namespace DatabaseAccess
 enum ProxyDatabaseStatements
   {
     PROXYD_DB_GET_ACCT,
+    PROXYD_DB_GET_CHAR,
     PROXYD_DB_STMT_MAX
   };
 
@@ -61,6 +62,7 @@ class ProxyDB : public DatabaseHolder<ProxyDatabaseConnection>
    * @sa Proxy_Socket::handle_cmsg_auth_session
    */
   void get_account(Proxy_Sock_Ptr sock);
+  void get_chars(Proxy_Sock_Ptr sock);
 };
 
 };

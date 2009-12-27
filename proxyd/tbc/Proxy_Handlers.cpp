@@ -206,5 +206,89 @@ Proxy_Socket::account_retrieved(bool state)
 
 }
 
+void
+Proxy_Socket::handle_cmsg_char_enum()
+{
+
+  sProxy->get_db()->get_chars(this->ptr);
+
+}
+
+void
+Proxy_Socket::characters_retrieved(bool state)
+{
+
+  ServerPkt* pkt = new ServerPkt(SMSG_CHAR_ENUM, 1);
+  
+  if(!state)
+    {
+      *pkt << uint8(0);
+      this->send(pkt);
+      return;
+    }
+  
+  PROXY_LOG("%u characters\n", this->characters.size());
+
+  *pkt << (uint8)this->characters.size();
+  
+  for(std::list<Character>::const_iterator iter = this->characters.begin();iter != this->characters.end(); iter++)
+    {
+      PROXY_LOG("%s \n", iter->name.c_str());
+      *pkt << uint64(uint64(iter->guid) | (uint64(0) <<24) | ( uint64(0) << 48) );
+      *pkt << iter->name;
+      *pkt << iter->race;
+      *pkt << iter->pclass;
+      *pkt << iter->gender;
+      *pkt << uint8(iter->bytes);
+      *pkt << uint8(iter->bytes >> 8);
+      *pkt << uint8(iter->bytes >> 16);
+      *pkt << uint8(iter->bytes >> 24);
+      *pkt << iter->bytes2;
+      *pkt << iter->level;
+      *pkt << iter->zone;
+      *pkt << iter->map;
+      *pkt << iter->x;
+      *pkt << iter->y;
+      *pkt << iter->z;
+      *pkt << iter->guild;
+      
+      /** @todo player & atlogin flags; */
+      *pkt << uint32(0x00);//2002000); //iter->player_flags;
+      
+      *pkt << (uint8)0x01; //UNK
+      
+      /**
+	@todo Load dbc's and get pets family info...
+	
+	*pkt << iter->pet.modelid;
+	*pkt << iter->pet.level;
+	*pkt << family;
+	
+      */
+      
+      *pkt << (uint32)0;
+      *pkt << (uint32)0;
+      *pkt << (uint32)0;
+      
+      for(uint8 slot = 0; slot < 19; slot++)
+	{
+	  /**
+	   * @todo
+	   * *pkt << (uint32)displayid;
+	   * *pkt << (uint8)inventory_type;
+	   * *pkt << (uint32)enchant_id;
+	   */
+	  *pkt << (uint32)0;
+	  *pkt << (uint8)0;
+	  *pkt << (uint32)0;
+	}
+      *pkt << (uint32)0;
+      *pkt << (uint8)0;
+      *pkt << (uint32)0;
+    }
+  
+  this->send(pkt);
+}
+
 };
 };

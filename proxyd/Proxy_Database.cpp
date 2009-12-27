@@ -70,8 +70,58 @@ namespace Proxyd
     }
   };
 
+  template <class C>
+  class getCharsObsv : public SqlOperationObserver<C, bool>
+  {
+  public:
+    getCharsObsv(Callback<C, bool> c): SqlOperationObserver<C, bool>(c){}
+    void update(const ACE_Future<SQL::ResultSet*> &future)
+    {
+      SQL::ResultSet* res;
+      future.get(res);
+
+      if(res->rowsCount() == 0)
+	{
+	  SqlOperationObserver<C, bool>::callback.call(false);
+	}
+      else
+	{
+	  std::list<Character> chars;
+	  while(res->next())
+	    {
+	      Character ch;
+	      ch.guid = res->getUint64(1);
+	      ch.name = res->getString(2);
+	      ch.race = res->getUint8(3);
+	      ch.pclass = res->getUint8(4);
+	      ch.gender = res->getUint8(5);
+	      ch.bytes = res->getUint32(6);
+	      ch.bytes2 = res->getUint8(7);
+	      ch.level = res->getUint8(8);
+	      ch.zone = res->getUint32(9);
+	      ch.map = res->getUint32(10);
+	      ch.x = res->getFloat(11);
+	      ch.y = res->getFloat(12);
+	      ch.z = res->getFloat(13);
+	      ch.guild = res->getUint32(14);
+	      ch.player_flags = res->getUint32(15);
+	      ch.login_flags = res->getUint32(16);
+	      ch.data = res->getString(17);
+	      ch.pet.entry = res->getUint32(18);
+	      ch.pet.displayid = res->getUint32(19);
+	      ch.pet.level = res->getUint32(20);
+	      chars.push_back(ch);
+	    }
+	  SqlOperationObserver<C, bool>::callback.get_obj()->set_characters(chars);
+	  SqlOperationObserver<C, bool>::callback.call(true);
+	}
+
+      delete res;
+      delete this;
+    }
+  };
+
 };
-  
 
 #define ADD_STMT(x, y) this->statement_holder[x] = this->connection->prepareStatement(y)
 bool
@@ -87,7 +137,20 @@ ProxyDatabaseConnection::open(const std::string& driver, const std::string& url)
       query += realmdb;
       query += ".account WHERE username = ?";
       ADD_STMT(PROXYD_DB_GET_ACCT, query.c_str());
-  
+      ADD_STMT(PROXYD_DB_GET_CHAR, 
+	       "SELECT c.guid, c.name, c.race,"
+	       "c.class, c.gender, c.playerBytes, "
+	       "c.playerBytes2, c.level, c.zone, "
+	       "c.map, c.position_x, c.position_y, "
+	       "c.position_z, gm.guildid, c.playerFlags, "
+	       "c.at_login, c.data, "
+	       "cp.entry, cp.modelid, cp.level "
+	       "FROM characters c "
+	       "LEFT JOIN guild_member gm ON c.guid = gm.guid "
+	       "LEFT JOIN character_pet cp ON cp.owner = gm.guid "
+	       "where c.account = ?");
+	       
+
       this->worker = new DatabaseWorker(this->query_queue, this);
       return true;
     }
@@ -112,6 +175,21 @@ ProxyDB::get_account(Proxy_Sock_Ptr sock)
   op->add_string(1, sock->get_login().c_str());
   this->enqueue(op);
   
+}
+
+void
+ProxyDB::get_chars(Proxy_Sock_Ptr sock)
+{
+  if(sock.null())
+    return;
+  ACE_Future<SQL::ResultSet*> res;
+  res.attach(new Proxyd::getCharsObsv<Proxy_Socket>
+	     (Callback<Proxy_Socket, bool>
+	      (sock, &Proxy_Socket::characters_retrieved)
+	      ));
+  SqlOperationRequest* op = new SqlOperationRequest(PROXYD_DB_GET_CHAR, res);
+  op->add_uint64(1, sock->get_acct_id());
+  this->enqueue(op);
 }
 
 };

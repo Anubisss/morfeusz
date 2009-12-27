@@ -60,12 +60,6 @@ struct ClientPktHeader
   uint32 cmd;
 };
 
-#if defined( __GNUC__ )
-#pragma pack()
-#else
-#pragma pack(pop)
-#endif
-
 struct Account
 {
   uint64 id;
@@ -76,6 +70,50 @@ struct Account
   std::string s;
   uint8 expansion;
 };
+
+struct Character_Pet
+{
+  uint32 entry;
+  uint32 displayid;
+  uint32 level;
+  uint32 family;
+  Character_Pet()
+  {
+    entry = 0;
+    displayid = 0;
+    level = 0;
+    family = 0;
+  }
+};
+
+struct Character
+{
+  uint64 guid;
+  uint8 race;
+  uint8 pclass;  //"player class" - class is a keyword hence the "p"
+  uint8 gender;
+  uint32 bytes;
+  uint8 bytes2;
+  uint8 level;
+  std::string name;
+  float x;
+  float y;
+  float z;
+  uint32 map;
+  uint32 zone;
+  uint32 login_flags;
+  uint32 player_flags;
+  Character_Pet pet;
+  std::string data;
+  uint32 guild;
+};
+
+
+#if defined( __GNUC__ )
+#pragma pack()
+#else
+#pragma pack(pop)
+#endif
 
 class Proxy_Crypto;
 class Proxy_Socket;
@@ -101,12 +139,19 @@ public:
   void send(ByteBuffer*);
   std::string& get_login(){return this->login;}
   void set_account(Account act){this->acct = act;}
-
+  void set_characters(std::list<Character> list){this->characters = list;}
+  uint64 get_acct_id(){return this->acct.id;}
   /**
    * @brief Callback from ProxyDB::get_account
    * @sa handle_cmsg_auth_session
    */
   void account_retrieved(bool state);
+
+  /**
+   * @brief Callback from ProxyDB::get_chars
+   * @sa handle_cmsg_char_enum
+   */
+  void characters_retrieved(bool chars_present);
 private:
   void die();
 
@@ -137,6 +182,14 @@ private:
    *        that indicates no split. 
    */
   void handle_cmsg_realm_split();
+
+  /**
+   * @brief Handles CMSG_CHAR_ENUM
+   *        
+   *
+   */
+  void handle_cmsg_char_enum();
+
   Proxy_Sock_Ptr ptr;
   size_t expected_data;
   uint8 raw_buf[4096];
@@ -158,6 +211,7 @@ private:
 
   uint8* client_digest;
   uint32 client_seed;
+  std::list<Character> characters;
   std::list<ByteBuffer*> packet_queue;
   ACE_Recursive_Thread_Mutex queue_mtx;
   bool out_active;
