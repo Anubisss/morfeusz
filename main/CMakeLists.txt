@@ -15,6 +15,7 @@ add_executable(trinity ${main_SRCS})
 target_link_libraries(
   trinity
   trinitydatabase
+  common
   realmd
   proxyd
   ${ACE_LIBRARY}
