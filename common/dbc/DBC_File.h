@@ -84,6 +84,7 @@ public:
   float read_float();
   std::string read_string();
   uint32 get_records(){return this->records;}
+  void skip_field();
 
 private:
   uint32 records;

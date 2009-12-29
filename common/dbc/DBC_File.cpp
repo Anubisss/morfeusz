@@ -99,5 +99,13 @@ DBC_File::read_string()
   return ret;
 }
 
+void
+DBC_File::skip_field()
+{
+
+  file.seekg(this->field_size, std::ios_base::cur);
+
+}
+
 };
 };
