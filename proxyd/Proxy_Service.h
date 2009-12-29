@@ -21,7 +21,7 @@
  *  @brief   Definition for Proxy_Service class.
  *  @author  raczman <raczman@gmail.com>
  *  @date    2009-11-13
- *
+ *  @ingroup Proxy
  */
 
 #ifndef PROXY_SERVICE_H

@@ -21,8 +21,9 @@
  *  @brief   Proxy_Socket class definition
  *  @author  raczman <raczman@gmail.com>
  *  @date    2009-11-13
- *
+ *  @ingroup Proxy
  */
+
 #ifndef PROXY_SOCKET_H
 #define PROXY_SOCKET_H
 

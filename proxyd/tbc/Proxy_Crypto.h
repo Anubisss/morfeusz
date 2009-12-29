@@ -21,7 +21,7 @@
  *  @brief   Crypto implementation for TBC client version.
  *  @author  raczman <raczman@gmail.com>
  *  @date    2009-11-14
- *
+ *  @ingroup Proxy
  */
 
 #include "Proxy_Crypto_Base.h"

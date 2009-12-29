@@ -21,7 +21,7 @@
  *  @brief   Proxy_Timer definition.
  *  @author  raczman <raczman@gmail.com>
  *  @date    2009-11-10
- *
+ *  @ingroup Proxy
  */
 
 #ifndef _PROXY_TIMER_H

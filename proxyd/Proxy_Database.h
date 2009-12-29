@@ -21,7 +21,7 @@
  *  @brief   Proxies' database access classes.
  *  @author  raczman <raczman@gmail.com>
  *  @date    2009-11-24
- *
+ *  @ingroup Proxy
  */
 
 #ifndef _PROXY_DATABASE_H

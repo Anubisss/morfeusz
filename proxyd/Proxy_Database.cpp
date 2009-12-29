@@ -21,7 +21,7 @@
  *  @brief   Proxy database implementation.
  *  @author  raczman <raczman@gmail.com>
  *  @date    2009-11-24
- *
+ *  @ingroup Proxy
  */
 
 #include "Proxy_Database.h"

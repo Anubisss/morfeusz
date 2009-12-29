@@ -21,7 +21,7 @@
  *  @brief   Abstract class for packet encryption.
  *  @author  raczman <raczman@gmail.com>
  *  @date    2009-11-14
- *
+ *  @ingroup Proxy
  */
 
 #include "Common.h"

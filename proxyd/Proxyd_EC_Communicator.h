@@ -21,8 +21,9 @@
  *  @brief   Event Channel communication for Proxy Service
  *  @author  raczman <raczman@gmail.com>
  *  @date    2009-11-17
- *
+ *  @ingroup Proxy
  */
+
 #ifndef _PROXY_EC_COMMUNICATOR_H
 #define _PROXY_EC_COMMUNICATOR_H  
 #include <orbsvcs/CosEventCommS.h>
