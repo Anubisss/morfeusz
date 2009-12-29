@@ -49,6 +49,22 @@ struct ItemEntry
 
 typedef UNORDERED_MAP<uint32, ItemEntry> item_map;
 
+struct SpellItemEnchantmentEntry
+{
+  uint32 type[3];
+  uint32 amount[3];
+  //uint32[3]
+  uint32 spell_id[3];
+  std::string desc;
+  //std::string description[16];
+  uint32 aura_id;
+  uint32 slot;
+  uint32 gem_id;
+  uint32 enchantment_condition;
+};
+
+typedef UNORDERED_MAP<uint32, SpellItemEnchantmentEntry> spell_item_ench_map;
+
 class DBC_Store
 {
   friend class ACE_Singleton<DBC_Store, ACE_Null_Mutex>;
@@ -56,10 +72,13 @@ class DBC_Store
   static DBC_Store* instance(){ACE_Singleton<DBC_Store, ACE_Null_Mutex>::instance();}
   void open();
   void load_item_dbc();
+  void load_spell_item_enchantments_dbc();
+  item_map* get_item_map(){return &items;}
  private:
   DBC_Store(){}
   std::string path;
-  item_map items_map;
+  item_map items;
+  spell_item_ench_map spell_item_enchantments;
 };
 
 };

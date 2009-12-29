@@ -59,12 +59,59 @@ DBC_Store::load_item_dbc()
   for(int i = 0; i < dbc->get_records(); i++)
     {
       uint32 entry = dbc->read_uint32();
-      items_map[entry].display_id = dbc->read_uint32();
-      items_map[entry].inventory_type = dbc->read_uint32();
-      items_map[entry].sheath = dbc->read_uint32();
+      ItemEntry& item = this->items[entry];
+      item.display_id = dbc->read_uint32();
+      item.inventory_type = dbc->read_uint32();
+      item.sheath = dbc->read_uint32();
     }
 
-  ACE_DEBUG((LM_ERROR,"Loaded %u Item.dbc entries\n",items_map.size()));
+  ACE_DEBUG((LM_ERROR,"Loaded %u Item.dbc entries\n",items.size()));
+
+  delete dbc;
+}
+
+void
+DBC_Store::load_spell_item_enchantments_dbc()
+{
+
+  std::string file = this->path;
+  file += "SpellItemEnchantment.dbc";
+
+  DBC_File* dbc = new DBC_File(file.c_str());
+
+  for(int i = 0; i < dbc->get_records(); i++)
+    {
+      uint32 entry = dbc->read_uint32();
+      SpellItemEnchantmentEntry& spell = this->spell_item_enchantments[entry];
+      spell.type[0] = dbc->read_uint32();
+      spell.type[1] = dbc->read_uint32();
+      spell.type[2] = dbc->read_uint32();
+
+      spell.amount[0] = dbc->read_uint32();
+      spell.amount[1] = dbc->read_uint32();
+      spell.amount[2] = dbc->read_uint32();
+
+      dbc->skip_field();
+      dbc->skip_field();
+      dbc->skip_field();
+
+      spell.spell_id[0] = dbc->read_uint32();
+      spell.spell_id[1] = dbc->read_uint32();
+      spell.spell_id[2] = dbc->read_uint32();
+      
+      spell.desc = dbc->read_string();
+      
+      for(int j = 0; j < 16; j++)
+	dbc->skip_field();
+
+      spell.aura_id = dbc->read_uint32();
+      spell.slot = dbc->read_uint32();
+      spell.gem_id = dbc->read_uint32();
+      spell.enchantment_condition = dbc->read_uint32();
+      
+    }
+
+    ACE_DEBUG((LM_ERROR,"Loaded %u SpellItemEnchantment.dbc entries\n",this->spell_item_enchantments.size()));
 
   delete dbc;
 }
