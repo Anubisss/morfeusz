@@ -24,6 +24,9 @@
  *
  */
 
+#ifndef _DBC_FILE_H
+#define _DBC_FILE_H
+
 #include <iostream>
 #include <fstream>
 
@@ -108,3 +111,4 @@ private:
 
 };
 };
+#endif //_DBC_FILE_H
