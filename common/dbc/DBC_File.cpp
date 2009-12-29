@@ -33,7 +33,7 @@ namespace Trinity
 namespace DBC
 {
 
-DBC_File::DBC_File(char* src)
+DBC_File::DBC_File(const char* src)
 {
   this->file.open(src, std::fstream::binary);
   if(!file)

@@ -76,7 +76,7 @@ public:
    * @brief Opens up .dbc, reads header data, and if something goes wrong, throws.
    * @param src File location.
    */
-  DBC_File(char* src);
+  DBC_File(const char* src);
   
   /**
    * @brief Hardly ever field size in DBC is something other than 4.
