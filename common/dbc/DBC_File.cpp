@@ -52,7 +52,7 @@ DBC_File::DBC_File(const char* src)
   // So, let's get down to math!
   // Complete data size is records times records size. We add header size to it
   // And size of NULL that precedes string block.
-  this->data_size = (this->records * this->record_size) + 20 + 1;
+  this->data_size = (this->records * this->record_size) + 20;
   
 }
   
