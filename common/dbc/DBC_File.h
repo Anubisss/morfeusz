@@ -49,7 +49,7 @@ public:
 };
 
   /**
-   * @brief DBC files live here. Each Data_Store symbols a .dbc opened.
+   * @brief DBC files live here. Each DBC_File symbols a .dbc opened.
    *        The class itself serves as an abstraction layer for reading .dbc's.
    *        At the same time it will try to ensure it is as idiot proof as needed.
    *        DBC files are binary storage format used by Blizzard to hold certain data
@@ -65,7 +65,7 @@ public:
    *        When referencing to a string, DBC just marks an offset into string bblock from which to read.
    * 
    */
-class Data_Store
+class DBC_File
 {
 public:
 
@@ -73,7 +73,7 @@ public:
    * @brief Opens up .dbc, reads header data, and if something goes wrong, throws.
    * @param src File location.
    */
-  Data_Store(char* src);
+  DBC_File(char* src);
   
   /**
    * @brief Hardly ever field size in DBC is something other than 4.
@@ -83,7 +83,8 @@ public:
   uint32 read_uint32();
   float read_float();
   std::string read_string();
-  
+  uint32 get_records(){return this->records;}
+
 private:
   uint32 records;
   uint32 record_size;
@@ -101,7 +102,7 @@ private:
   /**
    * @brief I dont like default constructor for a reason.
    */
-  Data_Store(){}
+  DBC_File(){}
 };
 
 };
