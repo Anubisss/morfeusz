@@ -24,7 +24,7 @@ endif()
 
 if(_DEBUG)
 message(STATUS "Debug build")
-add_definitions(-D_TRINITY_DEBUG -ggdb)
+add_definitions(-D_TRINITY_DEBUG)
 else()
 message(STATUS "Normal build")
 endif()
