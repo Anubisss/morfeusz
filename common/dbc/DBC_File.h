@@ -32,6 +32,9 @@
 namespace Trinity
 {
 
+  /**
+   * @brief Contains classes used for accessing data inside of .dbc files.
+   */
 namespace DBC
 {
 
@@ -65,6 +68,11 @@ public:
 class Data_Store
 {
 public:
+
+  /**
+   * @brief Opens up .dbc, reads header data, and if something goes wrong, throws.
+   * @param src File location.
+   */
   Data_Store(char* src);
   
   /**
@@ -83,6 +91,7 @@ private:
   uint32 fields;
   
   std::ifstream file;
+
   /**
    * @brief size of dbc - string_block_size
    */
