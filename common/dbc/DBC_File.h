@@ -97,6 +97,7 @@ private:
    */
   uint32 data_size;
   uint32 string_block_size;
+
   /**
    * @brief I dont like default constructor for a reason.
    */
