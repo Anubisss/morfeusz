@@ -39,5 +39,6 @@ add_library(proxyd STATIC ${proxyd_SRCS})
 add_dependencies(proxyd proxyd_idl)
 target_link_libraries(
   proxyd
+  common
   trinityconfig
   )

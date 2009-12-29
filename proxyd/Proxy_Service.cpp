@@ -31,6 +31,7 @@
 #include "Proxy_Service.h"
 #include "Proxyd_EC_Communicator.h"
 #include "Proxy_Timer.h"
+#include "dbc/DBC_Store.h"
 
 namespace Trinity
 {
@@ -57,6 +58,9 @@ Proxy_Service::start()
 #endif
   this->acceptor = new ProxydAcceptor();
   
+  sDBC->open();
+  sDBC->load_item_dbc();
+
   if(this->acceptor->
      open(ACE_INET_Addr(sConfig->getString("proxyd","BindAddr").c_str()),
 	  this->reactor) == -1)
