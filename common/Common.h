@@ -72,9 +72,6 @@ typedef ACE_UINT32 uint32;
 typedef ACE_UINT16 uint16;
 typedef ACE_UINT8 uint8;
 
-//#define DOR_BIGENDIAN 0
-//#define DOR_LITTLEENDIAN 1
-
 #define TRINITY_LITTLEENDIAN 0
 #define TRINITY_BIGENDIAN    1
 
@@ -93,14 +90,13 @@ typedef ACE_UINT8 uint8;
 #	define SNPRINTF snprintf
 #endif
 
-#define WPAssert( assertion ) do { \
-			          if( !(assertion) ) \
-				  { \
-				      fprintf( stderr, "\n%s:%i ASSERTION FAILED:\n  %s\n", __FILE__, __LINE__, #assertion ); \
-				      assert( #assertion &&0 ); \
-				  } \
-				 } while (0)
-#define ASSERT WPAssert
+#define ASSERT( assertion ) do {					\
+    if( !(assertion) )							\
+      {									\
+	fprintf( stderr, "\n%s:%i ASSERTION FAILED:\n  %s\n", __FILE__, __LINE__, #assertion ); \
+	assert( #assertion &&0 );					\
+      }									\
+  } while (0)
 
 
 #endif /* COMMON_H_ */
