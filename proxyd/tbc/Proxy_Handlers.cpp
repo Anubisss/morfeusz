@@ -27,6 +27,8 @@
 #include <openssl/bn.h>
 #include <openssl/sha.h>
 
+#include "Update_Fields.h"
+#include "dbc/DBC_Store.h"
 #include "Proxy_Service.h"
 #include "Proxy_Socket.h"
 #include "Proxy_Crypto.h"
@@ -274,13 +276,23 @@ Proxy_Socket::characters_retrieved(bool state)
 	{
 	  /**
 	   * @todo
-	   * *pkt << (uint32)displayid;
-	   * *pkt << (uint8)inventory_type;
 	   * *pkt << (uint32)enchant_id;
 	   */
-	  *pkt << (uint32)0;
-	  *pkt << (uint8)0;
-	  *pkt << (uint32)0;
+
+	  uint32 item_id = iter->update_fields[PLAYER_VISIBLE_ITEM_1_0 + (slot * 16)];
+	  if(sDBC->get_item_map()->find(item_id) != sDBC->get_item_map()->end())
+	    {
+	      const Trinity::DBC::ItemEntry& item = sDBC->get_item_map()->find(item_id)->second;
+	      *pkt << (uint32)item.display_id;
+	      *pkt << (uint8)item.inventory_type;
+	      *pkt << (uint32)0;
+	    }
+	  else
+	    {
+	      *pkt << (uint32)0;
+	      *pkt << (uint8)0;
+	      *pkt << (uint32)0;
+	    }
 	}
       *pkt << (uint32)0;
       *pkt << (uint8)0;
