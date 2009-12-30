@@ -74,6 +74,7 @@ class DBC_Store
   void load_item_dbc();
   void load_spell_item_enchantments_dbc();
   item_map* get_item_map(){return &items;}
+  spell_item_ench_map* get_spell_item_ench_map(){return &spell_item_enchantments;}
  private:
   DBC_Store(){}
   std::string path;
