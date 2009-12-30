@@ -106,7 +106,19 @@ namespace Proxyd
 	      ch.guild = res->getUint32(14);
 	      ch.player_flags = res->getUint32(15);
 	      ch.login_flags = res->getUint32(16);
-	      ch.data = res->getString(17);
+
+	      std::string data = res->getString(17);
+	      std::istringstream iss(data);
+	      std::string field;
+	      uint32 int_field;
+	      while(std::getline(iss, field, ' '))
+		{
+		  
+		  int_field = ACE_OS::atoi(field.c_str());
+		  ch.update_fields.push_back(int_field);
+		  field.clear();
+		}
+	      	      
 	      ch.pet.entry = res->getUint32(18);
 	      ch.pet.displayid = res->getUint32(19);
 	      ch.pet.level = res->getUint32(20);
