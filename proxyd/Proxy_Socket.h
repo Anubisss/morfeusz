@@ -105,7 +105,7 @@ struct Character
   uint32 login_flags;
   uint32 player_flags;
   Character_Pet pet;
-  std::string data;
+  std::vector<uint32> update_fields;
   uint32 guild;
 };
 
