@@ -60,6 +60,7 @@ Proxy_Service::start()
   
   sDBC->open();
   sDBC->load_item_dbc();
+  sDBC->load_spell_item_enchantments_dbc();
 
   if(this->acceptor->
      open(ACE_INET_Addr(sConfig->getString("proxyd","BindAddr").c_str()),

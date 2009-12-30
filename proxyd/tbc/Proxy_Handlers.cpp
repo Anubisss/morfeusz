@@ -278,14 +278,30 @@ Proxy_Socket::characters_retrieved(bool state)
 	   * @todo
 	   * *pkt << (uint32)enchant_id;
 	   */
-
-	  uint32 item_id = iter->update_fields[PLAYER_VISIBLE_ITEM_1_0 + (slot * 16)];
+	  uint32 item_base = PLAYER_VISIBLE_ITEM_1_0 + (slot * 16);
+	  uint32 item_id = iter->update_fields[item_base];
 	  if(sDBC->get_item_map()->find(item_id) != sDBC->get_item_map()->end())
 	    {
 	      const Trinity::DBC::ItemEntry& item = sDBC->get_item_map()->find(item_id)->second;
+	      const Trinity::DBC::SpellItemEnchantmentEntry* spell = NULL;
+	      
 	      *pkt << (uint32)item.display_id;
 	      *pkt << (uint8)item.inventory_type;
-	      *pkt << (uint32)0;
+	
+	      for(uint8 i = 0; i <= 1; i++)
+		{
+		  uint32 enchant_id = iter->update_fields[item_base + 1 + i];
+		  
+		  if(sDBC->get_spell_item_ench_map()->find(enchant_id) 
+		     != 
+		     sDBC->get_spell_item_ench_map()->end())
+		    {
+		      spell = &sDBC->get_spell_item_ench_map()->find(enchant_id)->second;
+		    }
+		}
+
+	      *pkt << (uint32)(spell? spell->aura_id :0);
+
 	    }
 	  else
 	    {
