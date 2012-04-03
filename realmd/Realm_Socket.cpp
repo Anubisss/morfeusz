@@ -651,9 +651,9 @@ Realm_Socket::build_expansion_realm_packet()
       if (i->second.build != this->client_build)
         continue;
       
-      *pkt << (uint8) i->second.icon;
-      *pkt << (uint8)(i->second.allowedSecurityLevel > this->acct.gmlevel ? 1:0);
-      *pkt << (uint8) i->second.color;
+      *pkt << uint8(i->second.icon);
+      *pkt << uint8(i->second.allowedSecurityLevel > this->acct.gmlevel ? 1 : 0);
+      *pkt << uint8(i->second.color);
       *pkt << i->second.name;
 
       if(!i->second.address.compare(":0"))
@@ -662,20 +662,21 @@ Realm_Socket::build_expansion_realm_packet()
 	}
       else
 	{
+        REALM_LOG("proxy: %s\n", i->second.address.c_str());
 	  *pkt << i->second.address;
 	}
 
-      *pkt << (float)i->second.population;
-      *pkt << (uint8)this->realm_char_amount[i->first];
-      *pkt << (uint8) i->second.timezone;
-      *pkt << (uint8) 0x00;
+      *pkt << float(i->second.population);
+      *pkt << uint8(this->realm_char_amount[i->first]);
+      *pkt << uint8(i->second.timezone);
+      *pkt << uint8(0x00);
     }
-  *pkt << (uint8) 0x10;
-  *pkt << (uint8) 0x00;
+  *pkt << uint8(0x10);
+  *pkt << uint8(0x00);
   
   ByteBuffer *data = new ByteBuffer;
-  *data << (uint8)REALM_LIST;
-  *data << (uint16) pkt->size();
+  *data << uint8(REALM_LIST);
+  *data << uint16(pkt->size());
   data->append(*pkt);
   delete pkt;
   return data;

@@ -142,9 +142,6 @@ Proxy_Socket::account_retrieved(bool state)
       return;
     }
   
-
- 
-  
   uint8 check_digest[SHA_DIGEST_LENGTH];
   uint32 trailer = 0x00;
   BN_hex2bn(&K, this->acct.sessionkey.c_str());
