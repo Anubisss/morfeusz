@@ -1,5 +1,6 @@
 /*
  * Copyright (C) 2009 Dawn Of Reckoning
+ * Copyright (C) 2012 Morpheus
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -29,15 +30,17 @@
 #include "../Statement.h"
 #include "SQLiteConnection.h"
 
-namespace Trinity
+namespace Morpheus
 {
+
 namespace SQL
 {
 
-
 class SQLiteStatement : public Statement
 {
+
 public:
+
     SQLiteStatement(SQLiteConnection* conn);
     virtual ~SQLiteStatement();
     void close();
@@ -70,9 +73,8 @@ public:
 
     sqlite3* getSQLiteHandle() const;
 
-
-
 private :
+
     void doQuery(const char* sql, uint32 length);
     void checkClosed();
     SQLiteConnection* sqliteConn;
@@ -80,8 +82,7 @@ private :
     bool closed;
 };
 
-}
-}
-
+};
+};
 
 #endif /* SQLITESTATEMENT_H_ */

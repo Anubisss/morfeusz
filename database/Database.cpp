@@ -1,5 +1,6 @@
 /*
  * Copyright (C) 2009 Dawn Of Reckoning
+ * Copyright (C) 2012 Morpheus
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -34,12 +35,11 @@
     #endif
 #endif
 
-namespace Trinity
+namespace Morpheus
 {
 
 namespace DatabaseAccess
 {
-
 
 ////////////////////////////////////////////////////////
 // SqlOperationBase implementation
@@ -50,8 +50,7 @@ SqlOperationBase::SqlOperationBase(uint32 statement_id) : statement(statement_id
 
 }
 
-
-SqlOperationBase::SqlOperationBase(uint32 statement_id, ACE_Future<SQL::ResultSet*> res): statement(statement_id), result(res),has_result(true)
+SqlOperationBase::SqlOperationBase(uint32 statement_id, ACE_Future<SQL::ResultSet*> res): statement(statement_id), result(res), has_result(true)
 {}
 
 void SqlOperationBase::add_bool(uint8 index, bool value)
@@ -63,7 +62,6 @@ void SqlOperationBase::add_bool(uint8 index, bool value)
     statement_data[index].type = TYPE_BOOL;
 }
 
-
 void SqlOperationBase::add_uint8(uint8 index, uint8 value)
 {
     if (statement_data.size() < index)
@@ -73,7 +71,6 @@ void SqlOperationBase::add_uint8(uint8 index, uint8 value)
     statement_data[index].type = TYPE_U8;
 }
 
-
 void SqlOperationBase::add_uint16(uint8 index, uint16 value)
 {
     if (statement_data.size() < index)
@@ -82,7 +79,6 @@ void SqlOperationBase::add_uint16(uint8 index, uint16 value)
     statement_data[--index].data.u32 = value;
     statement_data[index].type = TYPE_U16;
 }
-
 
 void SqlOperationBase::add_uint32(uint8 index, uint32 value)
 {
@@ -102,7 +98,6 @@ void SqlOperationBase::add_uint64(uint8 index, uint64 value)
     statement_data[index].type = TYPE_U64;
 }
 
-
 void SqlOperationBase::add_float(uint8 index, float value)
 {
     if (statement_data.size() < index)
@@ -114,21 +109,18 @@ void SqlOperationBase::add_float(uint8 index, float value)
 
 void SqlOperationBase::add_string(uint8 index, const char* value)
 {
-  if (statement_data.size() < index)
-    statement_data.resize(index);
-  statement_data[--index].str.append(value);
-  statement_data[index].type = TYPE_STRING;
+    if (statement_data.size() < index)
+        statement_data.resize(index);
+    statement_data[--index].str.append(value);
+    statement_data[index].type = TYPE_STRING;
   
 }
 
 void SqlOperationBase::execute()
 {
-    try
-    {
-        for (int i = 0; i < statement_data.size(); i++)
-        {
-            switch (statement_data[i].type)
-            {
+    try {
+        for (int i = 0; i < statement_data.size(); i++) {
+            switch (statement_data[i].type) {
             case TYPE_BOOL:
                 db->get_prep_stmt(this->statement)->setBool(i + 1, statement_data[i].data.boolean);
                 break;
@@ -148,20 +140,17 @@ void SqlOperationBase::execute()
                 break;
             }
         }
-        if (has_result)
-        {
+
+        if (has_result) {
             SQL::ResultSet* result = db->get_prep_stmt(this->statement)->executeQuery();
             this->result.set(result);
         }
         else
-        {
             db->get_prep_stmt(this->statement)->execute();
-        }
 
         db->get_prep_stmt(this->statement)->clearParameters();
     }
-    catch (SQL::SQLException &e)
-    {
+    catch (SQL::SQLException &e) {
         ACE_ERROR((LM_ERROR,"Error while executing statement: %s \n", e.what()));
     }
 }
@@ -175,7 +164,7 @@ SqlOperationRequest::SqlOperationRequest(uint32 statement_id) : SqlOperationBase
 
 }
 
-SqlOperationRequest::SqlOperationRequest(uint32 statement_id, ACE_Future<SQL::ResultSet*> res): SqlOperationBase(statement_id,res)
+SqlOperationRequest::SqlOperationRequest(uint32 statement_id, ACE_Future<SQL::ResultSet*> res): SqlOperationBase(statement_id, res)
 {
 
 }
@@ -200,8 +189,7 @@ int DatabaseWorker::svc(void)
 
     SqlOperationRequest* request;
 
-    while (1)
-    {
+    while (1) {
         request = (SqlOperationRequest*)this->queue->dequeue();
 
         if (!request)
@@ -209,7 +197,7 @@ int DatabaseWorker::svc(void)
 
         request->set_database(this->db);
         request->call();
-	delete request;
+        delete request;
     }
 #if HAVE_MYSQL
     mysql_thread_end();
@@ -217,6 +205,5 @@ int DatabaseWorker::svc(void)
     delete this;
 }
 
-}
-
-}
+};
+};

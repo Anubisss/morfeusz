@@ -1,5 +1,6 @@
 /* -*- C++ -*-
  * Copyright (C) 2009 Trinity Core <http://www.trinitycore.org>
+ * Copyright (C) 2012 Morpheus
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -35,25 +36,27 @@
 #include <openssl/sha.h>
 #include <algorithm>
 
-namespace Trinity
+namespace Morpheus
 {
+
 namespace Realmd
 {
+
 enum eAuthCmd
-  {
+{
     //AUTH_NO_CMD                 = 0xFF,
     AUTH_LOGON_CHALLENGE        = 0x00,
     AUTH_LOGON_PROOF            = 0x01,
     AUTH_RECONNECT_CHALLENGE    = 0x02,
     AUTH_RECONNECT_PROOF        = 0x03,
-    //update srv =4
+    //update srv                = 0x04,
     REALM_LIST                  = 0x10,
     XFER_INITIATE               = 0x30,
     XFER_DATA                   = 0x31,
     XFER_ACCEPT                 = 0x32,
     XFER_RESUME                 = 0x33,
     XFER_CANCEL                 = 0x34
-  };
+};
 
 #if defined( __GNUC__ )
 #pragma pack(1)
@@ -63,40 +66,40 @@ enum eAuthCmd
 
 typedef struct AUTH_LOGON_CHALLENGE_C
 {
-  uint8   cmd;
-  uint8   error;
-  uint16  size;
-  uint8   gamename[4];
-  uint8   version1;
-  uint8   version2;
-  uint8   version3;
-  uint16  build;
-  uint8   platform[4];
-  uint8   os[4];
-  uint8   country[4];
-  uint32  timezone_bias;
-  uint32  ip;
-  uint8   I_len;
-  uint8   I[1];
+    uint8   cmd;
+    uint8   error;
+    uint16  size;
+    uint8   gamename[4];
+    uint8   version1;
+    uint8   version2;
+    uint8   version3;
+    uint16  build;
+    uint8   platform[4];
+    uint8   os[4];
+    uint8   country[4];
+    uint32  timezone_bias;
+    uint32  ip;
+    uint8   I_len;
+    uint8   I[1];
 } sAuthLogonChallenge_C;
 
 typedef struct AUTH_LOGON_PROOF_C
 {
-  uint8   cmd;
-  uint8   A[32];
-  uint8   M1[20];
-  uint8   crc_hash[20];
-  uint8   number_of_keys;
-  uint8   unk;
+    uint8   cmd;
+    uint8   A[32];
+    uint8   M1[20];
+    uint8   crc_hash[20];
+    uint8   number_of_keys;
+    uint8   unk;
 } sAuthLogonProof_C;
 
 typedef struct AUTH_RECONNECT_PROOF_C
 {
-  uint8 cmd;
-  uint8 R1[16];
-  uint8 R2[20];
-  uint8 R3[20];
-  uint8 number_of_keys;
+    uint8 cmd;
+    uint8 R1[16];
+    uint8 R2[20];
+    uint8 R3[20];
+    uint8 number_of_keys;
 } sAuthReconnectProof_C;
 
 #if defined( __GNUC__ )
@@ -113,306 +116,295 @@ enum SupportedClientBuilds
     BUILD_3_20 = 10505
 };
 
-bool
-isSupportedClientBuild(int build)
+bool isSupportedClientBuild(int build)
 {
-  switch (build)
+    switch (build)
     {
     case BUILD_1_12:
     case BUILD_2_43:
     case BUILD_3_20:
     case BUILD_3_13:
-      return true;
+        return true;
     default:
-      return false;
+        return false;
     }
-  return false;
+
+    return false;
 }
 
 Realm_Socket::Realm_Socket()
-  :ptr(this), out_active(false), state(STATUS_CONNECTED)
+    :ptr(this), out_active(false), state(STATUS_CONNECTED)
 {
-  REALM_TRACE;
+    REALM_TRACE;
 
-  ctx = BN_CTX_new();
-  N = NULL;
-  BN_hex2bn(&N, "894B645E89E1535BBDAD5B8B290650530801B18EBFBF5E8FAB3C82872A3E9BB7");
-  g = BN_new();
-  k = BN_new();
-  s = BN_new();
-  v = BN_new();
-  b = BN_new();
-  B = BN_new();
-  reconnect_proof = BN_new();
+    ctx = BN_CTX_new();
+    N = NULL;
+    BN_hex2bn(&N, "894B645E89E1535BBDAD5B8B290650530801B18EBFBF5E8FAB3C82872A3E9BB7");
+    g = BN_new();
+    k = BN_new();
+    s = BN_new();
+    v = BN_new();
+    b = BN_new();
+    B = BN_new();
+    reconnect_proof = BN_new();
 
-  BN_set_word(k, 3);
-  BN_set_word(g, 7);
-  BN_rand(s, 32*8, 0, 1);
-
+    BN_set_word(k, 3);
+    BN_set_word(g, 7);
+    BN_rand(s, 32*8, 0, 1);
 }
 
 Realm_Socket::~Realm_Socket()
 {
-  REALM_TRACE;
-  BN_CTX_free(ctx);
-  BN_free(g);
-  BN_free(k);
-  BN_free(s);
-  BN_free(v);
-  BN_free(b);
-  BN_free(B);
-  BN_free(N);
-  BN_free(reconnect_proof);
+    REALM_TRACE;
+    BN_CTX_free(ctx);
+    BN_free(g);
+    BN_free(k);
+    BN_free(s);
+    BN_free(v);
+    BN_free(b);
+    BN_free(B);
+    BN_free(N);
+    BN_free(reconnect_proof);
 }
 
-int
-Realm_Socket::open(void*)
+int Realm_Socket::open(void*)
 {
-  REALM_TRACE;
-  ACE_INET_Addr addr;
-  
-  if(this->peer().get_remote_addr(addr) == -1)
-    return -1;
-  if(sRealm->get_reactor()->register_handler(this,
-					     ACE_Event_Handler::READ_MASK) == -1 )
-    return -1;
-  this->ip.append(addr.get_host_addr());
-  REALM_LOG("Got connection from: %s (%s:%u) \n", addr.get_host_name(), addr.get_host_addr(), addr.get_port_number());
-  
-  return 0;
+    REALM_TRACE;
+    ACE_INET_Addr addr;
+
+    if (this->peer().get_remote_addr(addr) == -1)
+        return -1;
+    if (sRealm->get_reactor()->register_handler(this,
+                         ACE_Event_Handler::READ_MASK) == -1)
+        return -1;
+
+    this->ip.append(addr.get_host_addr());
+    REALM_LOG("Got connection from: %s (%s:%u) \n", addr.get_host_name(), addr.get_host_addr(), addr.get_port_number());
+
+    return 0;
 }
 
-int
-Realm_Socket::close(u_long flags)
+int Realm_Socket::close(u_long flags)
 {
-  REALM_TRACE;
-  this->die();
-  return 0;
+    REALM_TRACE;
+    this->die();
+    return 0;
 }
 
-int
-Realm_Socket::handle_input(ACE_HANDLE)
+int Realm_Socket::handle_input(ACE_HANDLE)
 {
-  REALM_TRACE;
+    REALM_TRACE;
 
-  if(this->state == STATUS_CLOSING)
-    return -1;
-  int error;
-  memset(raw_buf, 0, 4096);
-  int bytes_read = this->peer().recv(this->raw_buf, 4096);
-  error = errno;
+    if (this->state == STATUS_CLOSING)
+        return -1;
 
-  if(bytes_read == -1 || bytes_read == 0)
-    /*    if(error == EWOULDBLOCK && bytes_read < 0)
-      return 0;
-    else
-    */  return -1;
+    int error;
+    memset(raw_buf, 0, 4096);
+    int bytes_read = this->peer().recv(this->raw_buf, 4096);
+    error = errno;
 
-  uint8 cmd = (uint8)raw_buf[0];
+    if (bytes_read == -1 || bytes_read == 0)
+        return -1;
 
-  //REALM_LOG("Got command %u from peer, bytes_read = %u\n",cmd, bytes_read);
-  switch(cmd)
-    {
+    uint8 cmd = (uint8)raw_buf[0];
+
+    //REALM_LOG("Got command %u from peer, bytes_read = %u\n",cmd, bytes_read);
+    switch (cmd) {
     case AUTH_LOGON_CHALLENGE:
-      this->handle_auth_logon_challenge();
-      break;
+        this->handle_auth_logon_challenge();
+        break;
     case AUTH_LOGON_PROOF:
-      this->handle_auth_logon_proof();
-      break;
+        this->handle_auth_logon_proof();
+        break;
     case AUTH_RECONNECT_CHALLENGE:
-      this->handle_auth_reconnect_challenge();
-      break;
+        this->handle_auth_reconnect_challenge();
+        break;
     case AUTH_RECONNECT_PROOF:
-      this->handle_auth_reconnect_proof();
-      break;
+        this->handle_auth_reconnect_proof();
+        break;
     case REALM_LIST:
-      this->handle_realm_list();
-      break;
+        this->handle_realm_list();
+        break;
     default:
-      REALM_LOG("Got unknown command %u, disconnecting!\n",cmd);
-      return -1;
+        REALM_LOG("Got unknown command %u, disconnecting!\n",cmd);
+        return -1;
     }
-
 
     return 0;
 }
 
 
-void
-Realm_Socket::handle_auth_logon_challenge()
+void Realm_Socket::handle_auth_logon_challenge()
 {
-  if(this->state != STATUS_CONNECTED)
-    {
-      this->die();
-      return;
+    if (this->state != STATUS_CONNECTED) {
+        this->die();
+        return;
     }
 
-  sAuthLogonChallenge_C* ch = (sAuthLogonChallenge_C*)&raw_buf;
-  
-  Utils::EndianConvert(*((uint32*)(&ch->gamename[0])));
-  Utils::EndianConvert(*((uint32*)(&ch->platform[0])));
-  Utils::EndianConvert(*((uint32*)(&ch->os[0])));
-  Utils::EndianConvert(*((uint32*)(&ch->country[0])));
-  Utils::EndianConvert(ch->timezone_bias);
-  Utils::EndianConvert(ch->ip);
+    sAuthLogonChallenge_C* ch = (sAuthLogonChallenge_C*)&raw_buf;
 
-  this->login.append((char*)ch->I, ch->I_len);
-  REALM_LOG("User %s tries to log in\n", this->login.c_str());
-  
-  this->client_build = ch->build;
+    Utils::EndianConvert(*((uint32*)(&ch->gamename[0])));
+    Utils::EndianConvert(*((uint32*)(&ch->platform[0])));
+    Utils::EndianConvert(*((uint32*)(&ch->os[0])));
+    Utils::EndianConvert(*((uint32*)(&ch->country[0])));
+    Utils::EndianConvert(ch->timezone_bias);
+    Utils::EndianConvert(ch->ip);
 
-  if(!isSupportedClientBuild(this->client_build))
-    {
-      ByteBuffer *pkt = new ByteBuffer;
-      *pkt << (uint8) AUTH_LOGON_CHALLENGE;
-      *pkt << (uint8) 0x00;
-      *pkt << (uint8) REALM_AUTH_WRONG_BUILD_NUMBER;
-      this->send(pkt);
-      return;
+    this->login.append((char*)ch->I, ch->I_len);
+    REALM_LOG("User %s tries to log in\n", this->login.c_str());
+
+    this->client_build = ch->build;
+
+    if (!isSupportedClientBuild(this->client_build)) {
+        ByteBuffer *pkt = new ByteBuffer;
+        *pkt << (uint8) AUTH_LOGON_CHALLENGE;
+        *pkt << (uint8) 0x00;
+        *pkt << (uint8) REALM_AUTH_WRONG_BUILD_NUMBER;
+        this->send(pkt);
+        return;
     }
-  //  ACE_OS::memset(raw_buf, 0, 4096);
-  sRealm->get_db()->check_ip_ban(this->ptr);
-  this->state = STATUS_NEED_PROOF;
+
+    //  ACE_OS::memset(raw_buf, 0, 4096);
+    sRealm->get_db()->check_ip_ban(this->ptr);
+    this->state = STATUS_NEED_PROOF;
 }
 
-void
-Realm_Socket::handle_auth_logon_proof()
+void Realm_Socket::handle_auth_logon_proof()
 {
-  if(this->state != STATUS_NEED_PROOF)
-    {
-      this->die();
-      return;
+    if (this->state != STATUS_NEED_PROOF) {
+        this->die();
+        return;
     }
-  REALM_TRACE;
-  sAuthLogonProof_C* prf = (sAuthLogonProof_C*)&raw_buf;
-  std::reverse(prf->A, (uint8*)prf->A + sizeof(prf->A));
-  BIGNUM* A = BN_new();
-  BN_bin2bn(prf->A, sizeof(prf->A), A);
-  std::reverse(prf->A, (uint8*)prf->A + sizeof(prf->A));
+
+    REALM_TRACE;
+    sAuthLogonProof_C* prf = (sAuthLogonProof_C*)&raw_buf;
+    std::reverse(prf->A, (uint8*)prf->A + sizeof(prf->A));
+    BIGNUM* A = BN_new();
+    BN_bin2bn(prf->A, sizeof(prf->A), A);
+    std::reverse(prf->A, (uint8*)prf->A + sizeof(prf->A));
   
-  //Again, thanks Derex <3
-  BIGNUM *u = BN_new();
-  {
+    //Again, thanks Derex <3
+    BIGNUM *u = BN_new();
+    {
+        uint8 B_buff[32];
+        uint8 u_buff[SHA_DIGEST_LENGTH];
+
+        ACE_OS::memset((char*)B_buff, 0, sizeof(B_buff));
+        BN_bn2bin(B, B_buff);
+        // Convert to little endian.
+        std::reverse((uint8*)B_buff, (uint8*)B_buff + sizeof(B_buff));
+
+        SHA_CTX sha;
+        SHA1_Init(&sha);
+        SHA1_Update(&sha, prf->A, sizeof(prf->A));
+        SHA1_Update(&sha, B_buff, sizeof(B_buff));
+        SHA1_Final(u_buff, &sha);
+
+        // Convert to big endian.
+        std::reverse((uint8*)u_buff, (uint8*)u_buff + sizeof(u_buff));
+        BN_bin2bn(u_buff, sizeof(u_buff), u);
+    }
+  
+    BIGNUM *S = BN_new();
+    {
+        BIGNUM *temp = BN_new();
+        BN_mod_exp(temp, v, u, N, ctx);
+        BN_mul(temp, A, temp, ctx);
+        BN_mod_exp(S, temp, b, N, ctx);
+        BN_free(temp);
+    }
+
+    uint8 K_buff[40];
+    uint8 S_buff[32];
+    uint8 S_buff_half[16];
+    uint8 sha_buff[SHA_DIGEST_LENGTH];
+
+    BN_bn2bin(S, S_buff);
+    std::reverse((uint8*)S_buff, (uint8*)S_buff + sizeof(S_buff));
+
+    for(int i = 0; i < 16; i++)
+        S_buff_half[i] = S_buff[i*2];
+
+    SHA1(S_buff_half, sizeof(S_buff_half), sha_buff);
+
+    for(int i = 0; i < 20; i++)
+        K_buff[i*2] = sha_buff[i];
+
+    for(int i = 0; i < 16; i++)
+        S_buff_half[i] = S_buff[i*2+1];
+
+    SHA1(S_buff_half, sizeof(S_buff_half), sha_buff);
+
+    for(int i = 0; i < 20; i++)
+        K_buff[i*2+1] = sha_buff[i];
+
+    uint8 N_buff[32];
+    uint8 N_hash[SHA_DIGEST_LENGTH];
+    ACE_OS::memset((char*)N_buff, 0, sizeof(N_buff));
+    BN_bn2bin(N, N_buff);
+    std::reverse((uint8*)N_buff, (uint8*)N_buff+sizeof(N_buff));
+    SHA1(N_buff, sizeof(N_buff), N_hash);
+
+    // Load g, and calc H(g)
+    uint8 g_buff = 7;
+    uint8 g_hash[SHA_DIGEST_LENGTH];
+    SHA1(&g_buff, sizeof(g_buff), g_hash);
+
+    // HNxorHg = H(N) xor H(g) :)
+    uint8 HNxorHg[SHA_DIGEST_LENGTH];
+    for(size_t i = 0; i < sizeof(HNxorHg); i++)
+        HNxorHg[i] = N_hash[i] ^ g_hash[i];
+
+    // Caclulate H(I)
+    uint8 I_hash[SHA_DIGEST_LENGTH];
+    SHA1((const uint8*)(this->login.c_str()), this->login.length(), I_hash);
+
+    // Load s.
+    uint8 s_buff[32];
+    ACE_OS::memset((char*)s_buff, 0, sizeof(s_buff));
+    BN_bn2bin(s, s_buff);
+    std::reverse((uint8*)s_buff, (uint8*)s_buff+sizeof(s_buff));
+
+    // We already have A
+
+    // Load B.
     uint8 B_buff[32];
-    uint8 u_buff[SHA_DIGEST_LENGTH];
-    
     ACE_OS::memset((char*)B_buff, 0, sizeof(B_buff));
     BN_bn2bin(B, B_buff);
-    // Convert to little endian.
-    std::reverse((uint8*)B_buff, (uint8*)B_buff + sizeof(B_buff));
-    
-    SHA_CTX sha;
-    SHA1_Init(&sha);
-    SHA1_Update(&sha, prf->A, sizeof(prf->A));
-    SHA1_Update(&sha, B_buff, sizeof(B_buff));
-    SHA1_Final(u_buff, &sha);
-    
-    // Convert to big endian.
-    std::reverse((uint8*)u_buff, (uint8*)u_buff + sizeof(u_buff));
-    BN_bin2bn(u_buff, sizeof(u_buff), u);
-  }
+    std::reverse((uint8*)B_buff, (uint8*)B_buff+sizeof(B_buff));
+    BN_free(A);
+    BN_free(u);
+    BN_free(S);
+    // We also have K, lets make the SHA1.
+    uint8 M_buff[SHA_DIGEST_LENGTH];
+    SHA_CTX M_sha_ctx;
+    SHA1_Init(&M_sha_ctx);
+    SHA1_Update(&M_sha_ctx, HNxorHg, sizeof(HNxorHg));
+    SHA1_Update(&M_sha_ctx, I_hash, sizeof(I_hash));
+    SHA1_Update(&M_sha_ctx, s_buff, sizeof(s_buff));
+    SHA1_Update(&M_sha_ctx, prf->A, sizeof(prf->A));
+    SHA1_Update(&M_sha_ctx, B_buff, sizeof(B_buff));
+    SHA1_Update(&M_sha_ctx, K_buff, sizeof(K_buff));
+    SHA1_Final(M_buff, &M_sha_ctx);
+
+    //End of Derex's code.
   
-  BIGNUM *S = BN_new();
-  {
-    BIGNUM *temp = BN_new();
-    BN_mod_exp(temp, v, u, N, ctx);
-    BN_mul(temp, A, temp, ctx);
-    BN_mod_exp(S, temp, b, N, ctx);
-    BN_free(temp);
-  }
-  uint8 K_buff[40];
-  uint8 S_buff[32];
-  uint8 S_buff_half[16];
-  uint8 sha_buff[SHA_DIGEST_LENGTH];
-  
-  BN_bn2bin(S, S_buff);
-  std::reverse((uint8*)S_buff, (uint8*)S_buff + sizeof(S_buff));
+    if (!ACE_OS::memcmp(prf->M1, M_buff, SHA_DIGEST_LENGTH)) {
+        REALM_LOG("User %s authenticated\n", this->login.c_str());
 
-  for(int i = 0; i < 16; i++)
-    S_buff_half[i] = S_buff[i*2];
+        // H(A|M|K)
+        uint8 hamk_fin[SHA_DIGEST_LENGTH] = {0};
+        SHA_CTX hamk;
+        SHA1_Init(&hamk);
+        SHA1_Update(&hamk, prf->A, sizeof(prf->A));
+        SHA1_Update(&hamk, M_buff, sizeof(M_buff));
+        SHA1_Update(&hamk, K_buff, sizeof(K_buff));
+        SHA1_Final(&hamk_fin[0], &hamk);
 
-  SHA1(S_buff_half, sizeof(S_buff_half), sha_buff);
+        sRealm->get_db()->update_account(this->login, this->ip, K_buff);
 
-  for(int i = 0; i < 20; i++)
-    K_buff[i*2] = sha_buff[i];
-
-  for(int i = 0; i < 16; i++)
-    S_buff_half[i] = S_buff[i*2+1];
-
-  SHA1(S_buff_half, sizeof(S_buff_half), sha_buff);
-
-  for(int i = 0; i < 20; i++)
-    K_buff[i*2+1] = sha_buff[i];
-
-  uint8 N_buff[32];
-  uint8 N_hash[SHA_DIGEST_LENGTH];
-  ACE_OS::memset((char*)N_buff, 0, sizeof(N_buff));
-  BN_bn2bin(N, N_buff);
-  std::reverse((uint8*)N_buff, (uint8*)N_buff+sizeof(N_buff));
-  SHA1(N_buff, sizeof(N_buff), N_hash);
-
-  // Load g, and calc H(g)
-  uint8 g_buff = 7;
-  uint8 g_hash[SHA_DIGEST_LENGTH];
-  SHA1(&g_buff, sizeof(g_buff), g_hash);
-
-  // HNxorHg = H(N) xor H(g) :)
-  uint8 HNxorHg[SHA_DIGEST_LENGTH];
-  for(size_t i = 0; i < sizeof(HNxorHg); i++)
-    HNxorHg[i] = N_hash[i] ^ g_hash[i];
-
-  // Caclulate H(I)
-  uint8 I_hash[SHA_DIGEST_LENGTH];
-  SHA1((const uint8*)(this->login.c_str()), this->login.length(), I_hash);
-
-  // Load s.
-  uint8 s_buff[32];
-  ACE_OS::memset((char*)s_buff, 0, sizeof(s_buff));
-  BN_bn2bin(s, s_buff);
-  std::reverse((uint8*)s_buff, (uint8*)s_buff+sizeof(s_buff));
-
-  // We already have A
-
-  // Load B.
-  uint8 B_buff[32];
-  ACE_OS::memset((char*)B_buff, 0, sizeof(B_buff));
-  BN_bn2bin(B, B_buff);
-  std::reverse((uint8*)B_buff, (uint8*)B_buff+sizeof(B_buff));
-  BN_free(A);
-  BN_free(u);
-  BN_free(S);
-  // We also have K, lets make the SHA1.
-  uint8 M_buff[SHA_DIGEST_LENGTH];
-  SHA_CTX M_sha_ctx;
-  SHA1_Init(&M_sha_ctx);
-  SHA1_Update(&M_sha_ctx, HNxorHg, sizeof(HNxorHg));
-  SHA1_Update(&M_sha_ctx, I_hash, sizeof(I_hash));
-  SHA1_Update(&M_sha_ctx, s_buff, sizeof(s_buff));
-  SHA1_Update(&M_sha_ctx, prf->A, sizeof(prf->A));
-  SHA1_Update(&M_sha_ctx, B_buff, sizeof(B_buff));
-  SHA1_Update(&M_sha_ctx, K_buff, sizeof(K_buff));
-  SHA1_Final(M_buff, &M_sha_ctx);
-
-  //End of Derex's code.
-  
-  if(!ACE_OS::memcmp(prf->M1, M_buff, SHA_DIGEST_LENGTH))
-    {
-      REALM_LOG("User %s authenticated\n", this->login.c_str());
-      
-      // H(A|M|K)
-      uint8 hamk_fin[SHA_DIGEST_LENGTH] = {0};
-      SHA_CTX hamk;
-      SHA1_Init(&hamk);
-      SHA1_Update(&hamk, prf->A, sizeof(prf->A));
-      SHA1_Update(&hamk, M_buff, sizeof(M_buff));
-      SHA1_Update(&hamk, K_buff, sizeof(K_buff));
-      SHA1_Final(&hamk_fin[0], &hamk);
-
-      sRealm->get_db()->update_account(this->login, this->ip, K_buff);
-
-      ByteBuffer* data = NULL;
-      switch(this->client_build)
-      {
+        ByteBuffer* data = NULL;
+        switch (this->client_build) {
         case BUILD_1_12:
             data = this->build_logon_proof_packet(hamk_fin);
             break;
@@ -426,136 +418,123 @@ Realm_Socket::handle_auth_logon_proof()
             REALM_LOG("Unsupported client build in handle_auth_logon_proof() when building logon proof packet!");
             this->die();
             return;
-      }
-      this->send(data);
-      this->state = STATUS_AUTHED;
+        }
+
+        this->send(data);
+        this->state = STATUS_AUTHED;
     }
-  else
-     this->handle_failed_login();
+    else
+        this->handle_failed_login();
 }
 
-void
-Realm_Socket::handle_failed_login()
+void Realm_Socket::handle_failed_login()
 {
-  REALM_LOG("Wrong password for user %s (%s)\n", this->login.c_str(), this->ip.c_str());
+    REALM_LOG("Wrong password for user %s (%s)\n", this->login.c_str(), this->ip.c_str());
 
-  if(sConfig->getBool("realmd","WrongPassBan"))
-  {
-    this->acct.failed_logins++;
-    sRealm->get_db()->increment_failed_logins(this->acct.id);
-    if(this->acct.failed_logins > ( sConfig->getInt("realmd","WrongPassAmnt") ) )
-    {
-      if(sConfig->getString("realmd", "WrongPassBanType").compare("ip"))
-        sRealm->get_db()->ban_failed_logins(this->acct.id);
-      else
-        sRealm->get_db()->ban_failed_logins(this->ip);
+    if (sConfig->getBool("realmd","WrongPassBan")) {
+        this->acct.failed_logins++;
+        sRealm->get_db()->increment_failed_logins(this->acct.id);
+        if (this->acct.failed_logins > ( sConfig->getInt("realmd","WrongPassAmnt"))) {
+            if (sConfig->getString("realmd", "WrongPassBanType").compare("ip"))
+                sRealm->get_db()->ban_failed_logins(this->acct.id);
+            else
+                sRealm->get_db()->ban_failed_logins(this->ip);
+        }
     }
-  }
-  account_checked(ACCOUNT_NOTFOUND);
-  this->die();
+
+    account_checked(ACCOUNT_NOTFOUND);
+    this->die();
 }
 
-void
-Realm_Socket::handle_realm_list()
+void Realm_Socket::handle_realm_list()
 {
-  if(this->state != STATUS_AUTHED)
-    {
-      this->die();
-      return;
+    if (this->state != STATUS_AUTHED) {
+        this->die();
+        return;
     }
 
-  if(this->realm_char_amount.size())
-    {
-      ByteBuffer* data;
-      switch(this->client_build)
-	{
-	case BUILD_1_12:
-	  data = this->build_realm_packet();
-	  break;
-	case BUILD_2_43:
-	case BUILD_3_13:
-	case BUILD_3_20:
-	  data = this->build_expansion_realm_packet();
-	  break;
-	default:
-	  // it won't happen but...
-	  REALM_LOG("Unsupported client build in get_char_amount() when building realm list packet!");
-	  this->die();
-	  return;
-	}
-      this->send(data);
+    if (this->realm_char_amount.size()) {
+        ByteBuffer* data;
+        switch (this->client_build) {
+        case BUILD_1_12:
+            data = this->build_realm_packet();
+            break;
+        case BUILD_2_43:
+        case BUILD_3_13:
+        case BUILD_3_20:
+            data = this->build_expansion_realm_packet();
+            break;
+        default:
+            // it won't happen but...
+            REALM_LOG("Unsupported client build in get_char_amount() when building realm list packet!");
+            this->die();
+            return;
+        }
+
+        this->send(data);
     }
-  else
-    {
-      sRealm->get_db()->get_char_amount(this->ptr);
-    }
+    else
+        sRealm->get_db()->get_char_amount(this->ptr);
 }
 
-void
-Realm_Socket::handle_auth_reconnect_challenge()
+void Realm_Socket::handle_auth_reconnect_challenge()
 {
-  if(this->state != STATUS_CONNECTED)
-    {
-      this->die();
-      return;
+    if (this->state != STATUS_CONNECTED) {
+        this->die();
+        return;
     }
 
-  sAuthLogonChallenge_C* ch = (sAuthLogonChallenge_C*)&raw_buf;
+    sAuthLogonChallenge_C* ch = (sAuthLogonChallenge_C*)&raw_buf;
 
-  this->client_build = ch->build;
-  this->login = (const char*)ch->I;
-  sRealm->get_db()->get_sessionkey(this->ptr);
-  this->state = STATUS_NEED_RPROOF;
+    this->client_build = ch->build;
+    this->login = (const char*)ch->I;
+    sRealm->get_db()->get_sessionkey(this->ptr);
+    this->state = STATUS_NEED_RPROOF;
 }
 
-void
-Realm_Socket::handle_auth_reconnect_proof()
+void Realm_Socket::handle_auth_reconnect_proof()
 {
-  if(this->state != STATUS_NEED_RPROOF)
-    {
-      this->die();
-      return;
+    if (this->state != STATUS_NEED_RPROOF) {
+        this->die();
+        return;
     }
-  sAuthReconnectProof_C* prf = (sAuthReconnectProof_C*)&raw_buf;
+
+    sAuthReconnectProof_C* prf = (sAuthReconnectProof_C*)&raw_buf;
   
-  SHA_CTX sha;
-  uint8 hash[SHA_DIGEST_LENGTH];
-  SHA1_Init(&sha);
-  SHA1_Update(&sha, this->login.c_str(), this->login.length() );
-  SHA1_Update(&sha, prf->R1, 16);
-  uint8* tmp = new uint8[16];
-  BN_bn2bin(this->reconnect_proof, tmp);
-  SHA1_Update(&sha, tmp, 16);
-  delete[] tmp;
-  tmp = new uint8[40];
-  BN_bn2bin(this->k, tmp);
-  SHA1_Update(&sha, tmp, 40);
-  SHA1_Final(hash, &sha);
-  delete[] tmp;
+    SHA_CTX sha;
+    uint8 hash[SHA_DIGEST_LENGTH];
+    SHA1_Init(&sha);
+    SHA1_Update(&sha, this->login.c_str(), this->login.length() );
+    SHA1_Update(&sha, prf->R1, 16);
+    uint8* tmp = new uint8[16];
+    BN_bn2bin(this->reconnect_proof, tmp);
+    SHA1_Update(&sha, tmp, 16);
+    delete[] tmp;
+    tmp = new uint8[40];
+    BN_bn2bin(this->k, tmp);
+    SHA1_Update(&sha, tmp, 40);
+    SHA1_Final(hash, &sha);
+    delete[] tmp;
 
-  if(!memcmp(hash, prf->R2, SHA_DIGEST_LENGTH))
-    {
-      ByteBuffer* pkt = new ByteBuffer();
-      *pkt << (uint8)AUTH_RECONNECT_PROOF;
-      *pkt << (uint8)0x00;
-      *pkt << (uint16)0x00;
-      this->send(pkt);
-      this->state = STATUS_AUTHED;
+    if (!memcmp(hash, prf->R2, SHA_DIGEST_LENGTH)) {
+        ByteBuffer* pkt = new ByteBuffer();
+        *pkt << (uint8)AUTH_RECONNECT_PROOF;
+        *pkt << (uint8)0x00;
+        *pkt << (uint16)0x00;
+        this->send(pkt);
+        this->state = STATUS_AUTHED;
     }
-  else
-    {
-      this->die();
-    }
+    else
+        this->die();
 }
 
-void
-Realm_Socket::get_char_amount(std::map<uint8, uint8> amnt)
+void Realm_Socket::get_char_amount(std::map<uint8, uint8> amnt)
 {
-  REALM_TRACE;
-  ByteBuffer* data = NULL;
-  this->realm_char_amount = amnt;
-  switch(this->client_build)
-  {
+    REALM_TRACE;
+    ByteBuffer* data = NULL;
+    this->realm_char_amount = amnt;
+
+    switch (this->client_build) {
     case BUILD_1_12:
         data = this->build_realm_packet();
         break;
@@ -569,391 +548,377 @@ Realm_Socket::get_char_amount(std::map<uint8, uint8> amnt)
         REALM_LOG("Unsupported client build in get_char_amount() when building realm list packet!");
         this->die();
         return;
-  }
-
-  this->send(data);
-  this->set_vs();
-}
-
-ByteBuffer*
-Realm_Socket::build_realm_packet()
-{
-  REALM_TRACE;
-  ByteBuffer* pkt = new ByteBuffer;
-  std::map<uint8, Realm>* realmlist = sRealm->get_realmlist();
-
-  uint16 listSize=0;
-  std::map<uint8, Realm>::const_iterator i;
-  for(i = realmlist->begin(); i != realmlist->end(); i++)
-    if(i->second.build == this->client_build)
-      ++listSize;
-
-  *pkt << (uint32) 0;
-  *pkt << (uint8) listSize;
-
-  if (listSize > 0)
-    for(i = realmlist->begin(); i != realmlist->end(); i++)
-    {
-      if (i->second.build != this->client_build)
-        continue;
-
-      *pkt << (uint8) i->second.icon;
-      *pkt << (uint8) i->second.color;
-      *pkt << i->second.name;
-      
-      if(i->second.address == ":")
-	{
-	  *pkt << sRealm->get_proxy_for_realm(i->first);
-	}
-      else
-	{
-	  *pkt << i->second.address;
-	}
-
-      *pkt << (float)i->second.population;
-      if(this->realm_char_amount.find(i->first) != realm_char_amount.end())
-        *pkt << (uint8)this->realm_char_amount[i->first];
-      else
-        *pkt << (uint8) 0;
-      *pkt << (uint8) i->second.timezone;
-      *pkt << (uint8) 0x00;
-    }
-  *pkt << (uint8) 0x00;
-  *pkt << (uint8) 0x02;
-
-  ByteBuffer *data = new ByteBuffer;
-  *data << (uint8)REALM_LIST;
-  *data << (uint16) pkt->size();
-  data->append(*pkt);
-  delete pkt;
-  return data;
-}
-
-ByteBuffer*
-Realm_Socket::build_expansion_realm_packet()
-{
-  REALM_TRACE;
-  ByteBuffer* pkt = new ByteBuffer;
-  std::map<uint8, Realm>* realmlist = sRealm->get_realmlist();
-  
-  uint16 listSize=0;
-  std::map<uint8, Realm>::const_iterator i;
-  for(i = realmlist->begin(); i != realmlist->end(); i++)
-    if(i->second.build == this->client_build)
-      ++listSize;
-  
-  *pkt << (uint32) 0x00;
-  *pkt << (uint16) listSize;
-  
-  if (listSize > 0)
-    for(i = realmlist->begin(); i != realmlist->end(); i++)
-      {
-      if (i->second.build != this->client_build)
-        continue;
-      
-      *pkt << uint8(i->second.icon);
-      *pkt << uint8(i->second.allowedSecurityLevel > this->acct.gmlevel ? 1 : 0);
-      *pkt << uint8(i->second.color);
-      *pkt << i->second.name;
-
-      if(!i->second.address.compare(":0"))
-	{
-	  *pkt << sRealm->get_proxy_for_realm(i->first);
-	}
-      else
-	{
-        REALM_LOG("proxy: %s\n", i->second.address.c_str());
-	  *pkt << i->second.address;
-	}
-
-      *pkt << float(i->second.population);
-      *pkt << uint8(this->realm_char_amount[i->first]);
-      *pkt << uint8(i->second.timezone);
-      *pkt << uint8(0x00);
-    }
-  *pkt << uint8(0x10);
-  *pkt << uint8(0x00);
-  
-  ByteBuffer *data = new ByteBuffer;
-  *data << uint8(REALM_LIST);
-  *data << uint16(pkt->size());
-  data->append(*pkt);
-  delete pkt;
-  return data;
-}
-
-ByteBuffer*
-Realm_Socket::build_logon_proof_packet(uint8* hamk_fin)
-{
-  REALM_TRACE;
-  ByteBuffer* data = new ByteBuffer(26);
-  *data << (uint8) AUTH_LOGON_PROOF;
-  *data << (uint8) 0;
-  data->append(hamk_fin, SHA_DIGEST_LENGTH);
-  *data << (uint32) 0;
-  return data;
-}
-
-ByteBuffer*
-Realm_Socket::build_expansion_logon_proof_packet(uint8* hamk_fin)
-{
-  ByteBuffer* data = new ByteBuffer(32);
-  *data << (uint8) AUTH_LOGON_PROOF;
-  *data << (uint8) LOGIN_OK;
-  data->append(hamk_fin, SHA_DIGEST_LENGTH);
-  *data << (uint32) 0x00800000;
-  *data << (uint32) 0x00;
-  *data << (uint16) 0x00;
-  return data;
-}
-
-void
-Realm_Socket::ip_ban_checked(bool result)
-{
-  REALM_TRACE;
-  if(result)
-  {
-    account_checked(ACCOUNT_BANNED);
-    return;
-  }
-  sRealm->get_db()->get_account(this->ptr);
-  
-}
-
-void 
-Realm_Socket::account_checked(AccountState state)
-{
-  REALM_TRACE;
-
-  switch(state)
-    {
-    case ACCOUNT_BANNED:
-      {
-	ByteBuffer buf(3);
-	buf << (uint8) AUTH_LOGON_CHALLENGE;
-	buf << (uint8) 0x00;
-	buf << (uint8) REALM_AUTH_ACCOUNT_BANNED;
-	this->send(new ByteBuffer(buf));
-	break;
-      }
-    case ACCOUNT_NOTFOUND:
-      {
-	ByteBuffer buf(3);
-	buf << (uint8) AUTH_LOGON_CHALLENGE;
-	buf << (uint8) 0x00;
-	buf << (uint8) REALM_AUTH_NO_MATCH;
-	this->send(new ByteBuffer(buf));
-	break;
-      }
-    case ACCOUNT_EXISTS:
-      {
-	if(this->acct.locked == true)
-	  if(this->ip != this->acct.last_ip)
-	    {
-	      ByteBuffer buf(3);
-	      buf << (uint8) AUTH_LOGON_CHALLENGE;
-	      buf << (uint8) 0x00;
-	      buf << (uint8) REALM_AUTH_ACCOUNT_LOCKED;
-	      this->send(new ByteBuffer(buf));
-	      return;
-	    }
-	
-	ByteBuffer *buf = new ByteBuffer;
-	*buf << (uint8) AUTH_LOGON_CHALLENGE;
-	*buf << (uint8) 0x00;
-	*buf << (uint8) REALM_AUTH_SUCCESS;
-
-	this->set_vs();
-	
-	BN_rand(b, 19*8,0,1);
-	//Following snippet is courtesy of Derex.
-	BIGNUM *temp = BN_new(), *temp2 = BN_new();
-	BN_mod_exp(temp, g, b, N, ctx);
-	BN_mul(temp2, v, k, ctx);
-	BN_add(temp2, temp2, temp);
-	BN_mod(B, temp2, N, ctx);
-	
-	BN_free(temp2);
-	//</Derex's>
-
-	uint8 tmp[32] = {0};
-	BN_bn2bin(B, tmp);
-	std::reverse(tmp, (uint8*)tmp+sizeof(tmp));
-	buf->append(tmp, 32);
-	*buf << (uint8)1;
-	*buf << (uint8)7;
-	*buf << (uint8)32;
-	
-	BN_bn2bin(N, tmp);
-	std::reverse(tmp, (uint8*)tmp+sizeof(tmp));
-	buf->append(tmp, 32);
-	BN_bn2bin(s, tmp);
-	std::reverse(tmp, (uint8*)tmp+sizeof(tmp));
-	buf->append(tmp, 32);
-	
-	BN_rand(temp, 16*8, 0, 1);
-	BN_bn2bin(temp, tmp);
-	buf->append(tmp, 16);
-	*buf << (uint8)0;
-	BN_free(temp);
-	this->send(buf);
-	break;
-      }
-    default:
-      REALM_LOG("Received unknown AccountState, THIS SHOULDN'T HAPPEN!\n");
-      this->die();
-      break;
     }
 
+    this->send(data);
+    this->set_vs();
 }
 
-void
-Realm_Socket::get_sessionkey(bool result)
+ByteBuffer* Realm_Socket::build_realm_packet()
 {
-  REALM_TRACE;
-  if(!result)
-    {
-      this->die();  //Client displays "Session Expired" on its own.
-      return;
+    REALM_TRACE;
+    ByteBuffer* pkt = new ByteBuffer;
+    std::map<uint8, Realm>* realmlist = sRealm->get_realmlist();
+
+    uint16 listSize=0;
+    std::map<uint8, Realm>::const_iterator i;
+    for (i = realmlist->begin(); i != realmlist->end(); i++) {
+        if (i->second.build == this->client_build)
+            ++listSize;
     }
 
-  ByteBuffer* pkt = new ByteBuffer();
-  *pkt << (uint8) AUTH_RECONNECT_CHALLENGE;
-  *pkt << (uint8) 0x00;
-  BN_rand(this->reconnect_proof, 16*8,0,1);
-  uint8* rpr = new uint8[16];
-  BN_bn2bin(this->reconnect_proof,rpr);
-  pkt->append(rpr, 16);
-  delete[] rpr;
-  *pkt << (uint64) 0x00;
-  *pkt << (uint64) 0x00;
-  this->send(pkt);
-  this->state = STATUS_NEED_RPROOF;
-}
+    *pkt << (uint32) 0;
+    *pkt << (uint8) listSize;
 
-void
-Realm_Socket::set_vs()
-{
-  REALM_TRACE;
-  sRealm->get_db()->fix_sv(login);
-  BIGNUM* I;
-  BIGNUM* x;
-  uint8 x_ch[SHA_DIGEST_LENGTH] = {0};
-  uint8 p_ch[SHA_DIGEST_LENGTH] = {0};
-  uint8 s_ch[32] = {0};
-  BN_bn2bin(s, s_ch);
-  std::reverse((uint8*)s_ch, (uint8*)s_ch + sizeof(s_ch));
-  x = BN_new();
-  
-  I = NULL;
-  BN_hex2bn(&I, this->acct.sha_pass.c_str());
-  BN_bn2bin(I, p_ch);
-  BN_free(I);
-  
-  SHA_CTX sha;
-  SHA1_Init(&sha);
-  SHA1_Update(&sha, s_ch, 32);
-  SHA1_Update(&sha, p_ch, SHA_DIGEST_LENGTH);
-  SHA1_Final(x_ch, &sha);
-  std::reverse((uint8*)x_ch, (uint8*)x_ch + sizeof(x_ch));
+    if (listSize > 0) {
+        for (i = realmlist->begin(); i != realmlist->end(); i++) {
+            if (i->second.build != this->client_build)
+                continue;
 
-  BN_bin2bn(x_ch, SHA_DIGEST_LENGTH, x);
-  BN_mod_exp(this->v, this->g, x, this->N, this->ctx);
+            *pkt << (uint8) i->second.icon;
+            *pkt << (uint8) i->second.color;
+            *pkt << i->second.name;
+          
+            if (i->second.address == ":")
+                *pkt << sRealm->get_proxy_for_realm(i->first);
+            else
+                *pkt << i->second.address;
 
-  sRealm->get_db()->set_sv(login, BN_bn2hex(s), BN_bn2hex(v));
-  BN_free(x);
-}
+            *pkt << (float)i->second.population;
 
-int
-Realm_Socket::handle_output(ACE_HANDLE)
-{
-  REALM_TRACE;
-  if(!this->out_active)
-    return 0;
-  ACE_Guard<ACE_Recursive_Thread_Mutex> g(this->queue_mtx);
-  int error, sent_bytes;
+            if (this->realm_char_amount.find(i->first) != realm_char_amount.end())
+                *pkt << (uint8)this->realm_char_amount[i->first];
+            else
+                *pkt << (uint8) 0;
 
-  while (!this->packet_queue.empty())
-    {
-      ByteBuffer* buffer = this->packet_queue.front();
-      sent_bytes = this->peer().send(buffer->contents(), buffer->size());
-      //REALM_LOG("Sent %u bytes of %u\n",sent_bytes, buffer->size());
-      error = errno;
-      if (sent_bytes < buffer->size() && sent_bytes > 0)
-        {
-	  //  REALM_LOG("Sent %u of %u bytes \n",sent_bytes,buffer->size());
-	  buffer->rpos(sent_bytes - 1);
-	  buffer->read((uint8*)buffer->contents(), buffer->size() - sent_bytes);
-	  buffer->resize(buffer->size() - sent_bytes);
-	  break;
+            *pkt << (uint8) i->second.timezone;
+            *pkt << (uint8) 0x00;
         }
-      else
-	if (sent_bytes == -1)
-	  {
-	    //REALM_LOG("Couldn't send to peer, bailing out size: %u!\n",buffer->size());
-	    return -1;
-	  }
-	else
-	  {
-	    delete buffer;
-	    packet_queue.pop_front();
-	  }
-    };
-
-  if (this->packet_queue.empty())
-    {
-      sRealm->get_reactor()->cancel_wakeup(this, ACE_Event_Handler::WRITE_MASK);
-      this->out_active = false;
-      return 0;
     }
-  else
-    return 1;
+
+    *pkt << (uint8) 0x00;
+    *pkt << (uint8) 0x02;
+
+    ByteBuffer *data = new ByteBuffer;
+    *data << (uint8)REALM_LIST;
+    *data << (uint16) pkt->size();
+    data->append(*pkt);
+    delete pkt;
+    
+    return data;
 }
 
-int 
-Realm_Socket::handle_close(ACE_HANDLE, ACE_Reactor_Mask mask)
+ByteBuffer* Realm_Socket::build_expansion_realm_packet()
+{
+    REALM_TRACE;
+    ByteBuffer* pkt = new ByteBuffer;
+    std::map<uint8, Realm>* realmlist = sRealm->get_realmlist();
+  
+    uint16 listSize=0;
+    std::map<uint8, Realm>::const_iterator i;
+    for (i = realmlist->begin(); i != realmlist->end(); i++) {
+        if (i->second.build == this->client_build)
+            ++listSize;
+    }
+  
+    *pkt << (uint32) 0x00;
+    *pkt << (uint16) listSize;
+  
+    if (listSize > 0) {
+        for (i = realmlist->begin(); i != realmlist->end(); i++) {
+            if (i->second.build != this->client_build)
+                continue;
+          
+            *pkt << uint8(i->second.icon);
+            *pkt << uint8(i->second.allowedSecurityLevel > this->acct.gmlevel ? 1 : 0);
+            *pkt << uint8(i->second.color);
+            *pkt << i->second.name;
+
+            if(!i->second.address.compare(":0"))
+                *pkt << sRealm->get_proxy_for_realm(i->first);
+
+            else {
+                REALM_LOG("proxy: %s\n", i->second.address.c_str());
+                *pkt << i->second.address;
+            }
+
+            *pkt << float(i->second.population);
+            *pkt << uint8(this->realm_char_amount[i->first]);
+            *pkt << uint8(i->second.timezone);
+            *pkt << uint8(0x00);
+        }
+    }
+    
+    *pkt << uint8(0x10);
+    *pkt << uint8(0x00);
+  
+    ByteBuffer *data = new ByteBuffer;
+    *data << uint8(REALM_LIST);
+    *data << uint16(pkt->size());
+    data->append(*pkt);
+    delete pkt;
+    return data;
+}
+
+ByteBuffer* Realm_Socket::build_logon_proof_packet(uint8* hamk_fin)
+{
+    REALM_TRACE;
+    ByteBuffer* data = new ByteBuffer(26);
+    *data << (uint8) AUTH_LOGON_PROOF;
+    *data << (uint8) 0;
+    data->append(hamk_fin, SHA_DIGEST_LENGTH);
+    *data << (uint32) 0;
+    return data;
+}
+
+ByteBuffer* Realm_Socket::build_expansion_logon_proof_packet(uint8* hamk_fin)
+{
+    ByteBuffer* data = new ByteBuffer(32);
+    *data << (uint8) AUTH_LOGON_PROOF;
+    *data << (uint8) LOGIN_OK;
+    data->append(hamk_fin, SHA_DIGEST_LENGTH);
+    *data << (uint32) 0x00800000;
+    *data << (uint32) 0x00;
+    *data << (uint16) 0x00;
+    return data;
+}
+
+void Realm_Socket::ip_ban_checked(bool result)
+{
+    REALM_TRACE;
+    if (result) {
+        account_checked(ACCOUNT_BANNED);
+        return;
+    }
+    
+    sRealm->get_db()->get_account(this->ptr);
+}
+
+void Realm_Socket::account_checked(AccountState state)
+{
+    REALM_TRACE;
+
+    switch (state) {
+    case ACCOUNT_BANNED:
+    {
+        ByteBuffer buf(3);
+        buf << (uint8) AUTH_LOGON_CHALLENGE;
+        buf << (uint8) 0x00;
+        buf << (uint8) REALM_AUTH_ACCOUNT_BANNED;
+        this->send(new ByteBuffer(buf));
+        break;
+    }
+    case ACCOUNT_NOTFOUND:
+    {
+        ByteBuffer buf(3);
+        buf << (uint8) AUTH_LOGON_CHALLENGE;
+        buf << (uint8) 0x00;
+        buf << (uint8) REALM_AUTH_NO_MATCH;
+        this->send(new ByteBuffer(buf));
+        break;
+    }
+    case ACCOUNT_EXISTS:
+    {
+        if (this->acct.locked == true) {
+            if (this->ip != this->acct.last_ip) {
+                ByteBuffer buf(3);
+                buf << (uint8) AUTH_LOGON_CHALLENGE;
+                buf << (uint8) 0x00;
+                buf << (uint8) REALM_AUTH_ACCOUNT_LOCKED;
+                this->send(new ByteBuffer(buf));
+                return;
+            }
+        }
+        
+        ByteBuffer *buf = new ByteBuffer;
+        *buf << (uint8) AUTH_LOGON_CHALLENGE;
+        *buf << (uint8) 0x00;
+        *buf << (uint8) REALM_AUTH_SUCCESS;
+
+        this->set_vs();
+        
+        BN_rand(b, 19*8,0,1);
+        // Following snippet is courtesy of Derex.
+        BIGNUM *temp = BN_new(), *temp2 = BN_new();
+        BN_mod_exp(temp, g, b, N, ctx);
+        BN_mul(temp2, v, k, ctx);
+        BN_add(temp2, temp2, temp);
+        BN_mod(B, temp2, N, ctx);
+        
+        BN_free(temp2);
+        //</Derex's>
+
+        uint8 tmp[32] = {0};
+        BN_bn2bin(B, tmp);
+        std::reverse(tmp, (uint8*)tmp+sizeof(tmp));
+        buf->append(tmp, 32);
+        *buf << (uint8)1;
+        *buf << (uint8)7;
+        *buf << (uint8)32;
+        
+        BN_bn2bin(N, tmp);
+        std::reverse(tmp, (uint8*)tmp+sizeof(tmp));
+        buf->append(tmp, 32);
+        BN_bn2bin(s, tmp);
+        std::reverse(tmp, (uint8*)tmp+sizeof(tmp));
+        buf->append(tmp, 32);
+        
+        BN_rand(temp, 16*8, 0, 1);
+        BN_bn2bin(temp, tmp);
+        buf->append(tmp, 16);
+        *buf << (uint8)0;
+        BN_free(temp);
+        this->send(buf);
+        break;
+    }
+    default:
+        REALM_LOG("Received unknown AccountState, THIS SHOULDN'T HAPPEN!\n");
+        this->die();
+        break;
+    }
+
+}
+
+void Realm_Socket::get_sessionkey(bool result)
+{
+    REALM_TRACE;
+    if (!result) {
+        this->die();  //Client displays "Session Expired" on its own.
+        return;
+    }
+
+    ByteBuffer* pkt = new ByteBuffer();
+    *pkt << (uint8) AUTH_RECONNECT_CHALLENGE;
+    *pkt << (uint8) 0x00;
+    
+    BN_rand(this->reconnect_proof, 16*8,0,1);
+    
+    uint8* rpr = new uint8[16];
+    BN_bn2bin(this->reconnect_proof,rpr);
+    pkt->append(rpr, 16);
+    delete[] rpr;
+    
+    *pkt << (uint64) 0x00;
+    *pkt << (uint64) 0x00;
+    
+    this->send(pkt);
+    this->state = STATUS_NEED_RPROOF;
+}
+
+void Realm_Socket::set_vs()
+{
+    REALM_TRACE;
+    sRealm->get_db()->fix_sv(login);
+    BIGNUM* I;
+    BIGNUM* x;
+    uint8 x_ch[SHA_DIGEST_LENGTH] = {0};
+    uint8 p_ch[SHA_DIGEST_LENGTH] = {0};
+    uint8 s_ch[32] = {0};
+    BN_bn2bin(s, s_ch);
+    std::reverse((uint8*)s_ch, (uint8*)s_ch + sizeof(s_ch));
+    x = BN_new();
+
+    I = NULL;
+    BN_hex2bn(&I, this->acct.sha_pass.c_str());
+    BN_bn2bin(I, p_ch);
+    BN_free(I);
+
+    SHA_CTX sha;
+    SHA1_Init(&sha);
+    SHA1_Update(&sha, s_ch, 32);
+    SHA1_Update(&sha, p_ch, SHA_DIGEST_LENGTH);
+    SHA1_Final(x_ch, &sha);
+    std::reverse((uint8*)x_ch, (uint8*)x_ch + sizeof(x_ch));
+
+    BN_bin2bn(x_ch, SHA_DIGEST_LENGTH, x);
+    BN_mod_exp(this->v, this->g, x, this->N, this->ctx);
+
+    sRealm->get_db()->set_sv(login, BN_bn2hex(s), BN_bn2hex(v));
+    BN_free(x);
+}
+
+int Realm_Socket::handle_output(ACE_HANDLE)
+{
+    REALM_TRACE;
+    if (!this->out_active)
+        return 0;
+
+    ACE_Guard<ACE_Recursive_Thread_Mutex> g(this->queue_mtx);
+    int error, sent_bytes;
+
+    while (!this->packet_queue.empty()) {
+        ByteBuffer* buffer = this->packet_queue.front();
+        sent_bytes = this->peer().send(buffer->contents(), buffer->size());
+        //REALM_LOG("Sent %u bytes of %u\n",sent_bytes, buffer->size());
+        error = errno;
+        if (sent_bytes < buffer->size() && sent_bytes > 0) {
+            //  REALM_LOG("Sent %u of %u bytes \n",sent_bytes,buffer->size());
+            buffer->rpos(sent_bytes - 1);
+            buffer->read((uint8*)buffer->contents(), buffer->size() - sent_bytes);
+            buffer->resize(buffer->size() - sent_bytes);
+            break;
+        }
+        else {
+            if (sent_bytes == -1) {
+                //REALM_LOG("Couldn't send to peer, bailing out size: %u!\n",buffer->size());
+                return -1;
+            }
+            else {
+                delete buffer;
+                packet_queue.pop_front();
+            }
+        }
+    }
+
+    if (this->packet_queue.empty()) {
+        sRealm->get_reactor()->cancel_wakeup(this, ACE_Event_Handler::WRITE_MASK);
+        this->out_active = false;
+
+        return 0;
+    }
+    else
+        return 1;
+}
+
+int Realm_Socket::handle_close(ACE_HANDLE, ACE_Reactor_Mask mask)
 {
 
-  REALM_TRACE;
-  if( mask == ACE_Event_Handler::WRITE_MASK )
+    REALM_TRACE;
+    if (mask == ACE_Event_Handler::WRITE_MASK)
+        return 0;
+
+    this->die();
     return 0;
-  this->die();
-  return 0;
 }
 
-void
-Realm_Socket::die()
+void Realm_Socket::die()
 {
-  REALM_TRACE;
-  this->state = STATUS_CLOSING;
-  ACE_Guard<ACE_Recursive_Thread_Mutex> g(this->queue_mtx);
-  sRealm->get_reactor()->remove_handler(this,
+    REALM_TRACE;
+    this->state = STATUS_CLOSING;
+    ACE_Guard<ACE_Recursive_Thread_Mutex> g(this->queue_mtx);
+    sRealm->get_reactor()->remove_handler(this,
 					ACE_Event_Handler::READ_MASK |
 					ACE_Event_Handler::WRITE_MASK |
 					ACE_Event_Handler::DONT_CALL);
 
-  this->peer().close();
-  this->ptr.release();
-
+    this->peer().close();
+    this->ptr.release();
 }
 
-void
-Realm_Socket::send(ByteBuffer* pkt)
+void Realm_Socket::send(ByteBuffer* pkt)
 {
-  REALM_TRACE;
-  ACE_Guard<ACE_Recursive_Thread_Mutex> g(this->queue_mtx);
-  packet_queue.push_back(pkt);
+    REALM_TRACE;
+    ACE_Guard<ACE_Recursive_Thread_Mutex> g(this->queue_mtx);
+    packet_queue.push_back(pkt);
 
-
-  if(!this->out_active)
-    {
-      sRealm->get_reactor()->register_handler(this,
+    if (!this->out_active) {
+        sRealm->get_reactor()->register_handler(this,
 					     ACE_Event_Handler::WRITE_MASK);
-      //  sRealm->get_reactor()->notify(this,
-      //			    ACE_Event_Handler::WRITE_MASK);
-      this->out_active = true;
+        //  sRealm->get_reactor()->notify(this,
+        //			    ACE_Event_Handler::WRITE_MASK);
+        this->out_active = true;
     }
-  
 }
+
 };
 };

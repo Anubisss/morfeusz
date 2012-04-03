@@ -1,19 +1,19 @@
 SET(database_SRCS
-  Database.cpp
-  DriverManager.cpp
-  )
+    Database.cpp
+    DriverManager.cpp
+    )
 
 include_directories(
-  ${CMAKE_SOURCE_DIR}/common
-  )
+    ${CMAKE_SOURCE_DIR}/common
+    )
 
-add_library(trinitydatabase STATIC ${database_SRCS})
+add_library(morpheusdatabase STATIC ${database_SRCS})
 
 IF(SQLITE3_FOUND)
 add_subdirectory(SQLite)
 target_link_libraries(
-	trinitydatabase
-	trinitydatabaseSqlite
+	morpheusdatabase
+	morpheusdatabaseSqlite
 	${SQLITE3_LIBRARIES}
 	)
 ENDIF(SQLITE3_FOUND)
@@ -21,8 +21,8 @@ ENDIF(SQLITE3_FOUND)
 IF(MYSQL_FOUND)
 add_subdirectory(MySQL)
 target_link_libraries(
-	trinitydatabase
-	trinitydatabaseMysql
+	morpheusdatabase
+	morpheusdatabaseMysql
 	${MYSQL_LIBRARIES}
 	)
 include_directories(
@@ -31,7 +31,7 @@ include_directories(
 ENDIF(MYSQL_FOUND)
 
 target_link_libraries(
-	trinitydatabase
+	morpheusdatabase
 	${ACE_LIBRARY}
 	)
 

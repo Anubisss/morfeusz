@@ -1,25 +1,25 @@
 SET(main_SRCS
-  Main.cpp
-  Service_Manager.cpp
-  )
+    Main.cpp
+    Service_Manager.cpp
+    )
 
 include_directories(
-  ${CMAKE_SOURCE_DIR}/realmd
-  ${CMAKE_SOURCE_DIR}/proxyd
-  ${CMAKE_SOURCE_DIR}/database
-  ${CMAKE_SOURCE_DIR}/common
-  )
+    ${CMAKE_SOURCE_DIR}/realmd
+    ${CMAKE_SOURCE_DIR}/proxyd
+    ${CMAKE_SOURCE_DIR}/database
+    ${CMAKE_SOURCE_DIR}/common
+    )
 
-add_executable(trinity ${main_SRCS})
+add_executable(morpheus ${main_SRCS})
 
 target_link_libraries(
-  trinity
-  trinitydatabase
-  common
-  realmd
-  proxyd
-  ${ACE_LIBRARY}
-  )
+    morpheus
+    morpheusdatabase
+    common
+    realmd
+    proxyd
+    ${ACE_LIBRARY}
+    )
 
-install(TARGETS trinity DESTINATION ${TC3_INSTALL_DIR}/bin)
-install(FILES trinity.conf.dist DESTINATION ${TC3_INSTALL_DIR}/bin)
+install(TARGETS morpheus DESTINATION ${INSTALL_DIR}/bin)
+install(FILES morpheus.conf.dist DESTINATION ${INSTALL_DIR}/bin)

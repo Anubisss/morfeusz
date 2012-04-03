@@ -1,5 +1,6 @@
 /* -*- C++ -*-
  * Copyright (C) 2009 Trinity Core <http://www.trinitycore.org>
+ * Copyright (C) 2012 Morpheus
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -34,7 +35,7 @@
 #include <ace/Singleton.h>
 #include <ace/Null_Mutex.h>
 
-namespace Trinity
+namespace Morpheus
 {
 
 namespace DBC
@@ -42,48 +43,53 @@ namespace DBC
 
 struct ItemEntry
 {
-  uint32 display_id;
-  uint32 inventory_type;
-  uint32 sheath;
+    uint32 display_id;
+    uint32 inventory_type;
+    uint32 sheath;
 };
 
 typedef UNORDERED_MAP<uint32, ItemEntry> item_map;
 
 struct SpellItemEnchantmentEntry
 {
-  uint32 type[3];
-  uint32 amount[3];
-  //uint32[3]
-  uint32 spell_id[3];
-  std::string desc;
-  //std::string description[16];
-  uint32 aura_id;
-  uint32 slot;
-  uint32 gem_id;
-  uint32 enchantment_condition;
+    uint32 type[3];
+    uint32 amount[3];
+    //uint32[3]
+    uint32 spell_id[3];
+    std::string desc;
+    //std::string description[16];
+    uint32 aura_id;
+    uint32 slot;
+    uint32 gem_id;
+    uint32 enchantment_condition;
 };
 
 typedef UNORDERED_MAP<uint32, SpellItemEnchantmentEntry> spell_item_ench_map;
 
 class DBC_Store
 {
-  friend class ACE_Singleton<DBC_Store, ACE_Null_Mutex>;
- public:
-  static DBC_Store* instance(){ACE_Singleton<DBC_Store, ACE_Null_Mutex>::instance();}
-  void open();
-  void load_item_dbc();
-  void load_spell_item_enchantments_dbc();
-  item_map* get_item_map(){return &items;}
-  spell_item_ench_map* get_spell_item_ench_map(){return &spell_item_enchantments;}
- private:
-  DBC_Store(){}
-  std::string path;
-  item_map items;
-  spell_item_ench_map spell_item_enchantments;
+    friend class ACE_Singleton<DBC_Store, ACE_Null_Mutex>;
+
+public:
+
+    static DBC_Store* instance() { ACE_Singleton<DBC_Store, ACE_Null_Mutex>::instance(); }
+    void open();
+    void load_item_dbc();
+    void load_spell_item_enchantments_dbc();
+    item_map* get_item_map() { return &items; }
+    spell_item_ench_map* get_spell_item_ench_map() { return &spell_item_enchantments; }
+
+private:
+
+    DBC_Store() {}
+    std::string path;
+    item_map items;
+    spell_item_ench_map spell_item_enchantments;
 };
 
 };
 
 };
-#define sDBC Trinity::DBC::DBC_Store::instance()
+
+#define sDBC Morpheus::DBC::DBC_Store::instance()
 #endif

@@ -1,5 +1,6 @@
 /* -*- C++ -*-
  * Copyright (C) 2009 Trinity Core <http://www.trinitycore.org>
+ * Copyright (C) 2012 Morpheus
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -29,38 +30,43 @@
 #include <orbsvcs/CosEventCommS.h>
 #include <orbsvcs/CosEventChannelAdminC.h>
 
-namespace Trinity
+namespace Morpheus
 {
+
 namespace Proxyd
 {
-  /**
-   * @brief Communicates with Event Channel
-   * @sa Trinity::Realmd::EC_Communicator
-   * @todo Make a base class for Event Channel pushers and just derive from it.
-   */
+/**
+ * @brief Communicates with Event Channel
+ * @sa Morpheus::Realmd::EC_Communicator
+ * @todo Make a base class for Event Channel pushers and just derive from it.
+ */
 class EC_Communicator : private virtual POA_CosEventComm::PushConsumer
 {
+
 public:
-  EC_Communicator(CORBA::ORB_ptr _orb):
-    orb(CORBA::ORB::_duplicate(_orb)){};
-  void connect();
-  virtual void push( const CORBA::Any &data);
-  virtual void disconnect_push_consumer();
 
-  /**
-   * @brief Announces proxy node in cluster.
-   */
-  void announce();
+    EC_Communicator(CORBA::ORB_ptr _orb):
+        orb(CORBA::ORB::_duplicate(_orb)){};
+    void connect();
+    virtual void push( const CORBA::Any &data);
+    virtual void disconnect_push_consumer();
 
-  /**
-   * @brief Sends load reports.
-   */
-  void report_load();
+    /**
+     * @brief Announces proxy node in cluster.
+     */
+    void announce();
+
+    /**
+     * @brief Sends load reports.
+     */
+    void report_load();
+
 private:
-  CosEventChannelAdmin::ProxyPushConsumer_var pusher;
-  CosEventChannelAdmin::ProxyPushSupplier_var supplier_proxy;
-  PortableServer::POA_var poa;
-  CORBA::ORB_var orb;
+
+    CosEventChannelAdmin::ProxyPushConsumer_var pusher;
+    CosEventChannelAdmin::ProxyPushSupplier_var supplier_proxy;
+    PortableServer::POA_var poa;
+    CORBA::ORB_var orb;
 };
 
 

@@ -1,5 +1,6 @@
 /*
  * Copyright (C) 2009 Dawn Of Reckoning
+ * Copyright (C) 2012 Morpheus
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -29,24 +30,21 @@
 #include <iostream>
 #include <sstream>
 
-
-namespace Trinity
+namespace Morpheus
 {
+
 namespace SQL
 {
 
 SQLiteException::SQLiteException(const std::string& mess, sqlite3* sqlite) : SQLException("")
 {
-    if (sqlite)
-    {
+    if (sqlite) {
         std::ostringstream o;
         o << mess << "\n" << sqlite3_errcode(sqlite) << ": " << sqlite3_errmsg(sqlite);
         message = o.str();
     }
     else
-    {
         message = mess;
-    }
 
 }
 
@@ -59,5 +57,5 @@ SQLiteException::~SQLiteException() throw()
 
 }
 
-}
-}
+};
+};

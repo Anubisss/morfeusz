@@ -8,18 +8,17 @@
  * - @ref guides
  * - @ref links
  * - @ref devs
- * @section intro Introduction to TrinityCore3
- * This is documentation for \b TrinityCore3, a World Of Warcraft reference server implementation.\n
+ * @section intro Introduction to Morpheus
+ * This is documentation for \b Morpheus, a World Of Warcraft reference server implementation.\n
  * Aim for the project is to learn to write and manage distributed MMORPG game servers.\n
+ * It is based on TrinityCore3, and we thank raczman for initiating it.\n
  *
  * @section guides Build and Usage guides:
  * - @ref windows_build
  * - @ref linux_build
  * - @ref tao_conf
  * @section links Further Reading:
- * - <a href="http://www.trinitycore.org"> Project's homepage </a>
- * - <a href="http://www.trinitycore.info"> Project's wiki, contains helpful DB table references</a> 
- * - <a href="http://www.dev.trinitycore.org/trinitycore3"> Code repository, and bug tracker</a>
+ * - TODO
  * @section devs People who helped this project:
  We would like to thanks following people who helped this project:
  - raczman
@@ -52,7 +51,7 @@
  First off, create a build directory somewhere on your hdd.\n 
  <tt>mkdir build</tt>\n
  This directory will contain makefiles used during compilation. To start configuration, type:\n
- <tt>cmake /path/to/tc3/sources</tt>\n
+ <tt>cmake /path/to/Morpheus/sources</tt>\n
  If everything is well, you should see:\n
  <tt>
  @verbatim
@@ -77,7 +76,7 @@
  -- SQLite3 found at: /usr/include, /usr/lib/libsqlite3.so
  -- Configuring done
  -- Generating done
- -- Build files have been written to: /root/tc3build
+ -- Build files have been written to: /root/Morpheusbuild
  @endverbatim
  </tt>
  
@@ -100,43 +99,43 @@
  - @ref tao_conf_ns_conf
  - @ref tao_conf_ec_sh
  - @ref tao_conf_ec_conf
- - @ref tao_conf_tc3_conf
+ - @ref tao_conf_Morpheus_conf
 
  @section tao_conf_wtf_is_ec What is Event Channel service?
- Event Channel service is what makes TC3 comply to distributability and transparency goals. It allows us to notify other nodes in cluster of events, at the same time doing it transparently - so we are not concerned about where in the network (or memory) other nodes are located, unless they can reach Event Channel, they can be notified of what is needed. In simpler terms, Event Channel is a more sophisticated RSS for TC3 nodes, it notifies of events and passes data other nodes need to cooperate.\n Without an active Event Channel present in cluster, nodes will be unable to work properly, the service is \b required to run TC3.\n
- TC3 comes along with handy scripts that make running Event Channel a simple task - default configuration is what 90% of cases will need, and we encourage you to use provided scripts and configuration.
+ Event Channel service is what makes Morpheus comply to distributability and transparency goals. It allows us to notify other nodes in cluster of events, at the same time doing it transparently - so we are not concerned about where in the network (or memory) other nodes are located, unless they can reach Event Channel, they can be notified of what is needed. In simpler terms, Event Channel is a more sophisticated RSS for Morpheus nodes, it notifies of events and passes data other nodes need to cooperate.\n Without an active Event Channel present in cluster, nodes will be unable to work properly, the service is \b required to run Morpheus.\n
+ Morpheus comes along with handy scripts that make running Event Channel a simple task - default configuration is what 90% of cases will need, and we encourage you to use provided scripts and configuration.
 
  @section tao_conf_wtf_is_ns What is Naming Service?
- Naming Service lets CORBA services find themself over network. This service is needed for TC3 to find Event Channel in cluster. TC3 comes with simple ns.sh script that runs Naming Service with state data file, and bind point at localhost.
+ Naming Service lets CORBA services find themself over network. This service is needed for Morpheus to find Event Channel in cluster. Morpheus comes with simple ns.sh script that runs Naming Service with state data file, and bind point at localhost.
 
  @section tao_conf_ns_conf How to configure Naming Service?
- If you want to host a TC3 cluster that is distributed across network, you need to modify ns.sh to supply binding network interface binding for Naming Service. For example:\n
+ If you want to host a Morpheus cluster that is distributed across network, you need to modify ns.sh to supply binding network interface binding for Naming Service. For example:\n
  <tt>
  @verbtim
- Naming_Service -f state.dat -ORBEndpoint iiop://192.168.1.14:9966 -m 1
+ tao_cosnaming -f state.dat -ORBEndpoint iiop://192.168.1.14:9966 -m 1
  @endverbatim
  </tt>
- It will make Name Service available from network to other TC3 nodes. To compliment that change, you need to reconfigure each TC3 node in cluster. For this, see @ref tao_conf_tc3_conf.
+ It will make Name Service available from network to other Morpheus nodes. To compliment that change, you need to reconfigure each Morpheus node in cluster. For this, see @ref tao_conf_Morpheus_conf.
 
  @section tao_conf_ec_sh What should i change in ec.sh ?
  Default ec.sh is a simple script that should be used for testing, or running cluster on one machine. It binds Event Channel to localhost:6555, runs one dispatch thread and goes on to do its work.\n
  More advanced users will surely want to make Event Channel visible in network, in order to make networked nodes see it. -ORBEndPoint command switch is what you should modify then. If, for example you want to bind Event Channel to 192.168.1.5, port 9955, modify the line so it says:\n
  <tt>
  @verbatim
- CosEvent_Service -r -ORBEndPoint iiop://192.168.1.5:9955 -ORBInitRef NameService=corbaloc:iiop:localhost:9966/NameService  -ORBSvcConf ec.conf
+ tao_cosevent -r -ORBEndPoint iiop://192.168.1.5:9955 -ORBInitRef NameService=corbaloc:iiop:localhost:9966/NameService  -ORBSvcConf ec.conf
  @endverbatim
  </tt>
  It is as simple as that.\n
  Other parameters should \b NOT be modified, unless you know what you are doing. But you wouldn't need that guide then, am i right? 
  @section tao_conf_ec_conf What is ec.conf?
- If you are running TC3 on one machine, or are not concerned about performance, you do not need to read that section. If you want to host enormous amounts of people, with lots of nodes in cluster, you will certainly need information in that section.\n
+ If you are running Morpheus on one machine, or are not concerned about performance, you do not need to read that section. If you want to host enormous amounts of people, with lots of nodes in cluster, you will certainly need information in that section.\n
  As every of TAO's services, Event Channel service is build around ACE's service configurator framework. Which means that first TAO invokes ACE configurator to create Event Channel Factory, which in order builds up our event channel. In order to modify inner-workings of Event Channel, we need to notify Event Channel Factory of what do we want from Event Channel. By default, Event Channel is pretty timid, so in environment with lots of nodes it may be underperforming, bringing overall cluster performance down. In order to counter that, a basic ec.conf file is provided with source code that you can modify to crank Event Channel up. We will go through settings that you may find useful in next paragraphs.\n
  -CECDispatching mt This option enables multithreaded dispath strategy for event channel. It is enabled by default.\n
  -CECDispatchingThreads 1 This indicates how many threads should be used to dispatch events. If you find that your Event Channel underperforms, try increasing that value.\n
- -CECConsumerControl reactive This option makes Event Channel periodically check for event consumers that are not available, and removes them to increase performance and avoid blocking. In environment like TC3, where nodes can go online and offline a lot, this option saves us restarting of Event Channel.\n
+ -CECConsumerControl reactive This option makes Event Channel periodically check for event consumers that are not available, and removes them to increase performance and avoid blocking. In environment like Morpheus, where nodes can go online and offline a lot, this option saves us restarting of Event Channel.\n
  -CECConsumerControlPeriod  Amount of time, in microseconds, before a nonresponsive event consumer will be disconnected from Event Channel forcibly.\n
  All this options are held in ec.conf, and if you feel you need to, try experimenting with default values. But be aware that unless you run a large cluster, with lots of networked nodes, you do not need to modify that file.
 
- @section tao_conf_tc3_conf How to configure TC3 to communicate with Event Channel?
- TC3's trinity.conf file contains section "corba", which carries NSLocation setting. It should be set accordingly to ORBEndpoint option on your Name Service.
+ @section tao_conf_morpheus_conf How to configure Morpheus to communicate with Event Channel?
+ Morpheus's morpheus.conf file contains section "corba", which carries NSLocation setting. It should be set accordingly to ORBEndpoint option on your Name Service.
 */

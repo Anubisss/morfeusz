@@ -1,5 +1,6 @@
 /*
  * Copyright (C) 2009 Dawn Of Reckoning
+ * Copyright (C) 2012 Morpheus
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -31,11 +32,7 @@
 #include "MySQLException.h"
 #include "MySQLInclude.h"
 
-
-
-
-
-namespace Trinity
+namespace Morpheus
 {
 namespace SQL
 {
@@ -60,7 +57,6 @@ MySQLPreparedStatement::~MySQLPreparedStatement()
     clearParameters();
     mysql_stmt_close(stmt);
     delete[] bind;
-
 }
 
 MYSQL* MySQLPreparedStatement::getMySQLHandle() const
@@ -70,8 +66,7 @@ MYSQL* MySQLPreparedStatement::getMySQLHandle() const
 
 void MySQLPreparedStatement::clearParameters()
 {
-    for (int i=0; i < paramCount; i++)
-    {
+    for (int i=0; i < paramCount; i++) {
         delete(char*) bind[i].length;
         bind[i].length = NULL;
         delete[](char*) bind[i].buffer;
@@ -80,13 +75,12 @@ void MySQLPreparedStatement::clearParameters()
     }
 
 }
+
 void MySQLPreparedStatement::close()
 {
     checkClosed();
     closed = true;
 }
-
-
 
 bool MySQLPreparedStatement::execute()
 {
@@ -103,22 +97,18 @@ int MySQLPreparedStatement::executeUpdate()
     return static_cast<int>(mysql_stmt_affected_rows(stmt));
 }
 
-
 ResultSet* MySQLPreparedStatement::executeQuery()
 {
-   
-
     //mysql_stmt_store_result(stmt);
-     doQuery();
+    doQuery();
+    
     return new MySQLPreparedResultSet(this, stmt);
 }
 
 void MySQLPreparedStatement::checkClosed()
 {
     if (closed)
-    {
         throw MySQLException("MySQLPreparedStatement::checkClosed() : statement closed");
-    }
 }
 
 ResultSet* MySQLPreparedStatement::getResultSet()
@@ -126,44 +116,33 @@ ResultSet* MySQLPreparedStatement::getResultSet()
     checkClosed();
 
     if (mysql_more_results(stmt->mysql))
-    {
         mysql_next_result(stmt->mysql);
-    }
-    return new MySQLPreparedResultSet(this, stmt);
 
+    return new MySQLPreparedResultSet(this, stmt);
 }
 
 void MySQLPreparedStatement::doQuery()
 {
     checkClosed();
     MYSQL* mysql = mysqlConn->getMySQLHandle();
+
     if (mysql_stmt_bind_param(stmt, bind))
-    {
         throw MySQLException("MySQLPreparedStatement::doQuery, mysql_stmt_bind_param error",mysql);
-    }
 
     if (mysql_stmt_execute(stmt))
-    {
         throw MySQLException("MySQLPreparedStatement::doQuery, mysql_stmt_execute error",mysql);
-    }
-    
-
-
 }
 
 void MySQLPreparedStatement::checkValidity(const uint8 idx)
 {
     if (idx == 0 || idx > paramCount)
-    {
         throw MySQLException("MySQLPreparedStatement::checkValidity(), invalid index");
-    }
 }
 
 bool MySQLPreparedStatement::isAllSet()
 {
     std::vector<bool>::iterator it;
-    for (it = paramsSet.begin(); it != paramsSet.end(); ++it)
-    {
+    for (it = paramsSet.begin(); it != paramsSet.end(); ++it) {
         if (!(*it))
             return false;
     }
@@ -193,12 +172,10 @@ void MySQLPreparedStatement::setUint8(const uint8 index, const uint8 value)
     setUint32(index,value);
 }
 
-
 void MySQLPreparedStatement::setUint16(const uint8 index, const uint16 value)
 {
     setUint32(index,value);
 }
-
 
 void MySQLPreparedStatement::setUint32(const uint8 index, const uint32 value)
 {
@@ -209,7 +186,6 @@ void MySQLPreparedStatement::setUint32(const uint8 index, const uint32 value)
     setValue(param,&value,4);
 }
 
-
 void MySQLPreparedStatement::setUint64(const uint8 index, const uint64 value)
 {
     checkValidity(index);
@@ -219,12 +195,10 @@ void MySQLPreparedStatement::setUint64(const uint8 index, const uint64 value)
     setValue(param,&value,8);
 }
 
-
 void MySQLPreparedStatement::setInt16(const uint8 index, const int16 value)
 {
     setInt32(index,value);
 }
-
 
 void MySQLPreparedStatement::setInt32(const uint8 index, const int32 value)
 {
@@ -235,7 +209,6 @@ void MySQLPreparedStatement::setInt32(const uint8 index, const int32 value)
     setValue(param,&value,4);
 }
 
-
 void MySQLPreparedStatement::setInt64(const uint8 index, const int64 value)
 {
     checkValidity(index);
@@ -245,7 +218,6 @@ void MySQLPreparedStatement::setInt64(const uint8 index, const int64 value)
     setValue(param,&value,8);
 }
 
-
 void MySQLPreparedStatement::setDouble(const uint8 index, const double value)
 {
     checkValidity(index);
@@ -254,8 +226,6 @@ void MySQLPreparedStatement::setDouble(const uint8 index, const double value)
     param->buffer_type	= MYSQL_TYPE_DOUBLE;
     setValue(param,&value,8);
 }
-
-
 
 void MySQLPreparedStatement::setString(const uint8 index,
                                        const std::string& value)
@@ -276,9 +246,6 @@ void MySQLPreparedStatement::setString(const uint8 index,
     param->length = new unsigned long(
         static_cast<unsigned long>(value.length()));
 }
-
-
-
 
 //////////////////////////////////////
 // unimplemented functions
@@ -302,5 +269,5 @@ ResultSet* MySQLPreparedStatement::executeQuery(const std::string& sql)
     return NULL;
 }
 
-}
-}
+};
+};

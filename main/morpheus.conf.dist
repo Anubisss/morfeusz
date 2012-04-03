@@ -2,7 +2,7 @@
 BindAddr = 0.0.0.0:3724
 #for mysql: hostname;port;username;password;dbname
 #for sqlite: location of db file
-DBUrl = localhost;3306;trinity;trinity;realmd
+DBUrl = localhost;3306;morpheus;morpheus;realmd
 #database engine, mysql or sqlite
 DBengine = mysql
 #Number of threads to handle database tasks
@@ -27,7 +27,7 @@ NetThreads = 3
 RealmID = 0
 ConnectionLimit = 1000
 #location of realms character database.
-DBUrl = localhost;3306;trinity;trinity;characters
+DBUrl = localhost;3306;morpheus;morpheus;characters
 #name of realmd database. Proxyd needs it for account retrieval.
 #user that proxyd uses, needs to have privileges for both databases.
 RealmDB = realmd
@@ -38,4 +38,4 @@ DBThreads = 3
 NSLocation = corbaloc:iiop:127.0.0.1:9966
 
 [data]
-dbc=/home/trinity/dbc/
+dbc=/home/morpheus/dbc/

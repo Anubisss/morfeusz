@@ -1,5 +1,6 @@
 /*
  * Copyright (C) 2009 Dawn of Reckoning project <http://www.dorproject.net/>
+ * Copyright (C) 2012 Morpheus
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
@@ -35,30 +36,27 @@ namespace Utils
 
 inline uint32 urand32()
 {
-
-  return (uint32)sRand->genrand_int32();
-
+    return (uint32)sRand->genrand_int32();
 }
 
 inline std::vector<std::string> StrSplit(const std::string &src, const std::string &sep)
 {
     std::vector<std::string> r;
     std::string s;
-    for (std::string::const_iterator i = src.begin(); i != src.end(); i++)
-    {
-        if (sep.find(*i) != std::string::npos)
-        {
+    for (std::string::const_iterator i = src.begin(); i != src.end(); i++) {
+        if (sep.find(*i) != std::string::npos) {
             if (s.length())
                 r.push_back(s);
             s = "";
         }
-        else
-        {
+        else {
             s += *i;
         }
     }
+
     if (s.length())
         r.push_back(s);
+
     return r;
 }
 
@@ -70,19 +68,20 @@ inline void hexdump(void *pAddressIn, long  lSize)
     long lIndent = 1;
     long lOutLen, lIndex, lIndex2, lOutLen2;
     long lRelPos;
+    
     struct
     {
         char *pData;
         unsigned long lSize;
     } buf;
+    
     unsigned char *pTmp,ucTmp;
     unsigned char *pAddress = (unsigned char *)pAddressIn;
 
     buf.pData   = (char *)pAddress;
     buf.lSize   = lSize;
 
-    while (buf.lSize > 0)
-    {
+    while (buf.lSize > 0) {
         pTmp     = (unsigned char *)buf.pData;
         lOutLen  = (int)buf.lSize;
         if (lOutLen > 16)
@@ -222,7 +221,7 @@ namespace ByteConverter
       }
 }
 
-#if TRINITY_ENDIAN == TRINITY_BIGENDIAN
+#if MORPHEUS_ENDIAN == MORPHEUS_BIGENDIAN
 template<typename T> inline void EndianConvert(T& val) { ByteConverter::apply<T>(&val); }
 template<typename T> inline void EndianConvertReverse(T&) { }
 #else

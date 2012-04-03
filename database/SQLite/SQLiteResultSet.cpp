@@ -1,5 +1,6 @@
 /*
  * Copyright (C) 2009 Dawn Of Reckoning
+ * Copyright (C) 2012 Morpheus
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -32,8 +33,7 @@
 #include <sstream>
 #include <ace/OS.h>
 
-
-namespace Trinity
+namespace Morpheus
 {
 
 namespace SQL
@@ -71,55 +71,44 @@ SQLiteResultSet::~SQLiteResultSet()
 void SQLiteResultSet::checkValidity(uint8 idx) const
 {
     if (idx == 0 || idx > numFields)
-    {
         throw SQLiteException("SQLiteResultSet: invalid index",sqlite);
-    }
 
     if (rowPosition == 0)
-    {
         throw SQLiteException("SQLiteResultSet: invalid row position (before first)",sqlite);
-    }
 
 
 }
 
 bool SQLiteResultSet::getBool(uint8 idx) const
 {
-
     if (getInt32(idx) > 0)
         return true;
 
     return false;
-
 }
 
 uint8 SQLiteResultSet::getUint8(uint8 idx) const
 {
-
     return static_cast<uint8>(getInt32(idx));
 }
 
 uint16 SQLiteResultSet::getUint16(uint8 idx) const
 {
-
     return static_cast<uint16>(getInt32(idx));
 }
 
 uint32 SQLiteResultSet::getUint32(uint8 idx) const
 {
-
     return static_cast<uint32>(getInt32(idx));
 }
 
 int8 SQLiteResultSet::getInt8(uint8 idx) const
 {
-
     return static_cast<int8>(getInt32(idx));
 }
 
 int16 SQLiteResultSet::getInt16(uint8 idx) const
 {
-
     return static_cast<int16>(getInt32(idx));
 }
 
@@ -138,14 +127,14 @@ double SQLiteResultSet::getDouble(uint8 idx) const
     return static_cast<int32>(value);
 }
 
-  float SQLiteResultSet::getFloat(uint8 idx) const
-  {
-  uint32 temp;
-  float ret;
-  temp = this->getUint32(idx);
-  memcpy(&ret, &temp,4);
-  return ret;
-  }
+float SQLiteResultSet::getFloat(uint8 idx) const
+{
+    uint32 temp;
+    float ret;
+    temp = this->getUint32(idx);
+    memcpy(&ret, &temp,4);
+    return ret;
+}
 
 uint64 SQLiteResultSet::getUint64(uint8 idx) const
 {
@@ -157,7 +146,6 @@ int64 SQLiteResultSet::getInt64(uint8 idx) const
     checkValidity(idx);
     sqlite_int64 value = sqlite3_column_int64(sqliteStmt, static_cast<int>(idx));
     return static_cast<int64>(value);
-
 }
 
 std::string SQLiteResultSet::getString(uint8 idx) const
@@ -165,7 +153,6 @@ std::string SQLiteResultSet::getString(uint8 idx) const
     checkValidity(idx);
     int len = sqlite3_column_bytes(sqliteStmt, static_cast<int>(idx));
     return std::string(reinterpret_cast<const char*>(sqlite3_column_text(sqliteStmt,static_cast<int>(idx))), len);
-
 }
 
 bool SQLiteResultSet::next()
@@ -191,7 +178,6 @@ bool SQLiteResultSet::next()
 bool SQLiteResultSet::isFirst() const
 {
     return rowPosition == 1;
-
 }
 
 uint32 SQLiteResultSet::rowsCount() const
@@ -199,27 +185,5 @@ uint32 SQLiteResultSet::rowsCount() const
     return numRows;
 }
 
-/*
-bool SQLiteResultSet::first()
-{
-	rowPosition = 1;
-
-	return numRows > 0;
-}
-
-bool SQLiteResultSet::beforeFirst()
-{
-	rowPosition = 0;
-}
-
-bool SQLiteResultSet::afterLast()
-{
-	rowPosition = numRows + 1;
-}
-
-*/
-
-
-
-}
-}
+};
+};

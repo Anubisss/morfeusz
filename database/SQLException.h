@@ -1,5 +1,6 @@
 /*
  * Copyright (C) 2009 Dawn Of Reckoning
+ * Copyright (C) 2012 Morpheus
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -26,17 +27,18 @@
 #ifndef EXCEPTION_H_
 #define EXCEPTION_H_
 
-
 #include <stdexcept>
 #include <string>
 
-namespace Trinity
+namespace Morpheus
 {
+
 namespace SQL
 {
 
 class SQLException : public std::exception
 {
+
 public:
 
     SQLException(const std::string& mess) : std::exception(), message(mess)
@@ -55,12 +57,12 @@ public:
     }
 
 protected:
+
     std::string message;
 
 };
 
-}
-}
-
+};
+};
 
 #endif /* EXCEPTION_H_ */

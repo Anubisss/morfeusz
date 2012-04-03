@@ -1,5 +1,6 @@
 /* -*- C++ -*-
  * Copyright (C) 2009 Trinity Core <http://www.trinitycore.org>
+ * Copyright (C) 2012 Morpheus
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -30,19 +31,24 @@
 #include <openssl/hmac.h>
 #include <openssl/sha.h>
 
-namespace Trinity
+namespace Morpheus
 {
+
 namespace Proxyd
 {
 
 class Proxy_Crypto : public Proxy_Crypto_Base
 {
- public:
+
+public:
+
   Proxy_Crypto();
   void encrypt(uint8* data, size_t len);
   void decrypt(uint8* data, size_t len);
   void set_key(BIGNUM* key);
- private:
+
+private:
+
   /**
    * @brief Header size for TBC server->client packets.
    */

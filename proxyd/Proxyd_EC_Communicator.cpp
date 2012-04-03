@@ -1,5 +1,6 @@
 /* -*- C++ -*-
  * Copyright (C) 2009 Trinity Core <http://www.trinitycore.org>
+ * Copyright (C) 2012 Morpheus
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -30,114 +31,109 @@
 #include "Configuration.h"
 #include <orbsvcs/CosNamingC.h>
 
-namespace Trinity
+namespace Morpheus
 {
+
 namespace Proxyd
 {
 
-void
-EC_Communicator::connect()
-  try
-    {
-      PROXY_LOG("Connecting to Event Channel...\n");
-      CORBA::Object_var _object = 
-	orb->resolve_initial_references("NameService");
-      CosNaming::NamingContext_var naming_context = 
-	CosNaming::NamingContext::_narrow (_object.in ());
+void EC_Communicator::connect()
+{
+    try {
+        PROXY_LOG("Connecting to Event Channel...\n");
+        CORBA::Object_var _object = 
+            orb->resolve_initial_references("NameService");
+        CosNaming::NamingContext_var naming_context = 
+            CosNaming::NamingContext::_narrow (_object.in ());
 
-      CosNaming::Name ec_name;
-      ec_name.length(1);
-      ec_name[0].id = CORBA::string_dup("CosEventService");
+        CosNaming::Name ec_name;
+        ec_name.length(1);
+        ec_name[0].id = CORBA::string_dup("CosEventService");
 
-      CosEventChannelAdmin::EventChannel_var channel = 
-	CosEventChannelAdmin::EventChannel::_unchecked_narrow(naming_context->resolve(ec_name));
+        CosEventChannelAdmin::EventChannel_var channel = 
+            CosEventChannelAdmin::EventChannel::_unchecked_narrow(naming_context->resolve(ec_name));
 
-      _object = orb->resolve_initial_references("RootPOA");
-      this->poa = PortableServer::POA::_narrow(_object.in());
+        _object = orb->resolve_initial_references("RootPOA");
+        this->poa = PortableServer::POA::_narrow(_object.in());
       
-      PortableServer::ObjectId_var oid = poa->activate_object(this);
-      CORBA::Object_var consumer_obj = poa->id_to_reference(oid.in());
+        PortableServer::ObjectId_var oid = poa->activate_object(this);
+        CORBA::Object_var consumer_obj = poa->id_to_reference(oid.in());
       
-      CosEventComm::PushConsumer_var consumer = 
-	CosEventComm::PushConsumer::_unchecked_narrow(consumer_obj.in());
-      this->supplier_proxy = channel->for_consumers()->obtain_push_supplier();
-      this->supplier_proxy->connect_push_consumer(consumer);
+        CosEventComm::PushConsumer_var consumer = 
+            CosEventComm::PushConsumer::_unchecked_narrow(consumer_obj.in());
+        this->supplier_proxy = channel->for_consumers()->obtain_push_supplier();
+        this->supplier_proxy->connect_push_consumer(consumer);
 
-      this->pusher = channel->for_suppliers()->obtain_push_consumer();
-      this->pusher->connect_push_supplier(CosEventComm::PushSupplier::_nil());
-      poa->the_POAManager()->activate();
+        this->pusher = channel->for_suppliers()->obtain_push_consumer();
+        this->pusher->connect_push_supplier(CosEventComm::PushSupplier::_nil());
+        poa->the_POAManager()->activate();
 
-      PROXY_LOG("Connected to Event Channel.\n");
+        PROXY_LOG("Connected to Event Channel.\n");
     }
-  catch(CORBA::Exception &e)
-    {
-      PROXY_LOG("Couldn't connect to Event Channel!\nException thrown was of type: %s\n",e._name());
+    catch (CORBA::Exception &e) {
+        PROXY_LOG("Couldn't connect to Event Channel!\nException thrown was of type: %s\n",e._name());
+        return;
+    }
+}
+
+void EC_Communicator::disconnect_push_consumer()
+{
+    try {
+        PROXY_LOG("WARNING: Disconnected from Event Channel!\n");
+        this->supplier_proxy->disconnect_push_supplier ();
+    }
+    catch (CORBA::Exception &e) {
+        return;
+    }
+}
+
+void EC_Communicator::announce()
+{
+    try {
+        Morpheus::Proxy_Announce ann;
+        ann.realm_id = sProxy->get_realmid();
+        ann.address = CORBA::string_dup(sConfig->getString("proxyd","BindAddr").c_str());
+        ann.load = sProxy->load;
+
+        CORBA::Any any;
+        any <<= ann;
+        this->pusher->push(any);
+    }
+    catch (CORBA::Exception &e) {
+        PROXY_LOG("Exception thrown!\n");
+        return;
+    }
+}
+
+void EC_Communicator::push( const CORBA::Any &data)
+{
+    try {
+        Morpheus::Proxy_Request* req;
+        if(data >>= req) {
+            if(req->realm_id == sProxy->get_realmid())
+                this->announce();
+        }
+    }
+    catch (CORBA::Exception &e) {
       return;
     }
+}
 
-void
-EC_Communicator::disconnect_push_consumer()
-  try
-    {
-      PROXY_LOG("WARNING: Disconnected from Event Channel!\n");
-      this->supplier_proxy->disconnect_push_supplier ();
+void EC_Communicator::report_load()
+{
+    try {
+        Morpheus::Proxy_Load_Report rep;
+        rep.address = CORBA::string_dup(sConfig->getString("proxyd","BindAddr").c_str());
+        rep.load = sProxy->load;
+
+        CORBA::Any any;
+        any <<= rep;
+        this->pusher->push(any);
     }
-  catch(CORBA::Exception &e)
-    {
+    catch (CORBA::Exception &e) {
       return;
     }
-
-void
-EC_Communicator::announce()
-  try
-    {
-      Trinity::Proxy_Announce ann;
-      ann.realm_id = sProxy->get_realmid();
-      ann.address = CORBA::string_dup(sConfig->getString("proxyd","BindAddr").c_str());
-      ann.load = sProxy->load;
-      
-      CORBA::Any any;
-      any <<= ann;
-      this->pusher->push(any);
-    }
-  catch(CORBA::Exception &e)
-    {
-      PROXY_LOG("Exception thrown!\n");
-      return;
-    }
-
-void
-EC_Communicator::push( const CORBA::Any &data)
-  try
-    {
-      Trinity::Proxy_Request* req;
-      if(data >>= req)
-	{
-	  if(req->realm_id == sProxy->get_realmid())
-	    this->announce();
-	}
-    }
-  catch(CORBA::Exception &e)
-    {
-      return;
-    }
-
-void
-EC_Communicator::report_load()
-  try
-    {
-      Trinity::Proxy_Load_Report rep;
-      rep.address = CORBA::string_dup(sConfig->getString("proxyd","BindAddr").c_str());
-      rep.load = sProxy->load;
-
-      CORBA::Any any;
-      any <<= rep;
-      this->pusher->push(any);
-    }
-  catch(CORBA::Exception &e)
-    {
-      return;
-    }
+}
 
 };
 };

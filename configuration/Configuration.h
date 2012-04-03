@@ -1,5 +1,6 @@
 /*
  * Copyright (C) 2009 Dawn Of Reckoning
+ * Copyright (C) 2012 Morpheus
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -16,7 +17,7 @@
  * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
  */
 
-/*
+/**
  *  @file    Configuration.h
  *  @brief   Contains configuration holder singleton.
  *  @author  raczman <raczman@gmail.com>
@@ -29,15 +30,18 @@
 #include <ace/Singleton.h>
 #include <string>
 
-namespace Trinity
+namespace Morpheus
 {
+
 /**
  * @brief This class holds configuration exported from config file.
  *
  */
 class ConfigurationHolder
 {
+
 public:
+
     friend class ACE_Singleton<ConfigurationHolder, ACE_Thread_Mutex>;
 
     /**
@@ -48,7 +52,7 @@ public:
     /**
      * @brief initial opening of config file.
      */
-    void open(const std::string& location = "trinity.conf");
+    void open(const std::string& location = "morpheus.conf");
     float getFloat(const std::string& section, const std::string& key);
     int getInt(const std::string& section, const std::string& key);
     std::string getString(const std::string& section, const std::string& key);
@@ -69,6 +73,6 @@ private:
     ACE_Configuration_Heap config;
 };
 
-}
+};
 
-#define sConfig Trinity::ConfigurationHolder::instance()
+#define sConfig Morpheus::ConfigurationHolder::instance()

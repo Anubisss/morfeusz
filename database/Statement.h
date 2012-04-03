@@ -1,5 +1,6 @@
 /*
  * Copyright (C) 2009 Dawn Of Reckoning
+ * Copyright (C) 2012 Morpheus
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -29,10 +30,9 @@
 
 #include <string>
 
-
-
-namespace Trinity
+namespace Morpheus
 {
+
 namespace SQL
 {
 
@@ -41,6 +41,7 @@ class ResultSet;
 
 class Statement
 {
+
 public:
 
     virtual void close() = 0;
@@ -56,14 +57,9 @@ public:
     virtual ResultSet* getResultSet() = 0;
 
     virtual const bool isClosed() const = 0;
-
 };
 
-}
-}
-
-
-
-
+};
+};
 
 #endif /* STATEMENT_H_ */

@@ -1,5 +1,6 @@
 /* -*- C++ -*-
  * Copyright (C) 2009 Trinity Core <http://www.trinitycore.org>
+ * Copyright (C) 2012 Morpheus
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -40,20 +41,21 @@
 
 class ACE_Reactor;
 
+using namespace Morpheus::DatabaseAccess;
 
-using namespace Trinity::DatabaseAccess;
-
-namespace Trinity
+namespace Morpheus
 {
-  /**
-   * @brief %Realm service's namespace
-   * @details Contains classes and interfaces used by %Realm Service.
-   */
+
+/**
+ * @brief %Realm service's namespace
+ * @details Contains classes and interfaces used by %Realm Service.
+ */
 namespace Realmd
 {
+
 typedef ACE_Acceptor<Realm_Socket, ACE_SOCK_ACCEPTOR> RealmdAcceptor;
 
-  class EC_Communicator;
+class EC_Communicator;
 
 /**
  * @brief This structure is used to pass information
@@ -61,20 +63,20 @@ typedef ACE_Acceptor<Realm_Socket, ACE_SOCK_ACCEPTOR> RealmdAcceptor;
  */
 struct Realm
 {
-  std::string name;
-  std::string address;
-  uint8 icon;
-  uint8 color;
-  uint8 timezone;
-  uint8 allowedSecurityLevel;
-  float population;
-  uint16 build;
+    std::string name;
+    std::string address;
+    uint8 icon;
+    uint8 color;
+    uint8 timezone;
+    uint8 allowedSecurityLevel;
+    float population;
+    uint16 build;
 };
 
 struct Proxy_Info
 {
-  std::string ip;
-  float load;
+    std::string ip;
+    float load;
 };
 
 /**
@@ -86,62 +88,66 @@ struct Proxy_Info
  */
 class Realm_Service : public ACE_Task_Base
 {
-  friend class ACE_Singleton<Realm_Service, ACE_Recursive_Thread_Mutex>;
- public:
+    friend class ACE_Singleton<Realm_Service, ACE_Recursive_Thread_Mutex>;
 
-  /**
-   * @brief Starts service.
-   */
-  void start();
+public:
 
-  /**
-   * @brief Stops service.
-   */
-  void stop();
+    /**
+     * @brief Starts service.
+     */
+    void start();
 
-  /**
-   * @brief Realm_Service is a singleton, we are accessing it using mutexed instance call.
-   */
-  static Realm_Service* instance(){return ACE_Singleton<Realm_Service, ACE_Recursive_Thread_Mutex>::instance();}
-  ACE_Reactor* get_reactor(){return reactor;}
+    /**
+     * @brief Stops service.
+     */
+    void stop();
 
-  /**
-   * @brief Threadbody for network handling threads.
-   */
-  int svc();
-  RealmDB* get_db(){return database;}
-  std::map<uint8, Realm>* get_realmlist(){return &realm_map;}
+    /**
+     * @brief Realm_Service is a singleton, we are accessing it using mutexed instance call.
+     */
+    static Realm_Service* instance() { return ACE_Singleton<Realm_Service, ACE_Recursive_Thread_Mutex>::instance(); }
+    ACE_Reactor* get_reactor() { return reactor; }
 
-  /**
-   * @brief This is callbacked function, used to set realmlist.
-   * @see RealmDB::get_realmlist()
-   * @see getRealmListObsv
-   */
-  void update_realms(Trinity::SQL::ResultSet*);
+    /**
+     * @brief Threadbody for network handling threads.
+     */
+    int svc();
+    RealmDB* get_db() { return database; }
+    std::map<uint8, Realm>* get_realmlist() { return &realm_map; }
 
-  void add_proxy(uint8 realm, std::string ip, float load);
+    /**
+     * @brief This is callbacked function, used to set realmlist.
+     * @see RealmDB::get_realmlist()
+     * @see getRealmListObsv
+     */
+    void update_realms(Morpheus::SQL::ResultSet*);
 
-  void add_proxy_load_report(std::string ip, float load);
+    void add_proxy(uint8 realm, std::string ip, float load);
 
-  std::string get_proxy_for_realm(uint8 id);
- private:
-  std::map<uint8, Realm> realm_map;
-  std::multimap<uint8, Proxy_Info> proxies;
-  Realm_Service(){}
-  ACE_Reactor* reactor;
-  RealmdAcceptor* acceptor;
-  RealmDB* database;
+    void add_proxy_load_report(std::string ip, float load);
 
-  CORBA::ORB_var orb;
-  EC_Communicator* event_channel;
-  /**
-   * @brief Used to indicate service's status.
-   */
-  bool is_running;
+    std::string get_proxy_for_realm(uint8 id);
+
+private:
+
+    std::map<uint8, Realm> realm_map;
+    std::multimap<uint8, Proxy_Info> proxies;
+    Realm_Service(){}
+    ACE_Reactor* reactor;
+    RealmdAcceptor* acceptor;
+    RealmDB* database;
+
+    CORBA::ORB_var orb;
+    EC_Communicator* event_channel;
+
+    /**
+     * @brief Used to indicate service's status.
+     */
+    bool is_running;
 };
 
-}
-}
+};
+};
 
 /**
  * @brief Prefix for log macro.
@@ -153,7 +159,7 @@ class Realm_Service : public ACE_Task_Base
  */
 #define REALM_LOG(...) ACE_DEBUG((LM_INFO, REALM_PREFIX __VA_ARGS__))
 
-#ifdef _TRINITY_DEBUG
+#ifdef _MORPHEUS_DEBUG
 #define REALM_TRACE ACE_DEBUG((LM_DEBUG,"%s\n", __PRETTY_FUNCTION__))
 #else
 #define REALM_TRACE NULL
@@ -162,6 +168,6 @@ class Realm_Service : public ACE_Task_Base
  * @brief For clarity, rest of the code references realm service
  *        singleton as sRealm.
  */
-#define sRealm Trinity::Realmd::Realm_Service::instance()
+#define sRealm Morpheus::Realmd::Realm_Service::instance()
 #else
 #endif

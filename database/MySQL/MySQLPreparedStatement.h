@@ -1,5 +1,6 @@
 /*
  * Copyright (C) 2009 Dawn Of Reckoning
+ * Copyright (C) 2012 Morpheus
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -32,16 +33,16 @@
 #include "MySQLConnection.h"
 #include <vector>
 
-namespace Trinity
+namespace Morpheus
 {
 namespace SQL
 {
 
-
-
 class MySQLPreparedStatement : public PreparedStatement
 {
+
 public:
+
     MySQLPreparedStatement(MySQLConnection* conn, MYSQL_STMT* stmt);
 
     virtual ~MySQLPreparedStatement();
@@ -102,10 +103,7 @@ private :
 
     bool isAllSet();
 
-
-
     void setValue(MYSQL_BIND* param, const void* value, uint32 len);
-
 
     MySQLConnection* mysqlConn;
     bool closed;
@@ -113,14 +111,9 @@ private :
     uint32 paramCount;
     std::vector<bool> paramsSet;
     MYSQL_BIND* bind;
-
-
-
-
 };
 
-}
-}
-
+};
+};
 
 #endif /* MYSQLPREPAREDSTATEMENT_H_ */

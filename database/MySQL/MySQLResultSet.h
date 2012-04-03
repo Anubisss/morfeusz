@@ -1,5 +1,6 @@
 /*
  * Copyright (C) 2009 Dawn Of Reckoning
+ * Copyright (C) 2012 Morpheus
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -27,12 +28,11 @@
 #ifndef MYSQLRESULTSET_H_
 #define MYSQLRESULTSET_H_
 
-
 #include "MySQLInclude.h"
 #include "../ResultSet.h"
 #include <string>
 
-namespace Trinity
+namespace Morpheus
 {
 namespace SQL
 {
@@ -41,6 +41,7 @@ class MySQLStatement;
 
 class MySQLResultSet : public ResultSet
 {
+
 public:
 
     MySQLResultSet(MySQLStatement* stmt, MYSQL_RES* res);
@@ -98,6 +99,7 @@ public:
     bool isFirst() const;
 
     uint32 rowsCount() const;
+
 private:
 
     void checkValidity(uint8 idx) const;
@@ -110,8 +112,8 @@ private:
     uint32 numFields;
 };
 
-}
-}
+};
+};
 
 #endif
 

@@ -1,5 +1,6 @@
 /* -*- C++ -*-
  * Copyright (C) 2009 Trinity Core <http://www.trinitycore.org>
+ * Copyright (C) 2012 Morpheus
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -28,47 +29,50 @@
 
 #include <ace/Event_Handler.h>
 
-namespace Trinity
+namespace Morpheus
 {
+
 namespace Realmd
 {
-  /**
-   * @brief Timer that performs tasks for realmd
-   * @details This class, being an inherit from ACE_Event_Handler
-   *          contains only one function, which goes off at a time
-   *          set in configuration file.
-   */
+
+/**
+ * @brief Timer that performs tasks for realmd
+ * @details This class, being an inherit from ACE_Event_Handler
+ *          contains only one function, which goes off at a time
+ *          set in configuration file.
+ */
 class Realm_Timer : public ACE_Event_Handler
 {
- private:
-  /**
-   * @brief Inherited from ACE_Event_Handler
-   * @details If there are any tasks that need to go at scheduled time,
-   *          put them in here.
-   */
-  int handle_timeout(const ACE_Time_Value &, const void *act)
-  {
-    sRealm->get_db()->get_realmlist();
-    return 0;
-  }
+
+private:
+
+    /**
+     * @brief Inherited from ACE_Event_Handler
+     * @details If there are any tasks that need to go at scheduled time,
+     *          put them in here.
+     */
+    int handle_timeout(const ACE_Time_Value &, const void *act)
+    {
+        sRealm->get_db()->get_realmlist();
+        return 0;
+    }
 };
 
-  /**
-   * @brief Prunes bans every minute.
-   */
+/**
+ * @brief Prunes bans every minute.
+ */
 class Unban_Timer : public ACE_Event_Handler
 {
-  
-  /**
-   * @see Realm_Timer::handle_timeout
-   */
-  int handle_timeout(const ACE_Time_Value &, const void* act)
-  {
-    sRealm->get_db()->enqueue(new SqlOperationRequest(REALMD_DB_PRUNE_BANS));
-    sRealm->get_db()->enqueue(new SqlOperationRequest(REALMD_DB_SET_INACTIVE_BANS));
-    return 0;
-  }
+    /**
+     * @see Realm_Timer::handle_timeout
+     */
+    int handle_timeout(const ACE_Time_Value &, const void* act)
+    {
+        sRealm->get_db()->enqueue(new SqlOperationRequest(REALMD_DB_PRUNE_BANS));
+        sRealm->get_db()->enqueue(new SqlOperationRequest(REALMD_DB_SET_INACTIVE_BANS));
+        return 0;
+    }
 };
 
-}
-}
+};
+};

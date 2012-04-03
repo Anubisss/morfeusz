@@ -1,5 +1,6 @@
 /* -*- C++ -*-
  * Copyright (C) 2009 Trinity Core <http://www.trinitycore.org>
+ * Copyright (C) 2012 Morpheus
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -30,39 +31,44 @@
 #include "Callback.h"
 #include "Proxy_Socket.h"
 
-using namespace Trinity::Proxyd;
+using namespace Morpheus::Proxyd;
 
-namespace Trinity
+namespace Morpheus
 {
+
 namespace DatabaseAccess
 {
 
 enum ProxyDatabaseStatements
-  {
+{
     PROXYD_DB_GET_ACCT,
     PROXYD_DB_GET_CHAR,
     PROXYD_DB_STMT_MAX
-  };
+};
 
 class ProxyDatabaseConnection : protected DatabaseConnection
 {
- public:
- ProxyDatabaseConnection(ACE_Activation_Queue* q): DatabaseConnection(q){};
-  ~ProxyDatabaseConnection(){if(worker) delete worker;};
-  bool open(const std::string& driver, const std::string& url);
+
+public:
+
+    ProxyDatabaseConnection(ACE_Activation_Queue* q): DatabaseConnection(q){};
+    ~ProxyDatabaseConnection(){if(worker) delete worker;};
+    bool open(const std::string& driver, const std::string& url);
 };
 
 class ProxyDB : public DatabaseHolder<ProxyDatabaseConnection>
 {
- public:
- ProxyDB(int c): DatabaseHolder<ProxyDatabaseConnection>(c){}
 
-  /**
-   * @brief Retrieves user account from database
-   * @sa Proxy_Socket::handle_cmsg_auth_session
-   */
-  void get_account(Proxy_Sock_Ptr sock);
-  void get_chars(Proxy_Sock_Ptr sock);
+public:
+
+    ProxyDB(int c): DatabaseHolder<ProxyDatabaseConnection>(c){}
+
+    /**
+     * @brief Retrieves user account from database
+     * @sa Proxy_Socket::handle_cmsg_auth_session
+     */
+    void get_account(Proxy_Sock_Ptr sock);
+    void get_chars(Proxy_Sock_Ptr sock);
 };
 
 };

@@ -1,5 +1,6 @@
 /* -*- C++ -*-
  * Copyright (C) 2009 Trinity Core <http://www.trinitycore.org>
+ * Copyright (C) 2012 Morpheus
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -28,87 +29,81 @@
 #include "Proxy_EventsC.h"
 #include <orbsvcs/CosNamingC.h>
 
-namespace Trinity
+namespace Morpheus
 {
+
 namespace Realmd
 {
-void
-EC_Communicator::connect()
-  try
-    {
-      REALM_LOG("Connecting to Event Channel...\n");
-      CORBA::Object_var _object = 
-	orb->resolve_initial_references("NameService");
-      CosNaming::NamingContext_var naming_context = 
-	CosNaming::NamingContext::_narrow (_object.in ());
 
-      CosNaming::Name ec_name;
-      ec_name.length(1);
-      ec_name[0].id = CORBA::string_dup("CosEventService");
-
-      CosEventChannelAdmin::EventChannel_var channel = 
-	CosEventChannelAdmin::EventChannel::_narrow(naming_context->resolve(ec_name));
-
-      _object = orb->resolve_initial_references("RootPOA");
-      this->poa = PortableServer::POA::_narrow(_object.in());
-      
-      PortableServer::ObjectId_var oid = poa->activate_object(this);
-      CORBA::Object_var consumer_obj = poa->id_to_reference(oid.in());
-      
-      CosEventComm::PushConsumer_var consumer = 
-	CosEventComm::PushConsumer::_narrow(consumer_obj.in());
-      this->supplier_proxy = channel->for_consumers()->obtain_push_supplier();
-      this->supplier_proxy->connect_push_consumer(consumer.in());
-
-      this->pusher = channel->for_suppliers()->obtain_push_consumer();
-      this->pusher->connect_push_supplier(CosEventComm::PushSupplier::_nil());
-      poa->the_POAManager()->activate();
-
-      REALM_LOG("Connected to Event Channel.\n");
-    }
-  catch(CORBA::Exception &e)
-    {
-      REALM_LOG("Couldn't connect to Event Channel!\nException thrown was of type: %s\n",e._name());
-      return;
-    }
-
-void
-EC_Communicator::request_proxies_for_realm(uint8 id)
+void EC_Communicator::connect()
 {
-  REALM_TRACE;
-  Trinity::Proxy_Request req;
-  req.realm_id = id;
+    try {
+        REALM_LOG("Connecting to Event Channel...\n");
+        CORBA::Object_var _object = 
+            orb->resolve_initial_references("NameService");
+        CosNaming::NamingContext_var naming_context = 
+            CosNaming::NamingContext::_narrow (_object.in ());
 
-  CORBA::Any any;
-  any <<= req;
-  this->pusher->push(any);
+        CosNaming::Name ec_name;
+        ec_name.length(1);
+        ec_name[0].id = CORBA::string_dup("CosEventService");
+
+        CosEventChannelAdmin::EventChannel_var channel = 
+            CosEventChannelAdmin::EventChannel::_narrow(naming_context->resolve(ec_name));
+
+        _object = orb->resolve_initial_references("RootPOA");
+        this->poa = PortableServer::POA::_narrow(_object.in());
+      
+        PortableServer::ObjectId_var oid = poa->activate_object(this);
+        CORBA::Object_var consumer_obj = poa->id_to_reference(oid.in());
+      
+        CosEventComm::PushConsumer_var consumer = 
+            CosEventComm::PushConsumer::_narrow(consumer_obj.in());
+        this->supplier_proxy = channel->for_consumers()->obtain_push_supplier();
+        this->supplier_proxy->connect_push_consumer(consumer.in());
+
+        this->pusher = channel->for_suppliers()->obtain_push_consumer();
+        this->pusher->connect_push_supplier(CosEventComm::PushSupplier::_nil());
+        poa->the_POAManager()->activate();
+
+        REALM_LOG("Connected to Event Channel.\n");
+    }
+    catch (CORBA::Exception &e) {
+        REALM_LOG("Couldn't connect to Event Channel!\nException thrown was of type: %s\n",e._name());
+        return;
+    }
 }
 
-void
-EC_Communicator::push(const CORBA::Any &data)
+void EC_Communicator::request_proxies_for_realm(uint8 id)
 {
-  
-  Trinity::Proxy_Announce* ann;
-  Trinity::Proxy_Load_Report* report;
+    REALM_TRACE;
+    Morpheus::Proxy_Request req;
+    req.realm_id = id;
+
+    CORBA::Any any;
+    any <<= req;
+    this->pusher->push(any);
+}
+
+void EC_Communicator::push(const CORBA::Any &data)
+{
+    Morpheus::Proxy_Announce* ann;
+    Morpheus::Proxy_Load_Report* report;
  
-  if(data >>= ann)
-    {
-      sRealm->add_proxy(ann->realm_id, std::string(CORBA::string_dup(ann->address)),
-			ann->load);
+    if (data >>= ann) {
+        sRealm->add_proxy(ann->realm_id, std::string(CORBA::string_dup(ann->address)),
+                        ann->load);
     }
-  else if(data >>= report)
-    {
-      sRealm->add_proxy_load_report(std::string(CORBA::string_dup(report->address)),
-				    report->load);
+    else if(data >>= report) {
+        sRealm->add_proxy_load_report(std::string(CORBA::string_dup(report->address)),
+                                report->load);
     }
-
 }
 
-void
-EC_Communicator::disconnect_push_consumer()
+void EC_Communicator::disconnect_push_consumer()
 {
-  REALM_LOG("WARNING: Disconnected from Event Channel!\n");
-  this->supplier_proxy->disconnect_push_supplier ();
+    REALM_LOG("WARNING: Disconnected from Event Channel!\n");
+    this->supplier_proxy->disconnect_push_supplier ();
 }
 
 };

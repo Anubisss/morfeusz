@@ -13,9 +13,9 @@ include_directories(
 	${MYSQL_INCLUDE_DIR}
 )
 
-add_library(trinitydatabaseMysql STATIC ${databaseMysql_SRCS})
+add_library(morpheusdatabaseMysql STATIC ${databaseMysql_SRCS})
 
 target_link_libraries(
-	trinitydatabaseMysql
+	morpheusdatabaseMysql
 	${MYSQL_LIBRARIES}
 	)

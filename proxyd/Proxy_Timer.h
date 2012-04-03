@@ -1,5 +1,6 @@
 /* -*- C++ -*-
  * Copyright (C) 2009 Trinity Core <http://www.trinitycore.org>
+ * Copyright (C) 2012 Morpheus
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -29,25 +30,25 @@
 
 #include <ace/Event_Handler.h>
 
-namespace Trinity
+namespace Morpheus
 {
+
 namespace Proxyd
 {
 
-  /**
-   * @brief This timer gets caled every minute,
-   *        to broadcast load to existing realmd
-   *        nodes.
-   */
-  class Proxy_Timer : public ACE_Event_Handler
-  {
+/**
+ * @brief This timer gets caled every minute,
+ *        to broadcast load to existing realmd
+ *        nodes.
+*/
+class Proxy_Timer : public ACE_Event_Handler
+{
     int handle_timeout(const ACE_Time_Value &, const void*)
     {
-      sProxy->get_event_channel()->report_load();
-      return 0;
+        sProxy->get_event_channel()->report_load();
+        return 0;
     }
-  
-  };
+};
 
 };
 };

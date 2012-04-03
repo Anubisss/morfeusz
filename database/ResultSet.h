@@ -1,5 +1,6 @@
 /*
  * Copyright (C) 2009 Dawn Of Reckoning
+ * Copyright (C) 2012 Morpheus
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -30,15 +31,18 @@
 #include <Common.h>
 #include <string>
 
-namespace Trinity
+namespace Morpheus
 {
+
 namespace SQL
 {
 
 class ResultSet
 {
+
 public:
-    virtual ~ResultSet(){}
+
+    virtual ~ResultSet() {}
 
     virtual bool getBool(uint8 idx) const = 0;
 
@@ -96,14 +100,9 @@ public:
      * @return
      */
     virtual uint32 rowsCount() const = 0;
-
-
 };
 
-}
-}
-
-
-
+};
+};
 
 #endif /* RESULTSET_H_ */

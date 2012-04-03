@@ -2,6 +2,7 @@
  * Copyright (C) 2005-2008 MaNGOS <http://www.mangosproject.org/>
  *
  * Copyright (C) 2008 Trinity <http://www.trinitycore.org/>
+ * Copyright (C) 2012 Morpheus
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -30,7 +31,7 @@
 #ifndef _OPCODES_H
 #define _OPCODES_H
 
-namespace Trinity
+namespace Morpheus
 {
 
 /* 

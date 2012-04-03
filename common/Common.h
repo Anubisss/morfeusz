@@ -1,5 +1,6 @@
 /*
  * Copyright (C) 2009 Dawn of Reckoning project <http://www.dorproject.net/>
+ * Copyright (C) 2012 Morpheus
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
@@ -20,7 +21,6 @@
 #pragma once
 #ifndef COMMON_H_
 #define COMMON_H_
-
 
 #include <assert.h>
 #include <ace/Basic_Types.h>
@@ -54,13 +54,13 @@
 
 #if COMPILER == COMPILER_MICROSOFT
 #	pragma warning(disable:4273)
-#	ifdef TRINITY_EXPORTS
-#		define TRINITY_API __declspec(dllexport)
+#	ifdef MORPHEUS_EXPORTS
+#		define MORPHEUS_API __declspec(dllexport)
 #	else
-#		define TRINITY_API __declspec(dllimport)
+#		define MORPHEUS_API __declspec(dllimport)
 #	endif
 #else
-#	define TRINITY_API
+#	define MORPHEUS_API
 #endif
 
 typedef ACE_INT64 int64;
@@ -72,16 +72,16 @@ typedef ACE_UINT32 uint32;
 typedef ACE_UINT16 uint16;
 typedef ACE_UINT8 uint8;
 
-#define TRINITY_LITTLEENDIAN 0
-#define TRINITY_BIGENDIAN    1
+#define MORPHEUS_LITTLEENDIAN 0
+#define MORPHEUS_BIGENDIAN    1
 
-#if !defined(TRINITY_ENDIAN)
+#if !defined(MORPHEUS_ENDIAN)
 #  if defined (ACE_BIG_ENDIAN)
-#    define TRINITY_ENDIAN TRINITY_BIGENDIAN
+#    define MORPHEUS_ENDIAN MORPHEUS_BIGENDIAN
 #  else //ACE_BYTE_ORDER != ACE_BIG_ENDIAN
-#    define TRINITY_ENDIAN TRINITY_LITTLEENDIAN
+#    define MORPHEUS_ENDIAN MORPHEUS_LITTLEENDIAN
 #  endif //ACE_BYTE_ORDER
-#endif //TRINITY_ENDIAN
+#endif //MORPHEUS_ENDIAN
 
 
 #if COMPILER == COMPILER_MICROSOFT

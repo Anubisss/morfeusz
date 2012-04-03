@@ -1,5 +1,6 @@
 /*
  * Copyright (C) 2009 Dawn Of Reckoning
+ * Copyright (C) 2012 Morpheus
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -31,16 +32,16 @@
 #include "../ResultSet.h"
 #include <memory>
 
-namespace Trinity
+namespace Morpheus
 {
 namespace SQL
 {
-
 
 class MySQLPreparedStatement;
 
 class MySQLPreparedResultSet : public ResultSet
 {
+
 public:
 
     MySQLPreparedResultSet(MySQLPreparedStatement* stmt, MYSQL_STMT* mysqlStmt);
@@ -116,20 +117,7 @@ private:
     unsigned long* length;
 };
 
-}
-}
-
-#endif
-
-/*
- * MySQLPreparedResultSet.h
- *
- *  Created on: 23 juil. 2009
- *      Author: albator
- */
-
-#ifndef MYSQLPREPAREDRESULTSET_H_
-#define MYSQLPREPAREDRESULTSET_H_
-
+};
+};
 
 #endif /* MYSQLPREPAREDRESULTSET_H_ */

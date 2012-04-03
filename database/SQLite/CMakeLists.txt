@@ -12,9 +12,9 @@ include_directories(
 	${SQLITE3_INCLUDE_DIR}
 )
 
-add_library(trinitydatabaseSqlite STATIC ${databaseSQLite_SRCS})
+add_library(morpheusdatabaseSqlite STATIC ${databaseSQLite_SRCS})
 
 target_link_libraries(
-	trinitydatabaseSqlite
+	morpheusdatabaseSqlite
 	${SQLITE3_LIBRARIES}
 	)

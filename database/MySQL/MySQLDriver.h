@@ -1,5 +1,6 @@
 /*
  * Copyright (C) 2009 Dawn Of Reckoning
+ * Copyright (C) 2012 Morpheus
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -29,7 +30,7 @@
 
 #include "../Driver.h"
 
-namespace Trinity
+namespace Morpheus
 {
 namespace SQL
 {
@@ -38,7 +39,9 @@ class Connection;
 
 class MySQLDriver : public Driver
 {
+
 public:
+
     Connection* connect(const std::string& url);
 
     const uint32 getMajorVersion() const;
@@ -52,7 +55,7 @@ private:
 
 };
 
-}
-}
+};
+};
 
 #endif /* MYSQLDRIVER_H_ */

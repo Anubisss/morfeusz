@@ -1,5 +1,6 @@
 /* -*- C++ -*-
  * Copyright (C) 2009 Trinity Core <http://www.trinitycore.org>
+ * Copyright (C) 2012 Morpheus
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -24,52 +25,52 @@
  *
  */
 
-module Trinity
+module Morpheus
 {
   
-  /**
-   * @brief Proxy nodes sends that when announcing 
-   *        their presence, either requested or not.
-   */
-  struct Proxy_Announce
-  {
     /**
-     * @brief ID of realm zone works on.
+     * @brief Proxy nodes sends that when announcing 
+     *        their presence, either requested or not.
      */
-    unsigned short realm_id;
+    struct Proxy_Announce
+    {
+        /**
+          * @brief ID of realm zone works on.
+          */
+        unsigned short realm_id;
     
-    /**
-     * @brief Address of proxy node, in ip:port form.
-     */
-    string address;
-    float load;
-  };
+        /**
+          * @brief Address of proxy node, in ip:port form.
+          */
+        string address;
+        float load;
+    };
 
-  /**
-   * @brief Load report sent by Proxy nodes to login server(s)
-   */
-  struct Proxy_Load_Report
-  {
     /**
-     * @see Trinity::Proxy_Announce
+     * @brief Load report sent by Proxy nodes to login server(s)
      */
-    string address;
+    struct Proxy_Load_Report
+    {
+        /**
+          * @see Morpheus::Proxy_Announce
+          */
+        string address;
     
-    /**
-     * @brief Load is reported by current 
-     *        connections divided by max connections.
-     */
-    float load;
-  };
+        /**
+          * @brief Load is reported by current 
+          *        connections divided by max connections.
+          */
+        float load;
+    };
 
-  /**
-   * @brief Realm node sends that
-   *        to request Proxy_Announce s
-   * @details It is here to preserve crash resilience.
-   */
-  struct Proxy_Request
-  {
-    unsigned short realm_id;
-  };
+    /**
+     * @brief Realm node sends that
+     *        to request Proxy_Announce s
+     * @details It is here to preserve crash resilience.
+     */
+    struct Proxy_Request
+    {
+        unsigned short realm_id;
+    };
 
 };

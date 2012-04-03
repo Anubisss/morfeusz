@@ -1,5 +1,6 @@
 /*
  * Copyright (C) 2009 Dawn Of Reckoning
+ * Copyright (C) 2012 Morpheus
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -28,9 +29,7 @@
 #include <iostream>
 #include <sstream>
 
-
-
-namespace Trinity
+namespace Morpheus
 {
 namespace SQL
 {
@@ -44,10 +43,8 @@ MySQLException::MySQLException(const std::string& mess, MYSQL* mysql) : SQLExcep
 {
     std::ostringstream o;
     o << mess;
-    if (mysql)
-    {
-        if (*mysql_error(mysql))
-        {
+    if (mysql) {
+        if (*mysql_error(mysql)) {
             o << "\n" << mysql_errno(mysql) << ": " << mysql_error(mysql);
         }
 
@@ -61,5 +58,5 @@ MySQLException::~MySQLException() throw()
 
 }
 
-}
-}
+};
+};

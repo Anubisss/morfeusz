@@ -1,5 +1,6 @@
 /* -*- C++ -*-
  * Copyright (C) 2009 Trinity Core <http://www.trinitycore.org>
+ * Copyright (C) 2012 Morpheus
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -27,21 +28,23 @@
 #include "Common.h"
 #include <openssl/bn.h>
 
-namespace Trinity
+namespace Morpheus
 {
 namespace Proxyd
 {
 
-  /**
-   * @brief Base class for encryption.
-   * @details Encryption method varies across versions,
-   *          so to preserve flexibility we use abstract
-   *          class that will have to be implemented in 
-   *          version specific encryption classes.
-   */
+/**
+ * @brief Base class for encryption.
+ * @details Encryption method varies across versions,
+ *          so to preserve flexibility we use abstract
+ *          class that will have to be implemented in 
+ *          version specific encryption classes.
+ */
 class Proxy_Crypto_Base
 {
- public:
+
+public:
+
   /**
    * @brief Encrypts data sent to client.
    */

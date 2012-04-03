@@ -2,6 +2,7 @@
  * Copyright (C) 2005-2009 MaNGOS <http://getmangos.com/>
  *
  * Copyright (C) 2008-2009 Trinity <http://www.trinitycore.org/>
+ * Copyright (C) 2012 Morpheus
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -18,8 +19,8 @@
  * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA
  */
 
-#ifndef TRINITY_UNORDERED_MAP_H
-#define TRINITY_UNORDERED_MAP_H
+#ifndef MORPHEUS_UNORDERED_MAP_H
+#define MORPHEUS_UNORDERED_MAP_H
 
 #if COMPILER == COMPILER_INTEL
 #include <ext/hash_map>
@@ -51,13 +52,14 @@ using std::hash_map;
 
 namespace __gnu_cxx
 {
-  template<> struct hash<unsigned long long>
+    template<> struct hash<unsigned long long>
     {
-      size_t operator()(const unsigned long long &__x) const { return (size_t)__x; }
+        size_t operator()(const unsigned long long &__x) const { return (size_t)__x; }
     };
-  template<typename T> struct hash<T *>
+
+    template<typename T> struct hash<T *>
     {
-      size_t operator()(T * const &__x) const { return (size_t)__x; }
+        size_t operator()(T * const &__x) const { return (size_t)__x; }
     };
   
 };

@@ -1,5 +1,6 @@
 /*
  * Copyright (C) 2009 Dawn Of Reckoning
+ * Copyright (C) 2012 Morpheus
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -32,8 +33,9 @@
 #include "../ResultSet.h"
 #include <string>
 
-namespace Trinity
+namespace Morpheus
 {
+
 namespace SQL
 {
 
@@ -100,6 +102,7 @@ public:
     bool isFirst() const;
 
     uint32 rowsCount() const;
+
 private:
 
     void checkValidity(uint8 idx) const;
@@ -113,8 +116,8 @@ private:
     uint32 numFields;
 };
 
-}
-}
+};
+};
 
 #endif
 

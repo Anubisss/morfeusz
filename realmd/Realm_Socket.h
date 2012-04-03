@@ -1,5 +1,6 @@
 /* -*- C++ -*-
  * Copyright (C) 2009 Trinity Core <http://www.trinitycore.org>
+ * Copyright (C) 2012 Morpheus
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -24,7 +25,6 @@
  *  @ingroup Realmd
  */
 
-
 #pragma once
 #ifndef REALM_SOCKET_H
 #define REALM_SOCKET_H
@@ -37,16 +37,16 @@
 #include <map>
 #include <openssl/bn.h>
 
-
 #include "Common.h"
 
 class ByteBuffer;
 
-namespace Trinity
+namespace Morpheus
 {
 
 namespace Realmd
 {
+
 /**
  * @brief Holds account information retrieved from database.
  * @see RealmDB::get_account(Realm_Sock_Ptr)
@@ -54,13 +54,13 @@ namespace Realmd
  */
 class Account
 {
- public:
-  std::string sha_pass;
-  uint64 id;
-  bool locked;
-  std::string last_ip;
-  uint8 gmlevel;
-  uint8 failed_logins;
+public:
+    std::string sha_pass;
+    uint64 id;
+    bool locked;
+    std::string last_ip;
+    uint8 gmlevel;
+    uint8 failed_logins;
 };
  
 /**
@@ -69,9 +69,9 @@ class Account
  */
 enum AccountState
 {
-  ACCOUNT_EXISTS,
-  ACCOUNT_NOTFOUND,
-  ACCOUNT_BANNED
+    ACCOUNT_EXISTS,
+    ACCOUNT_NOTFOUND,
+    ACCOUNT_BANNED
 };
 
 /**
@@ -80,11 +80,11 @@ enum AccountState
  */
 enum ConnectionState
 {
-  STATUS_CONNECTED,
-  STATUS_NEED_PROOF,
-  STATUS_AUTHED,
-  STATUS_NEED_RPROOF,
-  STATUS_CLOSING
+    STATUS_CONNECTED,
+    STATUS_NEED_PROOF,
+    STATUS_AUTHED,
+    STATUS_NEED_RPROOF,
+    STATUS_CLOSING
 };
 
 /**
@@ -96,201 +96,207 @@ enum ConnectionState
 class Realm_Socket : public ACE_Svc_Handler<ACE_SOCK_STREAM, ACE_MT_SYNCH>
 {
 
- public:
-  /**
-   * @brief Initialises recounted ptr, and bignumbers used for SRP6.
-   */
-  Realm_Socket();
+public:
 
-  /**
-   * @brief Frees resources.
-   */
-  ~Realm_Socket();
+    /**
+     * @brief Initialises recounted ptr, and bignumbers used for SRP6.
+     */
+    Realm_Socket();
+
+    /**
+     * @brief Frees resources.
+     */
+    ~Realm_Socket();
   
-  /**
-   * @brief Called by reactor when new socket is opened.
-   */
-  int open(void*);
+    /**
+     * @brief Called by reactor when new socket is opened.
+     */
+    int open(void*);
 
-  /**
-   * @brief Called by reactor when connection is closed, 
-   *        or handler is deregistered for event type.
-   */
-  int close(u_long flags);
-  const std::string& get_ip(){return ip;}
-  const std::string& get_login(){return login;}
+    /**
+     * @brief Called by reactor when connection is closed, 
+     *        or handler is deregistered for event type.
+     */
+    int close(u_long flags);
+    const std::string& get_ip() { return ip; }
+    const std::string& get_login() { return login; }
 
-  /**
-   * @brief %Callback called from checkIpBanObsv 
-   * @param result Indicates wether IP is banned.
-   */
-  void ip_ban_checked(bool result);
+    /**
+     * @brief %Callback called from checkIpBanObsv 
+     * @param result Indicates wether IP is banned.
+     */
+    void ip_ban_checked(bool result);
 
-  /**
-   * @brief %Callback from checkAcctObsv
-   *        by the time this callback is received, 
-   *        Realm_Socket::acct should be set in case 
-   *        account exists and is usable.
-   * @param state Contains value from AccountState 
-   *              enum, to indicate account status
-   */
-  void account_checked(AccountState state);
-  /**
-   * @brief Inserts new packet into output queue.
-   *        This function is thread safe, and it's
-   *        practically the only way to send to client.
-   * @param pkt Payload to send.
-   */
-  void send(ByteBuffer* pkt);
-  /**
-   * @brief Stores account information for connection
-   */
-  Account acct;
+    /**
+     * @brief %Callback from checkAcctObsv
+     *        by the time this callback is received, 
+     *        Realm_Socket::acct should be set in case 
+     *        account exists and is usable.
+     * @param state Contains value from AccountState 
+     *              enum, to indicate account status
+     */
+    void account_checked(AccountState state);
 
-  /**
-   * @brief %Callback from getCharAmntObsv 
-   * @param amnt Contains information about character amount
-   */
-  void get_char_amount(std::map<uint8, uint8> amnt);
+    /**
+     * @brief Inserts new packet into output queue.
+     *        This function is thread safe, and it's
+     *        practically the only way to send to client.
+     * @param pkt Payload to send.
+     */
+    void send(ByteBuffer* pkt);
 
-  /**
-   * @brief %Callback from getSessionKeyObsv
-   * @param result True means we have sessionkey, false means we do not.
-   */
-  void get_sessionkey(bool result);
+    /**
+     * @brief Stores account information for connection
+     */
+    Account acct;
 
-  /**
-   * @brief Sessionkey. It is public because it is set by callback.
-   */
-  BIGNUM* k;
- private:
+    /**
+     * @brief %Callback from getCharAmntObsv 
+     * @param amnt Contains information about character amount
+     */
+    void get_char_amount(std::map<uint8, uint8> amnt);
 
-  /**
-   * @brief Map keyed with realm id, value is number of characters.
-   */
-  std::map<uint8, uint8> realm_char_amount;
+    /**
+     * @brief %Callback from getSessionKeyObsv
+     * @param result True means we have sessionkey, false means we do not.
+     */
+    void get_sessionkey(bool result);
 
-  /**
-   * @brief This variable is set when we have any packets in
-   *        socket's packet_queue
-   */
-  bool out_active;
+    /**
+     * @brief Sessionkey. It is public because it is set by callback.
+     */
+    BIGNUM* k;
 
-  /**
-   * @brief Called when we want to close the socket.
-   *        This function releases internal refcounted pointer
-   *        which will cause object to expire as soon as
-   *        other references to it are removed.
-   */
-  void die();
+private:
+
+    /**
+     * @brief Map keyed with realm id, value is number of characters.
+     */
+    std::map<uint8, uint8> realm_char_amount;
+
+    /**
+     * @brief This variable is set when we have any packets in
+     *        socket's packet_queue
+     */
+    bool out_active;
+
+    /**
+     * @brief Called when we want to close the socket.
+     *        This function releases internal refcounted pointer
+     *        which will cause object to expire as soon as
+     *        other references to it are removed.
+     */
+    void die();
   
-  /**
-   * @brief Handles packet 0x00, fills initial information about account.
-   */
-  void handle_auth_logon_challenge();
+    /**
+     * @brief Handles packet 0x00, fills initial information about account.
+     */
+    void handle_auth_logon_challenge();
 
-  /**
-   * @brief Handles 0x01, handles authentication using SRP6.
-   */
-  void handle_auth_logon_proof();
+    /**
+     * @brief Handles 0x01, handles authentication using SRP6.
+     */
+    void handle_auth_logon_proof();
 
-  /**
-   * @brief Handles 0x10, sends realmlist that matches client's build
-   */
-  void handle_realm_list();
+    /**
+     * @brief Handles 0x10, sends realmlist that matches client's build
+     */
+    void handle_realm_list();
 
-  /**
-   * @brief Handles packet 0x02
-   */
-  void handle_auth_reconnect_challenge();
+    /**
+     * @brief Handles packet 0x02
+     */
+    void handle_auth_reconnect_challenge();
 
-  /**
-   * @brief Handles packet 0x03
-   */
-  void handle_auth_reconnect_proof();
+    /**
+     * @brief Handles packet 0x03
+     */
+    void handle_auth_reconnect_proof();
   
-  /**
-   * @brief Sets verificator and seed, used by SRP6 authentication.
-   */
-  void set_vs();
+    /**
+     * @brief Sets verificator and seed, used by SRP6 authentication.
+     */
+    void set_vs();
 
-  /**
-   * @brief Called by Reactor when socket is available for read.
-   */
-  int handle_input(ACE_HANDLE);
+    /**
+     * @brief Called by Reactor when socket is available for read.
+     */
+    int handle_input(ACE_HANDLE);
 
-  /**
-   * @brief Called by Reactor when socket is available for write.
-   */
-  int handle_output(ACE_HANDLE);
+    /**
+     * @brief Called by Reactor when socket is available for write.
+     */
+    int handle_output(ACE_HANDLE);
 
-  /**
-   * @brief Handles closing, or deregisters for write events
-   *        when we do not want to write to socket for some time.
-   */
-  int handle_close(ACE_HANDLE, ACE_Reactor_Mask);
+    /**
+     * @brief Handles closing, or deregisters for write events
+     *        when we do not want to write to socket for some time.
+     */
+    int handle_close(ACE_HANDLE, ACE_Reactor_Mask);
 
-  /**
-   * @brief Internal reference counted pointer, which helps us 
-   *        with cleaning memory.
-   */
-  ACE_Refcounted_Auto_Ptr<Realm_Socket, ACE_Recursive_Thread_Mutex> ptr;
+    /**
+     * @brief Internal reference counted pointer, which helps us 
+     *        with cleaning memory.
+     */
+    ACE_Refcounted_Auto_Ptr<Realm_Socket, ACE_Recursive_Thread_Mutex> ptr;
 
-  /**
-   * @brief Buffer that receives incoming data.
-   */
-  char raw_buf[4096];
-  ConnectionState state;
-  uint16 client_build;
-  std::string login;
-  std::string ip;
-  /**
-   * @brief FIFO queue for output packets.
-   */
-  std::list<ByteBuffer*> packet_queue;
+    /**
+     * @brief Buffer that receives incoming data.
+     */
+    char raw_buf[4096];
+    ConnectionState state;
+    uint16 client_build;
+    std::string login;
+    std::string ip;
 
-  /**
-   * @brief Lock for synchronising access into packet_queue
-   */
-  ACE_Recursive_Thread_Mutex queue_mtx;
-  BN_CTX* ctx;
+    /**
+     * @brief FIFO queue for output packets.
+     */
+    std::list<ByteBuffer*> packet_queue;
 
-  /**
-   * @brief Variables used when calculating SRP6
-   *        Seed, verificator, sessionkey, N prime and others. 
-   */
-  BIGNUM* s, *v, *g, *N, *b, *B, *reconnect_proof;
+    /**
+     * @brief Lock for synchronising access into packet_queue
+     */
+    ACE_Recursive_Thread_Mutex queue_mtx;
+    BN_CTX* ctx;
 
-  /**
-  * @brief Called when password doesn't match
-  */
-  void handle_failed_login();
+    /**
+     * @brief Variables used when calculating SRP6
+     *        Seed, verificator, sessionkey, N prime and others. 
+     */
+    BIGNUM* s, *v, *g, *N, *b, *B, *reconnect_proof;
 
-  /**
-  * @brief Builds REALM_LIST data packet for 1.12 build
-  */
-  ByteBuffer* build_realm_packet();
+    /**
+     * @brief Called when password doesn't match
+     */
+    void handle_failed_login();
 
-  /**
-  * @brief Builds REALM_LIST data packet for 2.4.3 and 3.2.0 builds (till they have same structure)
-  */
-  ByteBuffer* build_expansion_realm_packet();
+    /**
+     * @brief Builds REALM_LIST data packet for 1.12 build
+     */
+    ByteBuffer* build_realm_packet();
 
-  /**
-  * @brief Builds AUTH_LOGON_PROOF data packet for 1.12 build
-  */
-  ByteBuffer* build_logon_proof_packet(uint8* hamk_fin);
+    /**
+     * @brief Builds REALM_LIST data packet for 2.4.3 and 3.2.0 builds (till they have same structure)
+     */
+    ByteBuffer* build_expansion_realm_packet();
 
-  /**
-  * @brief Builds AUTH_LOGON_PROOF data packet for 2.4.3 and 3.2.0 builds (till they have same structure)
-  */
-  ByteBuffer* build_expansion_logon_proof_packet(uint8* hamk_fin);
+    /**
+     * @brief Builds AUTH_LOGON_PROOF data packet for 1.12 build
+     */
+    ByteBuffer* build_logon_proof_packet(uint8* hamk_fin);
+
+    /**
+     * @brief Builds AUTH_LOGON_PROOF data packet for 2.4.3 and 3.2.0 builds (till they have same structure)
+     */
+    ByteBuffer* build_expansion_logon_proof_packet(uint8* hamk_fin);
 };
 
 /**
  *  @brief Use this type when refering to refcounted pointer to Realm_Socket
  */
-typedef ACE_Refcounted_Auto_Ptr<Trinity::Realmd::Realm_Socket, ACE_Recursive_Thread_Mutex> Realm_Sock_Ptr;
+typedef ACE_Refcounted_Auto_Ptr<Morpheus::Realmd::Realm_Socket, ACE_Recursive_Thread_Mutex> Realm_Sock_Ptr;
+
 };
 };
 #else

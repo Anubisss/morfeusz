@@ -1,5 +1,6 @@
 /*
  * Copyright (C) 2009 Dawn Of Reckoning
+ * Copyright (C) 2012 Morpheus
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -31,9 +32,7 @@
 #include <sstream>
 #include <ace/OS.h>
 
-
-
-namespace Trinity
+namespace Morpheus
 {
 
 namespace SQL
@@ -60,20 +59,13 @@ MySQLResultSet::~MySQLResultSet()
 void MySQLResultSet::checkValidity(uint8 idx) const
 {
     if (idx == 0 || idx > numFields)
-    {
         throw MySQLException("MysqlResultSet: invalid index");
-    }
 
     if (rowPosition == 0)
-    {
         throw MySQLException("MysqlResultSet: invalid row (before first");
-    }
 
     if (rowPosition > numRows)
-    {
         throw MySQLException("MysqlResultSet: invalid row (after last");
-    }
-
 }
 
 bool MySQLResultSet::getBool(uint8 idx) const
@@ -83,7 +75,6 @@ bool MySQLResultSet::getBool(uint8 idx) const
         return true;
 
     return false;
-
 }
 
 uint8 MySQLResultSet::getUint8(uint8 idx) const
@@ -122,7 +113,6 @@ int32 MySQLResultSet::getInt32(uint8 idx) const
     return static_cast<int32>(ACE_OS::strtol(row[idx -1],NULL,10));
 }
 
-
 double MySQLResultSet::getDouble(uint8 idx) const
 {
     checkValidity(idx);
@@ -131,12 +121,11 @@ double MySQLResultSet::getDouble(uint8 idx) const
 
 float MySQLResultSet::getFloat(uint8 idx) const
 {
-  uint32 temp;
-  float ret;
-  temp = this->getUint32(idx);
-  memcpy(&ret, &temp,4);
-  return ret;
-
+    uint32 temp;
+    float ret;
+    temp = this->getUint32(idx);
+    memcpy(&ret, &temp,4);
+    return ret;
 }
 
 uint64 MySQLResultSet::getUint64(uint8 idx) const
@@ -147,7 +136,6 @@ uint64 MySQLResultSet::getUint64(uint8 idx) const
     is.str(row[idx -1 ]);
     is >> value;
     return value;
-
 }
 
 int64 MySQLResultSet::getInt64(uint8 idx) const
@@ -158,7 +146,6 @@ int64 MySQLResultSet::getInt64(uint8 idx) const
     is.str(row[idx -1 ]);
     is >> value;
     return value;
-
 }
 
 std::string MySQLResultSet::getString(uint8 idx) const
@@ -166,7 +153,6 @@ std::string MySQLResultSet::getString(uint8 idx) const
     checkValidity(idx);
     std::size_t len = mysql_fetch_lengths(res)[idx -1];
     return std::string(row[idx -1], len);
-
 }
 
 bool MySQLResultSet::next()
@@ -179,7 +165,6 @@ bool MySQLResultSet::next()
 bool MySQLResultSet::isFirst() const
 {
     return rowPosition == 1;
-
 }
 
 uint32 MySQLResultSet::rowsCount() const
@@ -187,27 +172,5 @@ uint32 MySQLResultSet::rowsCount() const
     return numRows;
 }
 
-/*
-bool MySQLResultSet::first()
-{
-	rowPosition = 1;
-
-	return numRows > 0;
-}
-
-bool MySQLResultSet::beforeFirst()
-{
-	rowPosition = 0;
-}
-
-bool MySQLResultSet::afterLast()
-{
-	rowPosition = numRows + 1;
-}
-
-*/
-
-
-
-}
-}
+};
+};

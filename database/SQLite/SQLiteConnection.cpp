@@ -1,5 +1,6 @@
 /*
  * Copyright (C) 2009 Dawn Of Reckoning
+ * Copyright (C) 2012 Morpheus
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -35,10 +36,7 @@
 #include <vector>
 #include <ace/OS.h>
 
-
-
-
-namespace Trinity
+namespace Morpheus
 {
 
 namespace SQL
@@ -58,42 +56,32 @@ SQLiteConnection::SQLiteConnection(const std::string& url) :
     int port;
 
     if (tokens.size() < 1) // not enough param
-    {
         throw SQLiteException("SQLiteConnection: Invalid number of param");
-    }
-
 
     it = tokens.begin();
-    if (it!=tokens.end())
-    {
+    if (it!=tokens.end()) {
         database = *it;
         ++it;
     }
 
     if (sqlite3_threadsafe() == 0)
-    {
         throw SQLiteException("SQLiteConnection: the sqlite lib doesn't support multi-threading");
-    }
 
 
 
     int rc = sqlite3_open_v2(database.c_str(),&sqlite,SQLITE_OPEN_FULLMUTEX,NULL);
-    if (rc != SQLITE_OK)
-    {
+    if (rc != SQLITE_OK) {
         //sqlite3_close(sqlite);
         throw SQLiteException("SQLiteConnection: error on sqlite3_open (check the params)",sqlite);
     }
 
     Connection::closed = false;
-
 }
 
 SQLiteConnection::~SQLiteConnection()
 {
     if (!closed)
-    {
         close();
-    }
 }
 
 void SQLiteConnection::close()
@@ -101,7 +89,6 @@ void SQLiteConnection::close()
     sqlite3_close(sqlite);
     sqlite = NULL;
     closed = true;
-
 }
 
 void SQLiteConnection::commit()
@@ -127,30 +114,26 @@ PreparedStatement* SQLiteConnection::prepareStatement(const std::string& sql)
     checkClosed();
     sqlite3_stmt* stmt;
     int rc = sqlite3_prepare_v2(sqlite,sql.c_str(),static_cast<int>(sql.length()),&stmt, NULL);
-    if (rc!=SQLITE_OK)
-    {
+    if (rc!=SQLITE_OK) {
         sqlite3_finalize(stmt);
         throw SQLiteException("SQLiteConnection: error on sqlite3_prepare_v2",sqlite);
     }
+    
     return new SQLitePreparedStatement(this,stmt);
-
 }
 
 void SQLiteConnection::setAutoCommit(bool autoCommit)
 {
     checkClosed();
     this->autoCommit = autoCommit;
-
 }
 
 void SQLiteConnection::checkClosed()
 {
     if (Connection::closed)
-    {
         throw SQLiteException("SQLiteConnection: connection closed");
-    }
 }
 
-}
-}
+};
+};
 

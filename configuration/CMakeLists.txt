@@ -1,9 +1,9 @@
 SET(configuration_SRCS
-  Configuration.cpp
-  )
+    Configuration.cpp
+    )
 
 include_directories(
-  ${CMAKE_SOURCE_DIR}/common
-  )
+    ${CMAKE_SOURCE_DIR}/common
+    )
 
-add_library(trinityconfig STATIC ${configuration_SRCS})
+add_library(morpheusconfig STATIC ${configuration_SRCS})

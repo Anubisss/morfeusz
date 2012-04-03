@@ -1,5 +1,6 @@
 /*
  * Copyright (C) 2009 Dawn Of Reckoning
+ * Copyright (C) 2012 Morpheus
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -34,10 +35,7 @@
 #include "MySQLPreparedStatement.h"
 #include "MySQLException.h"
 
-
-
-
-namespace Trinity
+namespace Morpheus
 {
 
 namespace SQL
@@ -56,42 +54,39 @@ MySQLConnection::MySQLConnection(const std::string& url) :
     std::string host, user, password, schema;
     int port;
 
-    if (tokens.size() < 5) // not enough param
-    {
+    if (tokens.size() < 5) { // not enough param
         throw MySQLException("MySQLConnection: Invalid number of param");
     }
 
 
     it = tokens.begin();
-    if (it!=tokens.end())
-    {
+    if (it!=tokens.end()) {
         host = *it;
         ++it;
     }
-    if (it!=tokens.end())
-    {
+    
+    if (it!=tokens.end()) {
         port = ACE_OS::atoi((*it).c_str());;
         ++it;
     }
-    if (it!=tokens.end())
-    {
+    
+    if (it!=tokens.end()) {
         user = *it;
         ++it;
     }
-    if (it!=tokens.end())
-    {
+    
+    if (it!=tokens.end()) {
         password = *it;
         ++it;
     }
-    if (it!=tokens.end())
-    {
+    
+    if (it!=tokens.end()) {
         schema = *it;
         ++it;
     }
 
     // init mysql
-    if (!(mysql = mysql_init(NULL)))
-    {
+    if (!(mysql = mysql_init(NULL))) {
         throw MySQLException("MySQLConnection: error on mysql_init");
     }
 
@@ -121,8 +116,7 @@ MySQLConnection::MySQLConnection(const std::string& url) :
 
 MySQLConnection::~MySQLConnection()
 {
-    if (!closed)
-    {
+    if (!closed) {
         close();
     }
 }
@@ -158,23 +152,21 @@ PreparedStatement* MySQLConnection::prepareStatement(const std::string& sql)
     checkClosed();
     MYSQL_STMT * stmt = mysql_stmt_init(mysql);
 
-    if (!stmt)
-    {
+    if (!stmt) {
         throw MySQLException("MySQLConnection: mysql_stmt_init error",mysql);
     }
 
-    if (mysql_stmt_prepare(stmt, sql.c_str(), static_cast<unsigned long>(sql.length())))
-    {
+    if (mysql_stmt_prepare(stmt, sql.c_str(), static_cast<unsigned long>(sql.length()))) {
         mysql_stmt_close(stmt);
-	std::string error;
-	error += "MySQLConnection: mysql_stmt_prepare error:\n";
-	error += mysql_stmt_error(stmt);
-	error += "\n query was:\n" + sql;
-        throw MySQLException(error.c_str(),mysql);
+
+        std::string error;
+        error += "MySQLConnection: mysql_stmt_prepare error:\n";
+        error += mysql_stmt_error(stmt);
+        error += "\n query was:\n" + sql;
+        throw MySQLException(error.c_str(), mysql);
     }
 
     return new MySQLPreparedStatement(this,stmt);
-
 }
 
 void MySQLConnection::setAutoCommit(bool autoCommit)
@@ -191,12 +183,11 @@ void MySQLConnection::setAutoCommit(bool autoCommit)
 
 void MySQLConnection::checkClosed()
 {
-    if (Connection::closed)
-    {
+    if (Connection::closed) {
         throw MySQLException("MySQLConnection: connection closed");
     }
 }
 
-}
-}
+};
+};
 

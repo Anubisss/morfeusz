@@ -1,5 +1,6 @@
 /* -*- C++ -*-
  * Copyright (C) 2009 Trinity Core <http://www.trinitycore.org>
+ * Copyright (C) 2012 Morpheus
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -29,20 +30,22 @@
 #include <orbsvcs/CosEventCommS.h>
 #include <orbsvcs/CosEventChannelAdminC.h>
 
-namespace Trinity
+namespace Morpheus
 {
 
 namespace Realmd
 {
 
-  /**
-   * @brief This class is responsible for communicating with Event Channel
-   */
-  class EC_Communicator : public POA_CosEventComm::PushConsumer
-  {
-  public:
+/**
+ * @brief This class is responsible for communicating with Event Channel
+ */
+class EC_Communicator : public POA_CosEventComm::PushConsumer
+{
+
+public:
+
     EC_Communicator(CORBA::ORB_ptr _orb):
-      orb(CORBA::ORB::_duplicate(_orb)){};
+        orb(CORBA::ORB::_duplicate(_orb)){};
 
     /**
      * @brief Connects to event channel.
@@ -63,13 +66,16 @@ namespace Realmd
      * @brief Realm Service calls this function to poll for proxy nodes
      */
     void request_proxies_for_realm(uint8 id);
-  private:
+
+private:
+
     CORBA::ORB_var orb;
     CosEventChannelAdmin::ProxyPushConsumer_var pusher;
     CosEventChannelAdmin::ProxyPushSupplier_var supplier_proxy;
     PortableServer::POA_var poa;
-  };
+};
   
 };
 };
+
 #endif //REALM_EC_COMMUNICATOR_H         

@@ -1,5 +1,6 @@
 /*
  * Copyright (C) 2009 Dawn Of Reckoning
+ * Copyright (C) 2012 Morpheus
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -29,11 +30,10 @@
 #include "../Statement.h"
 #include "MySQLConnection.h"
 
-namespace Trinity
+namespace Morpheus
 {
 namespace SQL
 {
-
 
 class MySQLStatement : public Statement
 {
@@ -63,16 +63,15 @@ public:
         return closed;
     }
 
+private:
 
-private :
     void doQuery(const char* sql, uint32 length);
     void checkClosed();
     MySQLConnection* mysqlConn;
     bool closed;
 };
 
-}
-}
-
+};
+};
 
 #endif /* MYSQLSTATEMENT_H_ */

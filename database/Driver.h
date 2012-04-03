@@ -1,5 +1,6 @@
 /*
  * Copyright (C) 2009 Dawn Of Reckoning
+ * Copyright (C) 2012 Morpheus
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -30,7 +31,7 @@
 #include "Connection.h"
 #include <string>
 
-namespace Trinity
+namespace Morpheus
 {
 
 namespace SQL
@@ -38,7 +39,9 @@ namespace SQL
 
 class Driver
 {
+
 public:
+
     virtual Connection* connect(const std::string& url) = 0;
 
     virtual const uint32 getMajorVersion() const = 0;
@@ -46,13 +49,7 @@ public:
     virtual const uint32 getMinorVersion() const = 0;
 };
 
-}
-
-
-}
-
-
-
-
+};
+};
 
 #endif /* DRIVER_H_ */

@@ -1,5 +1,6 @@
 /*
  * Copyright (C) 2009 Dawn Of Reckoning
+ * Copyright (C) 2012 Morpheus
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -28,18 +29,17 @@
 #include "Configuration.h"
 #include <ace/Configuration_Import_Export.h>
 
-namespace Trinity
+namespace Morpheus
 {
 
 void ConfigurationHolder::reload()
 {
     ACE_Ini_ImpExp importer(this->config);
 
-    if (importer.import_config(configFile.c_str()) == -1)
-      {  
-	ACE_ERROR((LM_ERROR,"Couldn't open configuration file %s !\n", configFile.c_str()));
-	assert(false);
-      }
+    if (importer.import_config(configFile.c_str()) == -1) {  
+        ACE_ERROR((LM_ERROR,"Couldn't open configuration file %s !\n", configFile.c_str()));
+        assert(false);
+    }
 }
 
 void ConfigurationHolder::open(const std::string& location)
@@ -81,4 +81,4 @@ bool ConfigurationHolder::getBool(const std::string& section, const std::string&
     return (this->getInt(section, key) > 0 ? true: false);
 }
 
-}
+};

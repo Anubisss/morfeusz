@@ -1,5 +1,6 @@
 /*
  * Copyright (C) 2009 Dawn Of Reckoning
+ * Copyright (C) 2012 Morpheus
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -25,21 +26,25 @@
  */
 
 #ifndef PREPAREDSTATEMENT_H_
+#define PREPAREDSTATEMENT_H_
 
 #include <string>
 #include "Statement.h"
 #include "ResultSet.h"
 
-namespace Trinity
+namespace Morpheus
 {
+
 namespace SQL
 {
 
 class PreparedStatement : public Statement
 {
+
 public:
 
     virtual void clearParameters() = 0;
+    
     /**
      * Functions to bind data into prepared statement
      */
@@ -61,14 +66,9 @@ public:
     virtual int executeUpdate() = 0;
 
     virtual uint32 parameterCount() const = 0;
-
-
 };
 
-}
-}
-
-#define PREPAREDSTATEMENT_H_
-
+};
+};
 
 #endif /* PREPAREDSTATEMENT_H_ */

@@ -1,5 +1,6 @@
 /*
  * Copyright (C) 2009 Dawn Of Reckoning
+ * Copyright (C) 2012 Morpheus
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -30,9 +31,9 @@
 #include "SQLiteException.h"
 #include <string>
 
-
-namespace Trinity
+namespace Morpheus
 {
+
 namespace SQL
 {
 
@@ -68,18 +69,14 @@ int SQLiteStatement::executeUpdate(const std::string& sql)
 {
     doQuery(sql.c_str(), sql.length());
     if (sqlite3_column_count(stmt) > 0) // check if the query return something
-    {
         throw SQLiteException("SQLiteStatement::executeUpdate, error the return something");
-    }
 
     sqlite3* sqlite = sqliteConn->getSQLiteHandle();
 
     // execute the query to get the number of changes
     int rc = sqlite3_step(stmt);
     if (rc != SQLITE_DONE)
-    {
         throw SQLiteException("SQLiteStatement::executeUpdate, sqlite3_step invalid return value",sqlite);
-    }
 
     return sqlite3_changes(sqlite);
 }
@@ -93,8 +90,7 @@ ResultSet* SQLiteStatement::executeQuery(const std::string& sql)
 
 void SQLiteStatement::checkClosed()
 {
-    if (closed)
-    {
+    if (closed) {
         sqlite3* sqlite = sqliteConn->getSQLiteHandle();
         throw SQLiteException("SQLiteStatement::checkClosed, statement closed",sqlite);
 
@@ -113,15 +109,12 @@ void SQLiteStatement::doQuery(const char* sql, uint32 length)
     sqlite3* sqlite = sqliteConn->getSQLiteHandle();
 
     int rc = sqlite3_prepare_v2(sqlite,sql,static_cast<int>(length),&stmt,NULL);
-    if (rc!=SQLITE_OK)
-    {
+    if (rc!=SQLITE_OK) {
         sqlite3_finalize(stmt);
         throw SQLiteException("SQLiteStatement: sqlite3_prepare_v2 error",sqlite);
     }
-
-
 }
 
-}
-}
+};
+};
 

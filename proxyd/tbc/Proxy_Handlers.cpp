@@ -1,5 +1,6 @@
 /* -*- C++ -*-
  * Copyright (C) 2009 Trinity Core <http://www.trinitycore.org>
+ * Copyright (C) 2012 Morpheus
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -34,285 +35,265 @@
 #include "Proxy_Crypto.h"
 #include "Opcodes.h"
 
-namespace Trinity
+namespace Morpheus
 {
+
 namespace Proxyd
 {
 
-void
-Proxy_Socket::handle_cmsg_auth_session()
+void Proxy_Socket::handle_cmsg_auth_session()
 {
-  PROXY_TRACE;
-  uint32 tmp;
-  if(!this->in_packet->CheckSize(4 + 4+ 1 + 4 + 20))
-    return;
+    PROXY_TRACE;
+    uint32 tmp;
+    if(!this->in_packet->CheckSize(4 + 4+ 1 + 4 + 20))
+        return;
 
-  *this->in_packet >> tmp;
-  *this->in_packet >> tmp;
-  *this->in_packet >> this->login;
-  *this->in_packet >> this->client_seed;
-  this->client_digest = new uint8[20];
-  this->in_packet->read(this->client_digest, 20);
+    *this->in_packet >> tmp;
+    *this->in_packet >> tmp;
+    *this->in_packet >> this->login;
+    *this->in_packet >> this->client_seed;
+    this->client_digest = new uint8[20];
+    this->in_packet->read(this->client_digest, 20);
 
-  PROXY_LOG("User %s tries to authenticate (seed: 0x%X)\n",
-	    this->login.c_str(),
-	    this->client_seed);
+    PROXY_LOG("User %s tries to authenticate (seed: 0x%X)\n",
+        this->login.c_str(),
+        this->client_seed);
 
-  sProxy->get_db()->get_account(this->ptr);
+    sProxy->get_db()->get_account(this->ptr);
 }
 
-
-void 
-Proxy_Socket::account_retrieved(bool state)
+void Proxy_Socket::account_retrieved(bool state)
 {
-  PROXY_TRACE;
+    PROXY_TRACE;
 
-  // The moment someone writes a hack that bypasses realmd 
-  // and logs in somehow straight into game
-  // Call me so i can give a beer to that wonderful hacker.
-  // But still, we need to check if the account exists.
-  // Client doesn't even react to that opcode, but lets send it 
-  // For sake of being...
-  // 0x15 is AUTH_STATE_ACCOUNT_UNKNOWN btw.
-  if(!state)
-    {
-      ServerPkt* pkt = new ServerPkt(SMSG_AUTH_RESPONSE, 1);
-      *pkt << uint8(0x15);
-      this->send(pkt);
-      this->die();
-      return;
+    // The moment someone writes a hack that bypasses realmd 
+    // and logs in somehow straight into game
+    // Call me so i can give a beer to that wonderful hacker.
+    // But still, we need to check if the account exists.
+    // Client doesn't even react to that opcode, but lets send it 
+    // For sake of being...
+    // 0x15 is AUTH_STATE_ACCOUNT_UNKNOWN btw.
+    if (!state) {
+        ServerPkt* pkt = new ServerPkt(SMSG_AUTH_RESPONSE, 1);
+        *pkt << uint8(0x15);
+        this->send(pkt);
+        this->die();
+        return;
     }
 
-  //Prepare vars
-  BIGNUM* N = BN_new();
-  BIGNUM* g = BN_new();
-  BIGNUM* I = BN_new();
-  BIGNUM* s = BN_new();
-  BIGNUM* v = BN_new();
-  BIGNUM* x = BN_new();
-  BIGNUM* K = BN_new();
-  BN_CTX* ctx = BN_CTX_new();
-  uint8 pass_hash[SHA_DIGEST_LENGTH] = {0};
-  uint8 digest[SHA_DIGEST_LENGTH] = {0};
-  uint8* s_bin;
+    //Prepare vars
+    BIGNUM* N = BN_new();
+    BIGNUM* g = BN_new();
+    BIGNUM* I = BN_new();
+    BIGNUM* s = BN_new();
+    BIGNUM* v = BN_new();
+    BIGNUM* x = BN_new();
+    BIGNUM* K = BN_new();
+    BN_CTX* ctx = BN_CTX_new();
+    uint8 pass_hash[SHA_DIGEST_LENGTH] = {0};
+    uint8 digest[SHA_DIGEST_LENGTH] = {0};
+    uint8* s_bin;
 
-  //Loading data
-  BN_hex2bn(&N, "894B645E89E1535BBDAD5B8B290650530801B18EBFBF5E8FAB3C82872A3E9BB7");
-  BN_set_word(g, 7);
-  BN_hex2bn(&I, this->acct.sha_pass_hash.c_str());
-  BN_hex2bn(&s, this->acct.s.c_str());
+    //Loading data
+    BN_hex2bn(&N, "894B645E89E1535BBDAD5B8B290650530801B18EBFBF5E8FAB3C82872A3E9BB7");
+    BN_set_word(g, 7);
+    BN_hex2bn(&I, this->acct.sha_pass_hash.c_str());
+    BN_hex2bn(&s, this->acct.s.c_str());
 
-  s_bin = new uint8[BN_num_bytes(s)];
-  BN_bn2bin(s, s_bin); 
-  BN_bn2bin(I, pass_hash);
+    s_bin = new uint8[BN_num_bytes(s)];
+    BN_bn2bin(s, s_bin); 
+    BN_bn2bin(I, pass_hash);
 
-  std::reverse(s_bin, (uint8*)s_bin + BN_num_bytes(s) );
-  
-  //  std::reverse(pass_hash, pass_hash + SHA_DIGEST_LENGTH);
+    std::reverse(s_bin, (uint8*)s_bin + BN_num_bytes(s) );
 
-  SHA_CTX* sha = new SHA_CTX();
-  SHA1_Init(sha);
-  SHA1_Update(sha, s_bin, BN_num_bytes(s) );
-  SHA1_Update(sha, pass_hash, SHA_DIGEST_LENGTH);
-  SHA1_Final(digest, sha);
-  delete sha;
-  std::reverse(digest, digest + SHA_DIGEST_LENGTH);
-  BN_bin2bn(digest, SHA_DIGEST_LENGTH, x);
-  BN_mod_exp(v, g, x, N, ctx);
+    //  std::reverse(pass_hash, pass_hash + SHA_DIGEST_LENGTH);
 
-  char* s_char = BN_bn2hex(s);
-  char* v_char = BN_bn2hex(v);
+    SHA_CTX* sha = new SHA_CTX();
+    SHA1_Init(sha);
+    SHA1_Update(sha, s_bin, BN_num_bytes(s) );
+    SHA1_Update(sha, pass_hash, SHA_DIGEST_LENGTH);
+    SHA1_Final(digest, sha);
+    delete sha;
+    std::reverse(digest, digest + SHA_DIGEST_LENGTH);
+    BN_bin2bn(digest, SHA_DIGEST_LENGTH, x);
+    BN_mod_exp(v, g, x, N, ctx);
 
-  PROXY_LOG("s: %s \n\told v:%s\n\t v=%s\n", this->acct.s.c_str(),this->acct.v.c_str(),v_char);
+    char* s_char = BN_bn2hex(s);
+    char* v_char = BN_bn2hex(v);
 
-  if(ACE_OS::strcmp(v_char, this->acct.v.c_str()))
-    {
-      BN_free(K);
-      BN_free(N);
-      BN_free(g);
-      BN_free(I);
-      BN_free(s);
-      BN_free(v);
-      BN_free(x);
-      BN_CTX_free(ctx);
-      ACE_OS::free(s_char);
-      ACE_OS::free(v_char);
-      delete[] s_bin;
-      this->die();
-      return;
+    PROXY_LOG("s: %s \n\told v:%s\n\t v=%s\n", this->acct.s.c_str(),this->acct.v.c_str(),v_char);
+
+    if (ACE_OS::strcmp(v_char, this->acct.v.c_str())) {
+        BN_free(K);
+        BN_free(N);
+        BN_free(g);
+        BN_free(I);
+        BN_free(s);
+        BN_free(v);
+        BN_free(x);
+        BN_CTX_free(ctx);
+        ACE_OS::free(s_char);
+        ACE_OS::free(v_char);
+        delete[] s_bin;
+        this->die();
+        return;
     }
   
-  uint8 check_digest[SHA_DIGEST_LENGTH];
-  uint32 trailer = 0x00;
-  BN_hex2bn(&K, this->acct.sessionkey.c_str());
+    uint8 check_digest[SHA_DIGEST_LENGTH];
+    uint32 trailer = 0x00;
+    BN_hex2bn(&K, this->acct.sessionkey.c_str());
 
-  uint8* k_char = new uint8[BN_num_bytes(K)];
-  BN_bn2bin(K, k_char);
-  std::reverse(k_char, k_char + 40);
-  sha = new SHA_CTX();
+    uint8* k_char = new uint8[BN_num_bytes(K)];
+    BN_bn2bin(K, k_char);
+    std::reverse(k_char, k_char + 40);
+    sha = new SHA_CTX();
 
-  SHA1_Init(sha);
-  SHA1_Update(sha, this->login.c_str(), this->login.length());
-  SHA1_Update(sha, &trailer, 4);
-  SHA1_Update(sha, &this->client_seed, 4);
-  SHA1_Update(sha, &this->seed, 4);
-  SHA1_Update(sha, k_char, BN_num_bytes(K));
-  SHA1_Final(check_digest, sha);
-  delete sha;
+    SHA1_Init(sha);
+    SHA1_Update(sha, this->login.c_str(), this->login.length());
+    SHA1_Update(sha, &trailer, 4);
+    SHA1_Update(sha, &this->client_seed, 4);
+    SHA1_Update(sha, &this->seed, 4);
+    SHA1_Update(sha, k_char, BN_num_bytes(K));
+    SHA1_Final(check_digest, sha);
+    delete sha;
 
-  //std::reverse(check_digest, check_digest + SHA_DIGEST_LENGTH);
+    //std::reverse(check_digest, check_digest + SHA_DIGEST_LENGTH);
 
-  PROXY_LOG("memcmp %u\n",memcmp(check_digest, this->client_digest,20));
+    PROXY_LOG("memcmp %u\n",memcmp(check_digest, this->client_digest,20));
 
-  if(memcmp(check_digest, this->client_digest, 20))
-    {
-      BN_free(K);
-      BN_free(N);
-      BN_free(g);
-      BN_free(I);
-      BN_free(s);
-      BN_free(v);
-      BN_free(x);
-      BN_CTX_free(ctx);
-      ACE_OS::free(s_char);
-      ACE_OS::free(v_char);
+    if (memcmp(check_digest, this->client_digest, 20)) {
+        BN_free(K);
+        BN_free(N);
+        BN_free(g);
+        BN_free(I);
+        BN_free(s);
+        BN_free(v);
+        BN_free(x);
+        BN_CTX_free(ctx);
+        ACE_OS::free(s_char);
+        ACE_OS::free(v_char);
 
-      this->die();
-      return;
+        this->die();
+        return;
     }
 
-  this->crypto->set_key(K);
+    this->crypto->set_key(K);
 
-  ServerPkt* pkt = new ServerPkt(SMSG_AUTH_RESPONSE, 1 + 4 + 1 + 4 + 1);
-  *pkt << (uint8)0x0C;  //AUTH_OK
-  *pkt << (uint32)0x00;
-  *pkt << (uint8)0x00;
-  *pkt << (uint32)0x00;
-  *pkt << (uint8)this->acct.expansion;
-  this->send(pkt);
+    ServerPkt* pkt = new ServerPkt(SMSG_AUTH_RESPONSE, 1 + 4 + 1 + 4 + 1);
+    *pkt << (uint8)0x0C;  //AUTH_OK
+    *pkt << (uint32)0x00;
+    *pkt << (uint8)0x00;
+    *pkt << (uint32)0x00;
+    *pkt << (uint8)this->acct.expansion;
+    this->send(pkt);
 
-  BN_free(K);
-  BN_free(N);
-  BN_free(g);
-  BN_free(I);
-  BN_free(s);
-  BN_free(v);
-  BN_free(x);
-  BN_CTX_free(ctx);
-  ACE_OS::free(s_char);
-  ACE_OS::free(v_char);
-  
-
+    BN_free(K);
+    BN_free(N);
+    BN_free(g);
+    BN_free(I);
+    BN_free(s);
+    BN_free(v);
+    BN_free(x);
+    BN_CTX_free(ctx);
+    ACE_OS::free(s_char);
+    ACE_OS::free(v_char);
 }
 
-void
-Proxy_Socket::handle_cmsg_char_enum()
+void Proxy_Socket::handle_cmsg_char_enum()
 {
-
-  sProxy->get_db()->get_chars(this->ptr);
-
+    sProxy->get_db()->get_chars(this->ptr);
 }
 
-void
-Proxy_Socket::characters_retrieved(bool state)
+void Proxy_Socket::characters_retrieved(bool state)
 {
-
-  ServerPkt* pkt = new ServerPkt(SMSG_CHAR_ENUM, 1);
+    ServerPkt* pkt = new ServerPkt(SMSG_CHAR_ENUM, 1);
   
-  if(!state)
-    {
-      *pkt << uint8(0);
-      this->send(pkt);
-      return;
+    if (!state) {
+        *pkt << uint8(0);
+        this->send(pkt);
+        return;
     }
   
-  PROXY_LOG("%u characters\n", this->characters.size());
+    PROXY_LOG("%u characters\n", this->characters.size());
 
-  *pkt << (uint8)this->characters.size();
+    *pkt << (uint8)this->characters.size();
   
-  for(std::list<Character>::const_iterator iter = this->characters.begin();iter != this->characters.end(); iter++)
-    {
-      PROXY_LOG("%s \n", iter->name.c_str());
-      *pkt << uint64(uint64(iter->guid) | (uint64(0) <<24) | ( uint64(0) << 48) );
-      *pkt << iter->name;
-      *pkt << iter->race;
-      *pkt << iter->pclass;
-      *pkt << iter->gender;
-      *pkt << uint8(iter->bytes);
-      *pkt << uint8(iter->bytes >> 8);
-      *pkt << uint8(iter->bytes >> 16);
-      *pkt << uint8(iter->bytes >> 24);
-      *pkt << iter->bytes2;
-      *pkt << iter->level;
-      *pkt << iter->zone;
-      *pkt << iter->map;
-      *pkt << iter->x;
-      *pkt << iter->y;
-      *pkt << iter->z;
-      *pkt << iter->guild;
+    for (std::list<Character>::const_iterator iter = this->characters.begin();iter != this->characters.end(); iter++) {
+        PROXY_LOG("%s \n", iter->name.c_str());
+        *pkt << uint64(uint64(iter->guid) | (uint64(0) <<24) | ( uint64(0) << 48) );
+        *pkt << iter->name;
+        *pkt << iter->race;
+        *pkt << iter->pclass;
+        *pkt << iter->gender;
+        *pkt << uint8(iter->bytes);
+        *pkt << uint8(iter->bytes >> 8);
+        *pkt << uint8(iter->bytes >> 16);
+        *pkt << uint8(iter->bytes >> 24);
+        *pkt << iter->bytes2;
+        *pkt << iter->level;
+        *pkt << iter->zone;
+        *pkt << iter->map;
+        *pkt << iter->x;
+        *pkt << iter->y;
+        *pkt << iter->z;
+        *pkt << iter->guild;
+
+        /** @todo player & atlogin flags; */
+        *pkt << uint32(0x00);//2002000); //iter->player_flags;
+
+        *pkt << (uint8)0x01; //UNK
       
-      /** @todo player & atlogin flags; */
-      *pkt << uint32(0x00);//2002000); //iter->player_flags;
-      
-      *pkt << (uint8)0x01; //UNK
-      
-      /**
-	@todo Load dbc's and get pets family info...
+        /**
+         * @todo Load dbc's and get pets family info...*/
 	
-	*pkt << iter->pet.modelid;
-	*pkt << iter->pet.level;
-	*pkt << family;
-	
-      */
+        /* *pkt << iter->pet.modelid;
+        *pkt << iter->pet.level;
+        *pkt << family;*/
       
-      *pkt << (uint32)0;
-      *pkt << (uint32)0;
-      *pkt << (uint32)0;
+        *pkt << (uint32)0;
+        *pkt << (uint32)0;
+        *pkt << (uint32)0;
       
-      for(uint8 slot = 0; slot < 19; slot++)
-	{
-	  /**
-	   * @todo
-	   * *pkt << (uint32)enchant_id;
-	   */
-	  uint32 item_base = PLAYER_VISIBLE_ITEM_1_0 + (slot * 16);
-	  uint32 item_id = iter->update_fields[item_base];
-	  if(sDBC->get_item_map()->find(item_id) != sDBC->get_item_map()->end())
-	    {
-	      const Trinity::DBC::ItemEntry& item = sDBC->get_item_map()->find(item_id)->second;
-	      const Trinity::DBC::SpellItemEnchantmentEntry* spell = NULL;
+        for (uint8 slot = 0; slot < 19; slot++) {
+            /**
+             * @todo
+             * *pkt << (uint32)enchant_id;
+             */
+            uint32 item_base = PLAYER_VISIBLE_ITEM_1_0 + (slot * 16);
+            uint32 item_id = iter->update_fields[item_base];
+            if (sDBC->get_item_map()->find(item_id) != sDBC->get_item_map()->end()) {
+                const Morpheus::DBC::ItemEntry& item = sDBC->get_item_map()->find(item_id)->second;
+                const Morpheus::DBC::SpellItemEnchantmentEntry* spell = NULL;
 	      
-	      *pkt << (uint32)item.display_id;
-	      *pkt << (uint8)item.inventory_type;
+                *pkt << (uint32)item.display_id;
+                *pkt << (uint8)item.inventory_type;
 	
-	      for(uint8 i = 0; i <= 1; i++)
-		{
-		  uint32 enchant_id = iter->update_fields[item_base + 1 + i];
-		  
-		  if(sDBC->get_spell_item_ench_map()->find(enchant_id) 
-		     != 
-		     sDBC->get_spell_item_ench_map()->end())
-		    {
-		      spell = &sDBC->get_spell_item_ench_map()->find(enchant_id)->second;
-		    }
-		}
+                for (uint8 i = 0; i <= 1; i++) {
+                    uint32 enchant_id = iter->update_fields[item_base + 1 + i];
+              
+                    if (sDBC->get_spell_item_ench_map()->find(enchant_id) 
+                        != sDBC->get_spell_item_ench_map()->end())
+                    {
+                        spell = &sDBC->get_spell_item_ench_map()->find(enchant_id)->second;
+                    }
+                }
 
-	      *pkt << (uint32)(spell? spell->aura_id :0);
+                *pkt << (uint32)(spell? spell->aura_id :0);
 
-	    }
-	  else
-	    {
-	      *pkt << (uint32)0;
-	      *pkt << (uint8)0;
-	      *pkt << (uint32)0;
-	    }
-	}
-      *pkt << (uint32)0;
-      *pkt << (uint8)0;
-      *pkt << (uint32)0;
+            }
+            else {
+                *pkt << (uint32)0;
+                *pkt << (uint8)0;
+                *pkt << (uint32)0;
+            }
+        }
+        
+        *pkt << (uint32)0;
+        *pkt << (uint8)0;
+        *pkt << (uint32)0;
     }
   
-  this->send(pkt);
+    this->send(pkt);
 }
 
 };

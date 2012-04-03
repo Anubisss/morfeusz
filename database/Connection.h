@@ -1,5 +1,6 @@
 /*
  * Copyright (C) 2009 Dawn Of Reckoning
+ * Copyright (C) 2012 Morpheus
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -31,7 +32,7 @@
 #include "PreparedStatement.h"
 #include <string>
 
-namespace Trinity
+namespace Morpheus
 {
 namespace SQL
 {
@@ -46,11 +47,7 @@ public:
 
     virtual Statement* createStatement() = 0;
 
-
-
     virtual PreparedStatement* prepareStatement(const std::string& sql) = 0;
-
-
 
     virtual void setAutoCommit(bool autoCommit) = 0;
 
@@ -58,21 +55,19 @@ public:
     {
         return autoCommit;
     }
+
     const bool isClosed() const
     {
         return closed;
     }
 
-
 protected:
+
     bool autoCommit;
     bool closed;
 };
 
-}
-}
-
-
-
+};
+};
 
 #endif /* CONNECTION_H_ */

@@ -1,5 +1,6 @@
 /*
  * Copyright (C) 2009 Dawn Of Reckoning
+ * Copyright (C) 2012 Morpheus
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -31,7 +32,7 @@
 #include "ace/OS.h"
 
 
-namespace Trinity
+namespace Morpheus
 {
 namespace SQL
 {
@@ -60,10 +61,8 @@ sqlite3* SQLitePreparedStatement::getSQLiteHandle() const
 
 void SQLitePreparedStatement::clearParameters()
 {
-    for (int i=0; i < paramCount; i++)
-    {
+    for (int i = 0; i < paramCount; i++)
         paramsSet[i] = false;
-    }
 
     sqlite3_clear_bindings(stmt);
 
@@ -73,9 +72,6 @@ void SQLitePreparedStatement::close()
     checkClosed();
     closed = true;
 }
-
-
-
 
 bool SQLitePreparedStatement::execute()
 {
@@ -88,21 +84,15 @@ int SQLitePreparedStatement::executeUpdate()
     doQuery();
     sqlite3* sqlite = sqliteConn->getSQLiteHandle();
     if (sqlite3_column_count(stmt) > 0) // check if the query return something
-    {
         throw SQLiteException("SQLiteStatement::executeUpdate, error the return something",sqlite);
-    }
 
     // execute the query to get the number of changes
     int rc = sqlite3_step(stmt);
     if (rc != SQLITE_DONE)
-    {
         throw SQLiteException("SQLiteStatement::executeUpdate, sqlite3_step invalid return value",sqlite);
-    }
-
 
     return sqlite3_changes(sqlite);
 }
-
 
 ResultSet* SQLitePreparedStatement::executeQuery()
 {
@@ -112,8 +102,7 @@ ResultSet* SQLitePreparedStatement::executeQuery()
 
 void SQLitePreparedStatement::checkClosed()
 {
-    if (closed)
-    {
+    if (closed) {
         sqlite3* sqlite = sqliteConn->getSQLiteHandle();
         throw SQLiteException("SQLitePreparedStatement::checkClosed() : statement closed",sqlite);
     }
@@ -128,8 +117,7 @@ ResultSet* SQLitePreparedStatement::getResultSet()
 void SQLitePreparedStatement::doQuery()
 {
     checkClosed();
-    if (!isAllSet())
-    {
+    if (!isAllSet()) {
         sqlite3* sqlite = sqliteConn->getSQLiteHandle();
         throw SQLiteException("SQLitePreparedStatement: some parameters are not set",sqlite);
     }
@@ -137,8 +125,7 @@ void SQLitePreparedStatement::doQuery()
 
 void SQLitePreparedStatement::checkValidity(const uint8 idx)
 {
-    if (idx == 0 || idx > paramCount)
-    {
+    if (idx == 0 || idx > paramCount) {
         sqlite3* sqlite = sqliteConn->getSQLiteHandle();
         throw SQLiteException("SQLitePreparedStatement::checkValidity(), invalid index",sqlite);
     }
@@ -147,15 +134,13 @@ void SQLitePreparedStatement::checkValidity(const uint8 idx)
 bool SQLitePreparedStatement::isAllSet()
 {
     std::vector<bool>::iterator it;
-    for (it = paramsSet.begin(); it != paramsSet.end(); ++it)
-    {
+    for (it = paramsSet.begin(); it != paramsSet.end(); ++it) {
         if (!(*it))
             return false;
     }
 
     return true;
 }
-
 
 void SQLitePreparedStatement::setBool(const uint8 index,const bool value)
 {
@@ -167,44 +152,36 @@ void SQLitePreparedStatement::setUint8(const uint8 index, const uint8 value)
     setUint32(index,value);
 }
 
-
 void SQLitePreparedStatement::setUint16(const uint8 index, const uint16 value)
 {
     setUint32(index,value);
 }
-
 
 void SQLitePreparedStatement::setUint32(const uint8 index, const uint32 value)
 {
     setInt32(index,value);
 }
 
-
 void SQLitePreparedStatement::setUint64(const uint8 index, const uint64 value)
 {
     setInt64(index,static_cast<int64>(value));
 }
-
 
 void SQLitePreparedStatement::setInt16(const uint8 index, const int16 value)
 {
     setInt32(index,value);
 }
 
-
 void SQLitePreparedStatement::setInt32(const uint8 index, const int32 value)
 {
     checkValidity(index);
     paramsSet[index - 1] = true;
     int rc =  sqlite3_bind_int(stmt, static_cast<int>(index), static_cast<int>(value));
-    if (rc!=SQLITE_OK)
-    {
+    if (rc!=SQLITE_OK) {
         sqlite3* sqlite = sqliteConn->getSQLiteHandle();
         throw SQLiteException("SQLitePreparedStatement: can't bind value",sqlite);
     }
-
 }
-
 
 void SQLitePreparedStatement::setInt64(const uint8 index, const int64 value)
 {
@@ -212,14 +189,11 @@ void SQLitePreparedStatement::setInt64(const uint8 index, const int64 value)
     paramsSet[index - 1] = true;
     int rc = sqlite3_bind_int64(stmt, static_cast<int>(index),
                                 static_cast<sqlite3_int64>(value));
-    if (rc != SQLITE_OK)
-    {
+    if (rc != SQLITE_OK) {
         sqlite3* sqlite = sqliteConn->getSQLiteHandle();
         throw SQLiteException("SQLitePreparedStatement: can't bind value",sqlite);
     }
-
 }
-
 
 void SQLitePreparedStatement::setDouble(const uint8 index, const double value)
 {
@@ -227,15 +201,11 @@ void SQLitePreparedStatement::setDouble(const uint8 index, const double value)
     paramsSet[index - 1] = true;
     int rc = sqlite3_bind_double(stmt, static_cast<int>(index),
                                  static_cast<double>(value));
-    if (rc != SQLITE_OK)
-    {
+    if (rc != SQLITE_OK) {
         sqlite3* sqlite = sqliteConn->getSQLiteHandle();
         throw SQLiteException("SQLitePreparedStatement: can't bind value",sqlite);
     }
-
 }
-
-
 
 void SQLitePreparedStatement::setString(const uint8 index,
                                         const std::string& value)
@@ -244,15 +214,11 @@ void SQLitePreparedStatement::setString(const uint8 index,
     paramsSet[index - 1] = true;
     int rc = sqlite3_bind_text(stmt, static_cast<int>(index),
                                value.c_str(), static_cast<int>(value.length()),SQLITE_TRANSIENT);
-    if (rc != SQLITE_OK)
-    {
+    if (rc != SQLITE_OK) {
         sqlite3* sqlite = sqliteConn->getSQLiteHandle();
         throw SQLiteException("SQLitePreparedStatement: can't bind value",sqlite);
     }
 }
-
-
-
 
 //////////////////////////////////////
 // unimplemented functions
@@ -279,5 +245,5 @@ ResultSet* SQLitePreparedStatement::executeQuery(const std::string& sql)
     return NULL;
 }
 
-}
-}
+};
+};

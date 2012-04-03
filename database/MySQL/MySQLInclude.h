@@ -1,5 +1,6 @@
 /*
  * Copyright (C) 2009 Dawn Of Reckoning
+ * Copyright (C) 2012 Morpheus
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -26,7 +27,6 @@
 #ifndef MYSQLINCLUDE_H_
 #define MYSQLINCLUDE_H_
 
-
 #include <Common.h>
 
 #if PLATFORM != PLATFORM_WIN32
@@ -47,9 +47,5 @@ extern "C"
 #if PLATFORM != PLATFORM_WIN32
 }
 #endif
-
-
-
-
 
 #endif /* MYSQLINCLUDE_H_ */

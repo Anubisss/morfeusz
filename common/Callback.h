@@ -1,5 +1,6 @@
 /*
  * Copyright (C) 2009 Dawn Of Reckoning
+ * Copyright (C) 2012 Morpheus
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -34,7 +35,9 @@
 template<class C, typename T>
 class Callback
 {
+
 public:
+
     typedef void (C::*callback_func)(T data);
 
     Callback(ACE_Refcounted_Auto_Ptr<C, ACE_Recursive_Thread_Mutex> obj, callback_func f) : object(obj), method(f)
@@ -43,26 +46,29 @@ public:
 
     }
 
- Callback(C* p, callback_func f): raw_ptr(p), method(f){}
+    Callback(C* p, callback_func f): raw_ptr(p), method(f) {}
 
-    void call(T value)
+    void call (T value)
     {
-      if(raw_ptr)
-	{
-	  (raw_ptr->*method)(value);
-	}
-      else
-	{
-	  if(object.null())
-	    return;
-	  C* objPtr = NULL;
-	  objPtr = object.get();
-	  if(objPtr)
-	    (objPtr->*method)(value);
-	}
+        if (raw_ptr) {
+            (raw_ptr->*method)(value);
+        }
+        else {
+            if(object.null())
+                return;
+
+            C* objPtr = NULL;
+            objPtr = object.get();
+
+            if (objPtr)
+                (objPtr->*method)(value);
+        }
     }
-    C* get_obj(){return object.get();}
+
+    C* get_obj() { return object.get(); }
+
 private:
+
     callback_func method;
     ACE_Refcounted_Auto_Ptr<C, ACE_Recursive_Thread_Mutex> object;
     C* raw_ptr;

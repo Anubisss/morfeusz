@@ -1,5 +1,6 @@
 /* -*- C++ -*-
  * Copyright (C) 2009 Trinity Core <http://www.trinitycore.org>
+ * Copyright (C) 2012 Morpheus
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -26,10 +27,12 @@
 
 #include "Common.h"
 
-namespace Trinity
+namespace Morpheus
 {
+
 namespace Proxyd
 {
+
 #define SEED_KEY_SIZE 16
 
 static uint8 tbc_encryption_key[SEED_KEY_SIZE] =   { 0x38, 0xA7, 0x83, 0x15, 0xF8, 0x92, 0x25, 0x30, 

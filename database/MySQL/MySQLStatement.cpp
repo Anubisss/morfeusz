@@ -1,5 +1,6 @@
 /*
  * Copyright (C) 2009 Dawn Of Reckoning
+ * Copyright (C) 2012 Morpheus
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -30,9 +31,7 @@
 #include "MySQLException.h"
 #include <string>
 
-
-
-namespace Trinity
+namespace Morpheus
 {
 namespace SQL
 {
@@ -59,14 +58,12 @@ int MySQLStatement::executeUpdate(const std::string& sql)
 {
     doQuery(sql.c_str(), sql.length());
     MYSQL* mysql = mysqlConn->getMySQLHandle();
-    if (mysql_field_count(mysql) > 0) // check if the query return something
-    {
+    if (mysql_field_count(mysql) > 0) { // check if the query return something
         throw MySQLException("MySQLStatement::executeUpdate, error the return something",mysql);
     }
 
     return static_cast<int>(mysql_affected_rows(mysql));
 }
-
 
 ResultSet* MySQLStatement::executeQuery(const std::string& sql)
 {
@@ -77,11 +74,9 @@ ResultSet* MySQLStatement::executeQuery(const std::string& sql)
 
 void MySQLStatement::checkClosed()
 {
-    if (closed)
-    {
+    if (closed) {
         MYSQL* mysql = mysqlConn->getMySQLHandle();
         throw MySQLException("MySQLStatement::checkClosed, statement closed",mysql);
-
     }
 }
 
@@ -93,14 +88,10 @@ ResultSet* MySQLStatement::getResultSet()
 
     res = mysql_store_result(mysql);
 
-    if (!res)
-    {
+    if (!res) {
         // check possible error
         if (mysql_errno(mysql) !=0) // an error occurred
-        {
             throw MySQLException("MySQLStatement::getResultSet mysql_store_result error",mysql);
-
-        }
 
         // INSERT, UPDATE, DELETE : no result set
         return NULL;
@@ -115,12 +106,8 @@ void MySQLStatement::doQuery(const char* sql, uint32 length)
     MYSQL* mysql = mysqlConn->getMySQLHandle();
 
     if (mysql_real_query(mysql, sql, static_cast<unsigned long>(length)) && mysql_errno(mysql))
-    {
         throw MySQLException("MySQLStatement::doQuery, mysql_real_query error",mysql);
-    }
-
 }
 
-}
-}
-
+};
+};

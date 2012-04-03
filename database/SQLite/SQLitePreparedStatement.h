@@ -1,5 +1,6 @@
 /*
  * Copyright (C) 2009 Dawn Of Reckoning
+ * Copyright (C) 2012 Morpheus
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -32,16 +33,17 @@
 #include "SQLiteConnection.h"
 #include <vector>
 
-namespace Trinity
+namespace Morpheus
 {
+
 namespace SQL
 {
 
-
-
 class SQLitePreparedStatement : public PreparedStatement
 {
+
 public:
+
     SQLitePreparedStatement(SQLiteConnection* conn, sqlite3_stmt* stmt);
 
     virtual ~SQLitePreparedStatement();
@@ -112,14 +114,9 @@ private :
     sqlite3_stmt* stmt;
     uint32 paramCount;
     std::vector<bool> paramsSet;
-
-
-
-
 };
 
-}
-}
-
+};
+};
 
 #endif /* SQLITEPREPAREDSTATEMENT_H_ */

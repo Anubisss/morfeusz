@@ -1,5 +1,6 @@
 /*
  * Copyright (C) 2009 Dawn Of Reckoning
+ * Copyright (C) 2012 Morpheus
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -32,7 +33,7 @@
 #include <string>
 
 
-namespace Trinity
+namespace Morpheus
 {
 namespace SQL
 {
@@ -42,6 +43,7 @@ class PreparedStatement;
 
 class MySQLConnection: public Connection
 {
+
 public:
 
     MySQLConnection(const std::string& url);
@@ -67,13 +69,12 @@ public:
     }
 
 private:
+
     MYSQL* mysql;
-
-
 
 };
 
-}
-}
+};
+};
 
 #endif /* MYSQLCONNECTION_H_ */

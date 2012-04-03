@@ -1,5 +1,6 @@
 /*
  * Copyright (C) 2009 Dawn Of Reckoning
+ * Copyright (C) 2012 Morpheus
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -26,6 +27,7 @@
 
 #ifndef _DATABASE_H
 #define _DATABASE_H
+
 #include "Common.h"
 #include "Callback.h"
 #include <vector>
@@ -43,16 +45,17 @@
 #include "PreparedStatement.h"
 #include "DriverManager.h"
 
-namespace Trinity
+namespace Morpheus
 {
-  /**
-   * @brief Abstraction layer for accessing database.
-   * @details This namespace contains classes and structures
-   *          used while accessing database, regardless of its
-   *          storage backend. If you are interested in 
-   *          actual connectors, please see Trinity::SQL 
-   *          namespace.
-   */
+
+/**
+* @brief Abstraction layer for accessing database.
+* @details This namespace contains classes and structures
+*          used while accessing database, regardless of its
+*          storage backend. If you are interested in 
+*          actual connectors, please see Morpheus::SQL 
+*          namespace.
+*/
 namespace DatabaseAccess
 {
 
@@ -64,6 +67,7 @@ enum DatabaseTaskPriority
 };
 
 class DatabaseConnection;
+
 /**
  * @brief Because we pass our prepared statements request into queue,
  *        we do not know which connection will get us out of queue,
@@ -101,7 +105,7 @@ struct PreparedStatementData
 {
     PreparedStatementDataUnion data;
     PreparedStatementValueType type;
-  std::string str;
+    std::string str;
 };
 
 /**
@@ -123,7 +127,7 @@ public:
     * @param statement_id statement index
     * @param res a single write multiple read sql::ResultSet pointer, to retrieve the data from query.
     */
-    SqlOperationBase(uint32 statement_id, ACE_Future<Trinity::SQL::ResultSet*> res);
+    SqlOperationBase(uint32 statement_id, ACE_Future<Morpheus::SQL::ResultSet*> res);
 
     /**
      * @brief function called by worker thread
@@ -158,13 +162,12 @@ public:
     ACE_Future<SQL::ResultSet*> result;
 
     bool has_result;
+
 protected:
+
     uint32 statement;
     DatabaseConnection* db;
     std::vector< PreparedStatementData> statement_data;
- 
-
-
 };
 
 /**
@@ -175,7 +178,9 @@ protected:
 template <class T>
 class DatabaseHolder
 {
+
 public:
+
     /**
      * @brief Constructor
      * @param num Number of DatabaseConnections (and worker threads) to spawn
@@ -183,8 +188,7 @@ public:
     DatabaseHolder(int num):
             queue(new ACE_Activation_Queue(new ACE_Message_Queue<ACE_MT_SYNCH>))
     {
-        if (num < 1 || num > 32)
-        {
+        if (num < 1 || num > 32) {
             ACE_DEBUG((LM_ERROR,"Database connections set to incorrect value (%i), get a grip on reality man!\n", num));
             num = 1;
         }
@@ -194,6 +198,7 @@ public:
         for (int i = 0; i < num; i++)
             connections[i] = new T(this->queue);
     }
+
     /**
      * @brief Opens up child connections, but first it checks provided data for correctness.
      * @param driverName Name of database engine to use. Currently supported are sqlite and mysql.
@@ -202,9 +207,8 @@ public:
      */
     bool open(const std::string& driverName, const std::string& url)
     {
-        //We test the provided data first, before passing it to our DatabaseConnection pool
-        try
-        {
+        // We test the provided data first, before passing it to our DatabaseConnection pool
+        try {
             SQL::Driver *driver = SQL::DriverManager::getDriver(driverName);
             SQL::Connection* conn;
 
@@ -213,8 +217,7 @@ public:
             delete conn;
 
         }
-        catch (SQL::SQLException &e)
-        {
+        catch (SQL::SQLException &e) {
             ACE_ERROR((LM_ERROR,"Error while initialising database pool: %s \n",e.what()));
             return false;
         }
@@ -242,7 +245,7 @@ public:
      */
     void enqueue(SqlOperationBase* sql_op)
     {
-      ACE_Guard<ACE_Recursive_Thread_Mutex> g(this->mtx);
+        ACE_Guard<ACE_Recursive_Thread_Mutex> g(this->mtx);
         this->queue->enqueue(sql_op);
     }
 
@@ -271,6 +274,7 @@ public:
     }
 
 private:
+
     ACE_Activation_Queue* queue;
     std::vector<T*> connections;
     ACE_Recursive_Thread_Mutex mtx;
@@ -280,15 +284,19 @@ class DatabaseConnection;
 
 class DatabaseWorker : protected ACE_Task_Base
 {
+
 public:
- DatabaseWorker(ACE_Activation_Queue* new_queue, DatabaseConnection* conn):queue(new_queue), db(conn) {this->activate();}
+
+    DatabaseWorker(ACE_Activation_Queue* new_queue, DatabaseConnection* conn):queue(new_queue), db(conn) {this->activate();}
     int svc(void);
     int activate()
     {
         ACE_Task_Base::activate(THR_NEW_LWP |THR_DETACHED , 1);
         return 0;
     }
+
 private:
+
     DatabaseWorker():ACE_Task_Base() {}
     ACE_Activation_Queue* queue;
     DatabaseConnection* db;
@@ -296,6 +304,7 @@ private:
 
 class DatabaseConnection
 {
+
 public:
 
     /**
@@ -332,9 +341,9 @@ protected:
     /**
      * @brief Each connection has it's own holder with prepared statements.
      */
-    std::vector< Trinity::SQL::PreparedStatement* > statement_holder;
-    Trinity::SQL::Driver* driver;
-    Trinity::SQL::Connection* connection;
+    std::vector< Morpheus::SQL::PreparedStatement* > statement_holder;
+    Morpheus::SQL::Driver* driver;
+    Morpheus::SQL::Connection* connection;
 
     /**
      * @brief Worker thread that executes queries in queue.
@@ -371,8 +380,6 @@ public:
 
 };
 
-
-
 /**
  * @brief Observer base class
  *
@@ -380,7 +387,9 @@ public:
 template<class C, typename T>
 class SqlOperationObserver : public ACE_Future_Observer<SQL::ResultSet*>
 {
+
 public:
+
     SqlOperationObserver(Callback<C,T> method) : callback(method)
     {
 
@@ -389,15 +398,11 @@ public:
     virtual void update(const ACE_Future< SQL::ResultSet* > &future)=0;
 
 protected:
+
     Callback<C,T> callback;
 };
 
-
-
-
-
-}
-
-}
+};
+};
 
 #endif
