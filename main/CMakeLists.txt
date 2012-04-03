@@ -21,4 +21,4 @@ target_link_libraries(
   ${ACE_LIBRARY}
   )
 
-install(TARGETS trinity DESTINATION bin)
+install(TARGETS trinity DESTINATION ${TC3_INSTALL_DIR}/bin)

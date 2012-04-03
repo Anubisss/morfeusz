@@ -82,6 +82,7 @@ Proxy_Service::start()
       std::string str = "NameService=";
       str += sConfig->getString("corba","NSLocation");
       str += "/NameService";
+      orb_args->add(str.c_str());
       int argc = orb_args->argc();
       this->orb = CORBA::ORB_init(argc, orb_args->argv(), NULL);
       //Although EC_Communicator catches exceptions, we dont wanna call

@@ -29,6 +29,12 @@ else()
 message(STATUS "Normal build")
 endif()
 
+set(TC3_INSTALL_DIR "/usr/local")
+if (_INSTALL_DIR)
+set(TC3_INSTALL_DIR "${_INSTALL_DIR}")
+endif(_INSTALL_DIR)
+message(STATUS "Will be installed in: ${TC3_INSTALL_DIR}")
+
 if(OPENSSL_FOUND)
   message(STATUS "Found openssl")
 else(OPENSSL_FOUND)

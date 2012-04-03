@@ -35,7 +35,7 @@ DBengine = mysql
 DBThreads = 3
 
 [corba]
-NSLocation = corbaloc:iiop:localhost:9966
+NSLocation = corbaloc:iiop:127.0.0.1:9966
 
 [data]
 dbc=/home/trinity/dbc/
