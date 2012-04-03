@@ -98,6 +98,8 @@ Service_Manager::update_services()
 	  svcs.erase(iter);
 	  continue;
 	}
+    
+    ACE_OS::close(status_file);
 
     }
 
