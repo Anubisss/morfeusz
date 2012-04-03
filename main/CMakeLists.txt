@@ -22,3 +22,4 @@ target_link_libraries(
   )
 
 install(TARGETS trinity DESTINATION ${TC3_INSTALL_DIR}/bin)
+install(FILES trinity.conf.dist DESTINATION ${TC3_INSTALL_DIR}/bin)
