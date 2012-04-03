@@ -431,10 +431,10 @@ void Realm_Socket::handle_failed_login()
 {
     REALM_LOG("Wrong password for user %s (%s)\n", this->login.c_str(), this->ip.c_str());
 
-    if (sConfig->getBool("realmd","WrongPassBan")) {
+    if (sConfig->getBool("realmd", "WrongPassBan")) {
         this->acct.failed_logins++;
         sRealm->get_db()->increment_failed_logins(this->acct.id);
-        if (this->acct.failed_logins > ( sConfig->getInt("realmd","WrongPassAmnt"))) {
+        if (this->acct.failed_logins > ( sConfig->getInt("realmd", "WrongPassAmnt"))) {
             if (sConfig->getString("realmd", "WrongPassBanType").compare("ip"))
                 sRealm->get_db()->ban_failed_logins(this->acct.id);
             else
@@ -443,7 +443,6 @@ void Realm_Socket::handle_failed_login()
     }
 
     account_checked(ACCOUNT_NOTFOUND);
-    this->die();
 }
 
 void Realm_Socket::handle_realm_list()
