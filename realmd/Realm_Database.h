@@ -194,7 +194,7 @@ template <class C>
       
       if(res->rowsCount() == 0 )
 	SqlOperationObserver<C, AccountState>::callback.call(ACCOUNT_NOTFOUND);
-      else if(res->getUint8(6) != 0)
+      else if(res->getUint8(5) != 0) // FIXME: Incorrect, 5 is active and 6 is failed_logins
 	SqlOperationObserver<C, AccountState>::callback.call(ACCOUNT_BANNED);
       else
 	{
@@ -204,7 +204,7 @@ template <class C>
 	  acc.locked = res->getBool(3);
 	  acc.last_ip = res->getString(4);
 	  acc.gmlevel = res->getUint8(5);
-	  acc.failed_logins = res->getUint8(7);
+	  acc.failed_logins = res->getUint8(6);
 	  SqlOperationObserver<C, AccountState>::callback.get_obj()->acct = acc;
 	  SqlOperationObserver<C, AccountState>::callback.call(ACCOUNT_EXISTS);
 	}

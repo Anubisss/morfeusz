@@ -92,7 +92,7 @@ RealmDB::ban_failed_logins(uint64 id)
 {
   SqlOperationRequest* op = new SqlOperationRequest(REALMD_DB_ADD_ACCOUNT_AUTOBAN);
   op->add_uint32(1, id);
-  op->add_uint32(2, 600);
+  op->add_uint32(2, 600); // FIXME: Move to config
   this->enqueue(op);
 }
 
@@ -101,7 +101,7 @@ RealmDB::ban_failed_logins(const std::string &ip)
 {
   SqlOperationRequest* op = new SqlOperationRequest(REALMD_DB_ADD_IP_AUTOBAN);
   op->add_string(1, ip.c_str());
-  op->add_uint32(2, 600);
+  op->add_uint32(2, 600); // FIXME: Move to config
   this->enqueue(op);
 
 }
@@ -181,7 +181,7 @@ RealmDB::get_account(Realm_Sock_Ptr conn)
 		(Callback<Realm_Socket, AccountState>
 		 (conn, &Realm_Socket::account_checked)
 		 ));
-  op->add_string(1, conn->get_login().c_str() );
+  op->add_string(1, conn->get_login().c_str());
   this->enqueue(op);
 }
 

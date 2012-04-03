@@ -162,7 +162,7 @@ void SqlOperationBase::execute()
     }
     catch (SQL::SQLException &e)
     {
-        ACE_ERROR((LM_ERROR,"Error while executing statement: %s ", e.what()));
+        ACE_ERROR((LM_ERROR,"Error while executing statement: %s \n", e.what()));
     }
 }
 

@@ -723,6 +723,7 @@ void
 Realm_Socket::account_checked(AccountState state)
 {
   REALM_TRACE;
+
   switch(state)
     {
     case ACCOUNT_BANNED:
