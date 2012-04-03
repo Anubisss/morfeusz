@@ -84,6 +84,7 @@ Proxy_Service::start()
       str += "/NameService";
       orb_args->add(str.c_str());
       int argc = orb_args->argc();
+      PROXY_LOG("Using %s\n", str.c_str());
       this->orb = CORBA::ORB_init(argc, orb_args->argv(), NULL);
       //Although EC_Communicator catches exceptions, we dont wanna call
       //its functions in case of a CORBA exception.

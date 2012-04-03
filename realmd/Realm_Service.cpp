@@ -76,7 +76,7 @@ Realm_Service::start()
   str += "/NameService";
   orb_args->add(str.c_str());
   int argc = orb_args->argc();
-  REALM_LOG("%s\n", str.c_str());
+  REALM_LOG("Using %s\n", str.c_str());
   this->orb = CORBA::ORB_init(argc, orb_args->argv(),NULL);
   delete orb_args;
   event_channel = new EC_Communicator(this->orb.in());
