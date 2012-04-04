@@ -458,9 +458,7 @@ void Proxy_Socket::handle_cmsg_char_create()
     ACE_Future<SQL::ResultSet*> future;
     DatabaseAccess::SqlOperationRequest* op = new SqlOperationRequest(PROXYD_DB_GET_PLR_GUID_FROM_NAME, future);
     op->add_string(1, name.c_str());
-    future.set(sProxy->get_db()->enqueue_synch_query(op));
-    SQL::ResultSet* res;
-    future.get(res);
+    SQL::ResultSet* res = sProxy->get_db()->enqueue_synch_query(op);
     
     if (res->rowsCount() != 0) {
         *pkt << uint8(CHAR_CREATE_NAME_IN_USE);
