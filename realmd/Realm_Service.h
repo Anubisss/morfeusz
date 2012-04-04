@@ -159,7 +159,7 @@ private:
  */
 #define REALM_LOG(...) ACE_DEBUG((LM_INFO, REALM_PREFIX __VA_ARGS__))
 
-#ifdef _MORPHEUS_DEBUG
+#ifdef _SHOW_TRACE
 #define REALM_TRACE ACE_DEBUG((LM_DEBUG,"%s\n", __PRETTY_FUNCTION__))
 #else
 #define REALM_TRACE NULL

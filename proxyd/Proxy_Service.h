@@ -101,7 +101,7 @@ private:
 #define PROXY_PREFIX ACE_TEXT("PROXYD: ")
 #define PROXY_LOG(...) ACE_DEBUG((LM_INFO, PROXY_PREFIX __VA_ARGS__))
 
-#ifdef _MORPHEUS_DEBUG
+#ifdef _SHOW_TRACE
 #define PROXY_TRACE ACE_DEBUG((LM_DEBUG,"%s\n", __PRETTY_FUNCTION__))
 #else
 #define PROXY_TRACE NULL

@@ -29,6 +29,13 @@ else()
     message(STATUS "Normal build")
 endif()
 
+if(_SHOW_TRACE)
+    message(STATUS "Show call traces")
+    add_definitions(-D_SHOW_TRACE)
+else()
+    message(STATUS "Don't show call traces")
+endif()
+
 set(INSTALL_DIR "/usr/local")
 if (_INSTALL_DIR)
     set(INSTALL_DIR "${_INSTALL_DIR}")
