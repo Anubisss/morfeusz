@@ -9,7 +9,7 @@ DBengine = mysql
 DBThreads = 3
 #Number of networking threads
 NetThreads = 1
-# Ban after failed logins
+# Ban after failed logins (0 = false, 1 = true)
 WrongPassBan = 1
 #Count of failed logins to ban for
 WrongPassAmnt = 3

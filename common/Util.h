@@ -201,6 +201,68 @@ inline std::string makeSalt(const char* noun)
     return byteArrayToAsciiString(salt,8);
 }
 
+inline bool normalizePlayerName(std::string& name)
+{
+    if (name.empty())
+        return false;
+        
+    name[0] = std::toupper(name[0]);
+    for (int i = 1; i < name.length(); i++)
+        name[i] = std::tolower(name[i]);
+        
+    return true;
+}
+
+inline bool isBasicLatinCharacter(wchar_t c)
+{
+    if (c >= L'a' && c <= L'z')
+        return true;
+        
+    if (c >= L'A' && c <= L'Z')
+        return true;
+        
+    return false;
+}
+
+inline bool isExtendedLatinCharacter(wchar_t c)
+{
+    if (isBasicLatinCharacter(c))
+        return true;
+    if (c >= 0x00C0 && c <= 0x00D6)                  // LATIN CAPITAL LETTER A WITH GRAVE - LATIN CAPITAL LETTER O WITH DIAERESIS
+        return true;
+    if (c >= 0x00D8 && c <= 0x00DF)                  // LATIN CAPITAL LETTER O WITH STROKE - LATIN CAPITAL LETTER THORN
+        return true;
+    if (c == 0x00DF)                                 // LATIN SMALL LETTER SHARP S
+        return true;
+    if (c >= 0x00E0 && c <= 0x00F6)                  // LATIN SMALL LETTER A WITH GRAVE - LATIN SMALL LETTER O WITH DIAERESIS
+        return true;
+    if (c >= 0x00F8 && c <= 0x00FE)                  // LATIN SMALL LETTER O WITH STROKE - LATIN SMALL LETTER THORN
+        return true;
+    if (c >= 0x0100 && c <= 0x012F)                  // LATIN CAPITAL LETTER A WITH MACRON - LATIN SMALL LETTER I WITH OGONEK
+        return true;
+    if (c == 0x1E9E)                                 // LATIN CAPITAL LETTER SHARP S
+        return true;
+        
+    return false;
+}
+
+// Only accept basic and extended latin string by default
+inline bool isValidName(std::string name)
+{
+    if (name.length() > 12) // Client limit TODO: define it somewhere
+        return false;
+        
+    for (int i = 0; i < name.length(); i++) {
+        wchar_t c;
+        mbstowcs(&c, &name[i], 1);
+
+        if (!isExtendedLatinCharacter(c))
+            return false;
+    }
+    
+    return true;
+}
+
 #include<algorithm>
 
 namespace ByteConverter

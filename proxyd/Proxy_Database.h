@@ -43,6 +43,8 @@ enum ProxyDatabaseStatements
 {
     PROXYD_DB_GET_ACCT,
     PROXYD_DB_GET_CHAR,
+    PROXYD_DB_GET_PLR_GUID_FROM_NAME,
+    PROXYD_DB_GET_CHAR_COUNT,
     PROXYD_DB_STMT_MAX
 };
 

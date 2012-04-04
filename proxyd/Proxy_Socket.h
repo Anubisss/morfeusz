@@ -141,9 +141,10 @@ public:
     int handle_close(ACE_HANDLE, ACE_Reactor_Mask);
     void send(ByteBuffer*);
     std::string& get_login(){return this->login;}
-    void set_account(Account act){this->acct = act;}
-    void set_characters(std::list<Character> list){this->characters = list;}
-    uint64 get_acct_id(){return this->acct.id;}
+    void set_account(Account act) { this->acct = act; }
+    void set_characters(std::list<Character> list) { this->characters = list; }
+    uint64 get_acct_id() { return this->acct.id; }
+    
     /**
      * @brief Callback from ProxyDB::get_account
      * @sa handle_cmsg_auth_session
@@ -190,10 +191,15 @@ private:
 
     /**
      * @brief Handles CMSG_CHAR_ENUM
-     *        
      *
      */
     void handle_cmsg_char_enum();
+    
+    /**
+     * @brief Handles CMSG_CHAR_CREATE
+     * 
+     */
+    void handle_cmsg_char_create();
 
     Proxy_Sock_Ptr ptr;
     size_t expected_data;

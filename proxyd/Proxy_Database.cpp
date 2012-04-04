@@ -148,17 +148,21 @@ bool ProxyDatabaseConnection::open(const std::string& driver, const std::string&
         query += ".account WHERE username = ?";
         ADD_STMT(PROXYD_DB_GET_ACCT, query.c_str());
         ADD_STMT(PROXYD_DB_GET_CHAR, 
-	       "SELECT c.guid, c.name, c.race,"
-	       "c.class, c.gender, c.playerBytes, "
-	       "c.playerBytes2, c.level, c.zone, "
-	       "c.map, c.position_x, c.position_y, "
-	       "c.position_z, gm.guildid, c.playerFlags, "
-	       "c.at_login, c.data, "
-	       "cp.entry, cp.modelid, cp.level "
-	       "FROM characters c "
-	       "LEFT JOIN guild_member gm ON c.guid = gm.guid "
-	       "LEFT JOIN character_pet cp ON cp.owner = gm.guid "
-	       "where c.account = ?");
+            "SELECT c.guid, c.name, c.race,"
+            "c.class, c.gender, c.playerBytes, "
+            "c.playerBytes2, c.level, c.zone, "
+            "c.map, c.position_x, c.position_y, "
+            "c.position_z, gm.guildid, c.playerFlags, "
+            "c.at_login, c.data, "
+            "cp.entry, cp.modelid, cp.level "
+            "FROM characters c "
+            "LEFT JOIN guild_member gm ON c.guid = gm.guid "
+            "LEFT JOIN character_pet cp ON cp.owner = gm.guid "
+            "where c.account = ?");
+        ADD_STMT(PROXYD_DB_GET_PLR_GUID_FROM_NAME, 
+            "SELECT guid FROM characters WHERE name = ?");
+        ADD_STMT(PROXYD_DB_GET_CHAR_COUNT,
+            "SELECT COUNT(guid) FROM characters WHERE account = ?");
 	       
 
         this->worker = new DatabaseWorker(this->query_queue, this);

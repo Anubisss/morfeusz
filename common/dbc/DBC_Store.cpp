@@ -59,7 +59,7 @@ void DBC_Store::load_item_dbc()
         item.sheath = dbc->read_uint32();
     }
 
-    ACE_DEBUG((LM_ERROR, "Loaded %u Item.dbc entries\n", items.size()));
+    ACE_DEBUG((LM_ERROR, "Loaded %u Item.dbc entries.\n", items.size()));
 
     delete dbc;
 }
@@ -101,8 +101,71 @@ void DBC_Store::load_spell_item_enchantments_dbc()
         spell.enchantment_condition = dbc->read_uint32();
     }
 
-    ACE_DEBUG((LM_ERROR, "Loaded %u SpellItemEnchantment.dbc entries\n", this->spell_item_enchantments.size()));
+    ACE_DEBUG((LM_ERROR, "Loaded %u SpellItemEnchantment.dbc entries.\n", this->spell_item_enchantments.size()));
 
+    delete dbc;
+}
+
+void DBC_Store::load_chr_races_dbc()
+{
+    std::string file = this->path;
+    file += "ChrRaces.dbc";
+    
+    DBC_File* dbc = new DBC_File(file.c_str());
+    
+    for (int i = 0; i < dbc->get_records(); i++) {
+        uint32 entry = dbc->read_uint32();
+        ChrRacesEntry& crentry = this->chr_races[entry];
+        crentry.race_id = entry;
+        dbc->skip_field();
+        crentry.faction_id = dbc->read_uint32();
+        dbc->skip_field();
+        crentry.model_m = dbc->read_uint32();
+        crentry.model_f = dbc->read_uint32();
+        dbc->skip_field();
+        dbc->skip_field();
+        crentry.team_id = dbc->read_uint32();
+        dbc->skip_field();
+        dbc->skip_field();
+        dbc->skip_field();
+        dbc->skip_field();
+        crentry.startmovie = dbc->read_uint32();
+        for (int j = 0; j < 16; j++)
+            crentry.name[j] = const_cast<char*>(dbc->read_string().c_str());
+        for (int j = 0; j < 38; j++)
+            dbc->skip_field();
+        crentry.addon = dbc->read_uint32();
+    }
+    
+    ACE_DEBUG((LM_ERROR, "Loaded %u ChrRaces.dbc entries.\n", this->chr_races.size()));
+    
+    delete dbc;
+}
+
+void DBC_Store::load_chr_classes_dbc()
+{
+    std::string file = this->path;
+    file += "ChrClasses.dbc";
+    
+    DBC_File* dbc = new DBC_File(file.c_str());
+    
+    for (int i = 0; i < dbc->get_records(); i++) {
+        uint32 entry = dbc->read_uint32();
+        ChrClassesEntry& clentry = this->chr_classes[entry];
+        clentry.class_id = entry;
+        dbc->skip_field();
+        clentry.powertype = dbc->read_uint32();
+        dbc->skip_field();
+        for (int j = 0; j < 16; j++)
+            clentry.name[j] = const_cast<char*>(dbc->read_string().c_str());
+        for (int j = 0; j < 36; j++)
+            dbc->skip_field();
+        clentry.spellfamily = dbc->read_uint32();
+        dbc->skip_field();
+    }
+    
+    ACE_DEBUG((LM_ERROR, "Loaded %u ChrClasses.dbc entries.\n", this->chr_classes.size()));
+    
     delete dbc;
 }
 

@@ -172,6 +172,9 @@ void Proxy_Socket::process_incoming()
     case CMSG_CHAR_ENUM:
         this->handle_cmsg_char_enum();
         break;
+    case CMSG_CHAR_CREATE:
+        this->handle_cmsg_char_create();
+        break;
     default:
         break;
     }
