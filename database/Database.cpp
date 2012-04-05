@@ -116,7 +116,7 @@ void SqlOperationBase::add_string(uint8 index, const char* value)
   
 }
 
-void SqlOperationBase::execute()
+int SqlOperationBase::execute()
 {
     try {
         for (int i = 0; i < statement_data.size(); i++) {
@@ -152,7 +152,10 @@ void SqlOperationBase::execute()
     }
     catch (SQL::SQLException &e) {
         ACE_ERROR((LM_ERROR,"Error while executing statement: %s \n", e.what()));
+        return -1;
     }
+    
+    return 0;
 }
 
 ////////////////////////////////////////////////////////
@@ -187,10 +190,10 @@ int DatabaseWorker::svc(void)
     if (!queue)
         return -1;
 
-    SqlOperationRequest* request;
+    SqlOperationBase* request;
 
     while (1) {
-        request = (SqlOperationRequest*)this->queue->dequeue();
+        request = (SqlOperationBase*)this->queue->dequeue();
 
         if (!request)
             break;

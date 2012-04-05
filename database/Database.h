@@ -32,6 +32,7 @@
 #include "Callback.h"
 #include <vector>
 #include <string>
+#include <queue>
 #include <ace/Method_Request.h>
 #include <ace/Future.h>
 #include <ace/Activation_Queue.h>
@@ -116,6 +117,8 @@ class SqlOperationBase : public ACE_Method_Request
 {
 public:
 
+    SqlOperationBase() {}
+
     /**
      * @brief Constructor
      * @param statement_id Takes statement index from statements enum.
@@ -136,8 +139,9 @@ public:
 
     /**
      * @brief execute the sql operation
+     * @return -1 in case of SQLException
      */
-    void execute();
+    int execute();
 
     /**
      * @brief Following functions are used to bind data into prepared statement.
@@ -157,6 +161,14 @@ public:
     void set_database(DatabaseConnection* new_db)
     {
         db = new_db;
+    }
+    
+    /**
+     * @brief Returns database used
+     */
+    DatabaseConnection* get_database()
+    {
+        return db;
     }
     
     /**
@@ -308,7 +320,7 @@ class DatabaseWorker : protected ACE_Task_Base
 
 public:
 
-    DatabaseWorker(ACE_Activation_Queue* new_queue, DatabaseConnection* conn):queue(new_queue), db(conn) {this->activate();}
+    DatabaseWorker(ACE_Activation_Queue* new_queue, DatabaseConnection* conn):queue(new_queue), db(conn) { this->activate(); }
     int svc(void);
     int activate()
     {
@@ -348,29 +360,20 @@ public:
     }
     
     /**
-     * @brief Initialize a new transaction DB-side. IMPORTANT: Don't forget that DB engine MUST support transactions to use this.
-     * InnoDB does, MyISAM doesn't.
-     */
-    /*void init_transaction()
-    {
-        this->connection->setAutoCommit(false);
-    }*/
-    
-    /**
      * @brief Rollback the current transaction. IMPORTANT: Don't forget that DB engine MUST support transactions to use this.
      * InnoDB does, MyISAM doesn't.
      */
-    /*void rollback_transaction()
+    void rollback_transaction()
     {
         this->connection->rollback();
         //this->connection->setAutoCommit(true);
-    }*/
+    }
     
     /**
      * @brief Commit the current transaction. IMPORTANT: Don't forget that DB engine MUST support transactions to use this.
      * InnoDB does, MyISAM doesn't.
      */
-    /*void commit_transaction()
+    void commit_transaction()
     {
         this->connection->commit();
         //this->connection->setAutoCommit(true);
@@ -379,7 +382,12 @@ public:
     bool getAutoCommit()
     {
         return connection->getAutoCommit();
-    }*/
+    }
+    
+    void setAutoCommit(bool autoCommit)
+    {
+        connection->setAutoCommit(autoCommit);
+    }
 
 protected:
 
@@ -407,7 +415,7 @@ protected:
 };
 
 /**
- * @brief Acessing database is done through this class.
+ * @brief Accessing database is done through this class.
  *        Given index value of prepared statement and data to
  *        be used we can enqueue the queries to be done asynchronously.
  */
@@ -433,6 +441,85 @@ public:
      */
     int call();
 
+};
+
+/**
+ * @brief Execute several queries in a row, in the given order, and 
+ *        revert all queries if one fails for some reason. Autocommit is restored 
+ *        in its initial state after the transaction is done.
+ */
+class SqlOperationTransaction : public SqlOperationBase
+{
+public:
+
+    /**
+     * @brief Constructor
+     */
+    SqlOperationTransaction()
+    {
+        autocommit_state = db->getAutoCommit();
+    }
+    
+    /**
+     * @brief Destructor. Restore previous state of autocommit.
+     */
+    virtual ~SqlOperationTransaction()
+    {
+        for (int i = 0; i < requests.size(); i++) {
+            SqlOperationRequest* req = requests.front();
+            delete req;
+            requests.pop();
+        }
+
+        db->setAutoCommit(autocommit_state);
+    }
+    
+    /**
+     * @brief Append the statement to the transaction.
+     */
+    void append(SqlOperationRequest* req)
+    {
+        requests.push(req);
+    }
+    
+    /**
+     * @brief Worker threads of DB connection call this function.
+     */
+    int call()
+    {
+        db->setAutoCommit(false);
+        bool error = false;
+        for (int i = 0; i < requests.size(); i++) {
+            SqlOperationRequest* req = requests.front();
+
+            req->set_database(this->get_database());
+            if (req->call() == -1) {
+                error = true;
+                break;
+            }
+            
+            delete req;
+            requests.pop();
+        }
+
+        if (error) {
+            printf("Error in transaction, rolling back... (autocommit is %s)\n", db->getAutoCommit() ? "on" : "off"); // FIXME: class Log
+            db->rollback_transaction();
+            return -1;
+        }
+        else {
+            printf("Transaction successful, committing\n"); // FIXME: class Log
+            db->commit_transaction();
+            return 0;
+        }
+        
+        return 0;
+    }
+    
+private:
+
+    bool autocommit_state;
+    std::queue<SqlOperationRequest*> requests;
 };
 
 /**

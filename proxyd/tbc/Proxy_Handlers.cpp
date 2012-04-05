@@ -507,6 +507,13 @@ void Proxy_Socket::handle_cmsg_char_create()
     sProxy->get_db()->enqueue(op);
     sProxy->rollback_transaction();
     PROXY_LOG("2: %s\n", sProxy->get_db()->getAutoCommit() ? "autocommit 1" : "autocommit 0");*/
+    
+    SqlOperationTransaction* trans = new SqlOperationTransaction();
+    op = new SqlOperationRequest(PROXYD_DB_INCR_NUMCHAR);
+    op->add_uint32(1, sProxy->get_realmid());
+    op->add_uint32(2, this->acct.id);
+    trans->append(op);
+    sProxy->get_db()->enqueue(trans);
 
     *pkt << uint8(CHAR_CREATE_SUCCESS);
     this->send(pkt);
