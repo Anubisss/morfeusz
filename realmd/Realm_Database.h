@@ -193,14 +193,14 @@ public:
         future.get(res);
         res->next();
       
-        if(res->rowsCount() == 0 )
+        if (res->rowsCount() == 0 )
             SqlOperationObserver<C, AccountState>::callback.call(ACCOUNT_NOTFOUND);
-        else if(res->getUint8(5) != 0) // FIXME: Incorrect, 5 is active and 6 is failed_logins
+        else if (res->getUint8(5) != 0) // FIXME: Incorrect, 5 is active and 6 is failed_logins
             SqlOperationObserver<C, AccountState>::callback.call(ACCOUNT_BANNED);
         else {
             Account acc;
             acc.sha_pass = res->getString(1);
-            acc.id = res->getUint64(2);
+            acc.id = res->getUint32(2);
             acc.locked = res->getBool(3);
             acc.last_ip = res->getString(4);
             acc.gmlevel = res->getUint8(5);

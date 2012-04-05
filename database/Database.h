@@ -158,6 +158,16 @@ public:
     {
         db = new_db;
     }
+    
+    /**
+     * @brief Assign the specified result to the sql op.
+     * 
+     */
+    void set_result(ACE_Future<SQL::ResultSet*>& future)
+    {
+        result = future;
+        has_result = true;
+    }
 
     ACE_Future<SQL::ResultSet*> result;
 
@@ -256,7 +266,16 @@ public:
     SQL::ResultSet* enqueue_synch_query(SqlOperationBase* sql_op, DatabaseTaskPriority prio = PRIORITY_LOW)
     {
         SQL::ResultSet* result;
-        ACE_Future<SQL::ResultSet*>* future_result = &sql_op->result;
+        ACE_Future<SQL::ResultSet*>* future_result;
+        bool allocated = false;
+
+        if (sql_op->has_result)
+            future_result = &sql_op->result;
+        else {
+            future_result = new ACE_Future<SQL::ResultSet*>;
+            sql_op->set_result(*future_result);
+            allocated = true;
+        }
 	
         if (prio == PRIORITY_LOW)
             this->enqueue(sql_op);
@@ -264,6 +283,8 @@ public:
             this->enqueue_with_priority(sql_op, prio);
 
         future_result->get(result);
+        if (allocated)
+            delete future_result;
         return result;
     }
 

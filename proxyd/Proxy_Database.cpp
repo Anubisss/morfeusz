@@ -55,7 +55,7 @@ public:
         else {
             res->next();
             Account acct;
-            acct.id = res->getUint64(1);
+            acct.id = res->getUint32(1);
             acct.gmlevel = res->getUint8(2);
             acct.sessionkey = res->getString(3);
             acct.sha_pass_hash = res->getString(4);
@@ -159,11 +159,12 @@ bool ProxyDatabaseConnection::open(const std::string& driver, const std::string&
             "LEFT JOIN guild_member gm ON c.guid = gm.guid "
             "LEFT JOIN character_pet cp ON cp.owner = gm.guid "
             "where c.account = ?");
-        ADD_STMT(PROXYD_DB_GET_PLR_GUID_FROM_NAME, 
-            "SELECT guid FROM characters WHERE name = ?");
-        ADD_STMT(PROXYD_DB_GET_CHAR_COUNT,
-            "SELECT COUNT(guid) FROM characters WHERE account = ?");
-	       
+        ADD_STMT(PROXYD_DB_GET_PLR_GUID_FROM_NAME, "SELECT guid FROM characters WHERE name = ?");
+        ADD_STMT(PROXYD_DB_GET_CHAR_COUNT, "SELECT COUNT(guid) FROM characters WHERE account = ?");
+        query = "SELECT CAST(SUM(numchars) AS unsigned) FROM ";
+        query += realmdb;
+        query += ".realmcharacters WHERE acctid = ?";
+        ADD_STMT(PROXYD_DB_GET_NUMCHAR, query.c_str());
 
         this->worker = new DatabaseWorker(this->query_queue, this);
         return true;

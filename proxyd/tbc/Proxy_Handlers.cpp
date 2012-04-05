@@ -406,6 +406,8 @@ void Proxy_Socket::handle_cmsg_char_create()
     PROXY_TRACE;
     std::string name;
     uint8 race, pclass;
+    uint8 gender, skin, face, hairStyle, hairColor, facialHair, outfitId;
+
     if (!this->in_packet->CheckSize(1+1+1+1+1+1+1+1+1+1))
         return;
     
@@ -454,9 +456,8 @@ void Proxy_Socket::handle_cmsg_char_create()
         this->send(pkt);
         return;
     }
-    
-    ACE_Future<SQL::ResultSet*> future;
-    DatabaseAccess::SqlOperationRequest* op = new SqlOperationRequest(PROXYD_DB_GET_PLR_GUID_FROM_NAME, future);
+
+    DatabaseAccess::SqlOperationRequest* op = new SqlOperationRequest(PROXYD_DB_GET_PLR_GUID_FROM_NAME);
     op->add_string(1, name.c_str());
     SQL::ResultSet* res = sProxy->get_db()->enqueue_synch_query(op);
     
@@ -465,7 +466,39 @@ void Proxy_Socket::handle_cmsg_char_create()
         this->send(pkt);
         return;
     }
+
+    op = new SqlOperationRequest(PROXYD_DB_GET_NUMCHAR);
+    op->add_uint32(1, this->acct.id);
+    res = sProxy->get_db()->enqueue_synch_query(op);
+
+    res->next();
+    if (res->rowsCount() > 0 && res->getUint8(1) >= 50) { // TODO: config option
+        *pkt << uint8(CHAR_CREATE_ACCOUNT_LIMIT);
+        this->send(pkt);
+        return;
+    }
     
+    op = new SqlOperationRequest(PROXYD_DB_GET_CHAR_COUNT);
+    op->add_uint32(1, this->acct.id);
+    res = sProxy->get_db()->enqueue_synch_query(op);
+    
+    res->next();
+    if (res->rowsCount() > 0 && res->getUint8(1) >= 10) { // TODO: config option
+        *pkt << uint8(CHAR_CREATE_SERVER_LIMIT);
+        this->send(pkt);
+        return;
+    }
+    
+    // TODO: Check on AllowTwoSideAccounts
+    
+    *this->in_packet >> gender;
+    *this->in_packet >> skin;
+    *this->in_packet >> face;
+    *this->in_packet >> hairStyle;
+    *this->in_packet >> hairColor;
+    *this->in_packet >> facialHair;
+    *this->in_packet >> outfitId;
+
     *pkt << uint8(CHAR_CREATE_SUCCESS);
     this->send(pkt);
 }

@@ -64,7 +64,7 @@ struct ClientPktHeader
 
 struct Account
 {
-    uint64 id;
+    uint32 id;
     uint8 gmlevel;
     std::string sessionkey;
     std::string sha_pass_hash;
@@ -143,7 +143,7 @@ public:
     std::string& get_login(){return this->login;}
     void set_account(Account act) { this->acct = act; }
     void set_characters(std::list<Character> list) { this->characters = list; }
-    uint64 get_acct_id() { return this->acct.id; }
+    uint32 get_acct_id() { return this->acct.id; }
     
     /**
      * @brief Callback from ProxyDB::get_account
