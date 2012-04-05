@@ -498,6 +498,15 @@ void Proxy_Socket::handle_cmsg_char_create()
     *this->in_packet >> hairColor;
     *this->in_packet >> facialHair;
     *this->in_packet >> outfitId;
+    
+    /*PROXY_LOG("1: %s\n", sProxy->get_db()->getAutoCommit() ? "autocommit 1" : "autocommit 0");
+    sProxy->get_db()->init_transaction();
+    op = new SqlOperationRequest(PROXYD_DB_INCR_NUMCHAR);
+    op->add_uint32(1, sProxy->get_realmid());
+    op->add_uint32(2, this->acct.id);
+    sProxy->get_db()->enqueue(op);
+    sProxy->rollback_transaction();
+    PROXY_LOG("2: %s\n", sProxy->get_db()->getAutoCommit() ? "autocommit 1" : "autocommit 0");*/
 
     *pkt << uint8(CHAR_CREATE_SUCCESS);
     this->send(pkt);

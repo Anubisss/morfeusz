@@ -346,6 +346,40 @@ public:
     {
         return statement_holder[index];
     }
+    
+    /**
+     * @brief Initialize a new transaction DB-side. IMPORTANT: Don't forget that DB engine MUST support transactions to use this.
+     * InnoDB does, MyISAM doesn't.
+     */
+    /*void init_transaction()
+    {
+        this->connection->setAutoCommit(false);
+    }*/
+    
+    /**
+     * @brief Rollback the current transaction. IMPORTANT: Don't forget that DB engine MUST support transactions to use this.
+     * InnoDB does, MyISAM doesn't.
+     */
+    /*void rollback_transaction()
+    {
+        this->connection->rollback();
+        //this->connection->setAutoCommit(true);
+    }*/
+    
+    /**
+     * @brief Commit the current transaction. IMPORTANT: Don't forget that DB engine MUST support transactions to use this.
+     * InnoDB does, MyISAM doesn't.
+     */
+    /*void commit_transaction()
+    {
+        this->connection->commit();
+        //this->connection->setAutoCommit(true);
+    }
+    
+    bool getAutoCommit()
+    {
+        return connection->getAutoCommit();
+    }*/
 
 protected:
 

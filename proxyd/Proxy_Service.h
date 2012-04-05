@@ -75,9 +75,9 @@ public:
      */
     void update_connections(bool up);
   
-    ProxyDB* get_db(){return this->database;}
-    EC_Communicator* get_event_channel(){return event_channel;}
-    uint8 get_realmid(){return this->realm_id;}
+    ProxyDB* get_db() { return this->database; }
+    EC_Communicator* get_event_channel() { return event_channel; }
+    uint8 get_realmid() { return this->realm_id; }
     float load;
 
 private:

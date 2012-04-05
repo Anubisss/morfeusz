@@ -165,6 +165,10 @@ bool ProxyDatabaseConnection::open(const std::string& driver, const std::string&
         query += realmdb;
         query += ".realmcharacters WHERE acctid = ?";
         ADD_STMT(PROXYD_DB_GET_NUMCHAR, query.c_str());
+        query = "UPDATE ";
+        query += realmdb;
+        query += ".realmcharacters SET numchars = numchars + 1 WHERE realmid = ? AND acctid = ?";
+        ADD_STMT(PROXYD_DB_INCR_NUMCHAR, query.c_str());
 
         this->worker = new DatabaseWorker(this->query_queue, this);
         return true;

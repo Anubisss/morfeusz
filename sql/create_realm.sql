@@ -87,3 +87,8 @@ CREATE TABLE `realmlist` (
   UNIQUE KEY `idx_name` (`name`)
 ) ENGINE=InnoDB AUTO_INCREMENT=3 DEFAULT CHARSET=utf8 ROW_FORMAT=DYNAMIC COMMENT='Realms';
 
+--
+-- Dumping data for table `realmlist`
+--
+
+INSERT INTO realmlist VALUES (1, "Morpheus", "127.0.0.1", 8085, 0, 0, 1, 0, 0, 8606);
