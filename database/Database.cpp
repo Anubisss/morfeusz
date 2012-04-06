@@ -174,7 +174,9 @@ SqlOperationRequest::SqlOperationRequest(uint32 statement_id, ACE_Future<SQL::Re
 
 int SqlOperationRequest::call()
 {
-    execute();
+    if (execute() == -1)
+        return -1;
+
     return 0;
 }
 
