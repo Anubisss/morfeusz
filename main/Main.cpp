@@ -56,6 +56,13 @@ ACE_TMAIN(int argc, char* argv[])
     }
 
     //If we got to this point, it means we are not in slave mode. Yay!
+    printf(" __  __                  _                    \n");
+    printf("|  \\/  | ___  _ __ _ __ | |__   ___ _   _  ___ \n");
+    printf("| |\\/| |/ _ \\| '__| '_ \\| '_ \\ / _ \\ | | |/ __|\n");
+    printf("| |  | | (_) | |  | |_) | | | |  __/ |_| |\\__ \\\n");
+    printf("|_|  |_|\\___/|_|  | .__/|_| |_|\\___|\\__,_|\\___/\n");
+    printf("                  |_|                         \n");
+    
     sServiceManager->args.add(args.argv());
     ACE_Arg_Shifter shifty(argc, argv); // This class ruins our argv, but we have copy in args.
 
