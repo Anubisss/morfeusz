@@ -34,6 +34,7 @@
 #include "Proxy_Socket.h"
 #include "Proxy_Crypto.h"
 #include "Opcodes.h"
+#include "Player.h"
 
 // TODO: move this
 enum ResponseCodes
@@ -311,7 +312,7 @@ void Proxy_Socket::handle_cmsg_char_enum()
 
 void Proxy_Socket::characters_retrieved(bool state)
 {
-    ServerPkt* pkt = new ServerPkt(SMSG_CHAR_ENUM, 1);
+    ServerPkt* pkt = new ServerPkt(SMSG_CHAR_ENUM, 100);
   
     if (!state) {
         *pkt << uint8(0);
@@ -334,14 +335,14 @@ void Proxy_Socket::characters_retrieved(bool state)
         *pkt << uint8(iter->bytes >> 8);
         *pkt << uint8(iter->bytes >> 16);
         *pkt << uint8(iter->bytes >> 24);
-        *pkt << iter->bytes2;
+        *pkt << uint8(iter->bytes2 & 0xFF);
         *pkt << iter->level;
         *pkt << iter->zone;
         *pkt << iter->map;
         *pkt << iter->x;
         *pkt << iter->y;
         *pkt << iter->z;
-        *pkt << iter->guild;
+        *pkt << uint32(0); // guild
 
         /** @todo player & atlogin flags; */
         *pkt << uint32(0x00);//2002000); //iter->player_flags;
@@ -354,16 +355,12 @@ void Proxy_Socket::characters_retrieved(bool state)
         /* *pkt << iter->pet.modelid;
         *pkt << iter->pet.level;
         *pkt << family;*/
-      
         *pkt << (uint32)0;
         *pkt << (uint32)0;
         *pkt << (uint32)0;
       
-        for (uint8 slot = 0; slot < 19; slot++) {
-            /**
-             * @todo
-             * *pkt << (uint32)enchant_id;
-             */
+        /*for (uint8 slot = 0; slot < 19; slot++) {
+            // *pkt << (uint32)enchant_id; // TODO
             uint32 item_base = PLAYER_VISIBLE_ITEM_1_0 + (slot * 16);
             uint32 item_id = iter->update_fields[item_base];
             if (sDBC->get_item_map()->find(item_id) != sDBC->get_item_map()->end()) {
@@ -391,6 +388,12 @@ void Proxy_Socket::characters_retrieved(bool state)
                 *pkt << (uint8)0;
                 *pkt << (uint32)0;
             }
+        }*/
+        
+        for (uint8 slot = 0; slot < 19; slot++) {
+            *pkt << (uint32)0;
+            *pkt << (uint8)0;
+            *pkt << (uint32)0;
         }
         
         *pkt << (uint32)0;
@@ -406,7 +409,7 @@ void Proxy_Socket::handle_cmsg_char_create()
     PROXY_TRACE;
     std::string name;
     uint8 race, pclass;
-    uint8 gender, skin, face, hairStyle, hairColor, facialHair, outfitId;
+    uint8 gender, skin, face, hair_style, hair_color, facial_hair, outfit_id;
 
     if (!this->in_packet->CheckSize(1+1+1+1+1+1+1+1+1+1))
         return;
@@ -419,6 +422,8 @@ void Proxy_Socket::handle_cmsg_char_create()
         
     *this->in_packet >> race;
     *this->in_packet >> pclass;
+    
+    PROXY_LOG("Race: %u, Class: %u\n", race, pclass);
     
     ServerPkt* pkt = new ServerPkt(SMSG_CHAR_CREATE, 1);
     
@@ -494,25 +499,19 @@ void Proxy_Socket::handle_cmsg_char_create()
     *this->in_packet >> gender;
     *this->in_packet >> skin;
     *this->in_packet >> face;
-    *this->in_packet >> hairStyle;
-    *this->in_packet >> hairColor;
-    *this->in_packet >> facialHair;
-    *this->in_packet >> outfitId;
-    
-    /*PROXY_LOG("1: %s\n", sProxy->get_db()->getAutoCommit() ? "autocommit 1" : "autocommit 0");
-    sProxy->get_db()->init_transaction();
-    op = new SqlOperationRequest(PROXYD_DB_INCR_NUMCHAR);
-    op->add_uint32(1, sProxy->get_realmid());
-    op->add_uint32(2, this->acct.id);
-    sProxy->get_db()->enqueue(op);
-    sProxy->rollback_transaction();
-    PROXY_LOG("2: %s\n", sProxy->get_db()->getAutoCommit() ? "autocommit 1" : "autocommit 0");*/
+    *this->in_packet >> hair_style;
+    *this->in_packet >> hair_color;
+    *this->in_packet >> facial_hair;
+    *this->in_packet >> outfit_id;
     
     SqlOperationTransaction* trans = new SqlOperationTransaction();
     op = new SqlOperationRequest(PROXYD_DB_INCR_NUMCHAR);
     op->add_uint32(1, sProxy->get_realmid());
     op->add_uint32(2, this->acct.id);
     trans->append(op);
+    
+    bool created = Morpheus::Entities::Player::create(uint32(1), this->acct.id, name, race, pclass, gender, skin, face, hair_style, hair_color, facial_hair, outfit_id, trans);
+    
     sProxy->get_db()->enqueue(trans);
 
     *pkt << uint8(CHAR_CREATE_SUCCESS);

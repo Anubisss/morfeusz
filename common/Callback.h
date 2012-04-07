@@ -65,7 +65,15 @@ public:
         }
     }
 
-    C* get_obj() { return object.get(); }
+    C* get_obj()
+    {
+        if (object.get() != NULL)
+            return object.get();
+        else if (raw_ptr)
+            return raw_ptr;
+        
+        return NULL;
+    }
 
 private:
 

@@ -180,6 +180,14 @@ public:
         result = future;
         has_result = true;
     }
+    
+    /**
+     * @brief Returns the associated statement, mainly for debugging purposes.
+     */
+    uint32 get_statement_id()
+    {
+        return statement;
+    }
 
     ACE_Future<SQL::ResultSet*> result;
 
@@ -457,7 +465,8 @@ public:
      */
     SqlOperationTransaction()
     {
-        autocommit_state = db->getAutoCommit();
+        //autocommit_state = db->getAutoCommit();
+        printf("Beginning transaction.\n");
     }
     
     /**
@@ -487,9 +496,11 @@ public:
      */
     int call()
     {
+        autocommit_state = db->getAutoCommit();
         db->setAutoCommit(false);
         bool error = false;
-        for (int i = 0; i < requests.size(); i++) {
+        uint32 size = requests.size();
+        for (int i = 0; i < size; i++) {
             SqlOperationRequest* req = requests.front();
 
             req->set_database(this->get_database());
@@ -503,7 +514,7 @@ public:
         }
 
         if (error) {
-            printf("Error in transaction, rolling back... (autocommit is %s)\n", db->getAutoCommit() ? "on" : "off"); // FIXME: class Log
+            printf("Error in transaction, rolling back...\n"); // FIXME: class Log
             db->rollback_transaction();
             return -1;
         }

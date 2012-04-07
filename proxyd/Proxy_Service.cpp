@@ -34,6 +34,8 @@
 #include "Proxy_Timer.h"
 #include "dbc/DBC_Store.h"
 
+#include "ObjectMgr.h"
+
 namespace Morpheus
 {
 
@@ -109,6 +111,9 @@ void Proxy_Service::start()
                 sConfig->getInt("proxyd","NetThreads"));
     this->event_channel->announce();
     this->reactor->schedule_timer(new Proxy_Timer(), 0, tm, tm);
+
+    this->database->load_player_createinfo();
+    
     ACE_Thread_Manager::instance()->wait();
     return;
 }

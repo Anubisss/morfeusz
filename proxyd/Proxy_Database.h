@@ -41,12 +41,14 @@ namespace DatabaseAccess
 
 enum ProxyDatabaseStatements
 {
-    PROXYD_DB_GET_ACCT,
-    PROXYD_DB_GET_CHAR,
-    PROXYD_DB_GET_PLR_GUID_FROM_NAME,
-    PROXYD_DB_GET_CHAR_COUNT,
-    PROXYD_DB_GET_NUMCHAR,
-    PROXYD_DB_INCR_NUMCHAR,
+    PROXYD_DB_GET_ACCT,                 // "SELECT id, gmlevel, sessionkey, sha_pass_hash, v, s, expansion FROM realmdb.account WHERE username = ?";
+    PROXYD_DB_GET_CHAR,                 // "SELECT guid, name, race, class, gender, level, playerBytes, playerBytes2, position_x, position_y, position_z, map, zone FROM characters WHERE account = ?"
+    PROXYD_DB_GET_PLR_GUID_FROM_NAME,   // "SELECT guid FROM characters WHERE name = ?"
+    PROXYD_DB_GET_CHAR_COUNT,           // "SELECT COUNT(guid) FROM characters WHERE account = ?"
+    PROXYD_DB_GET_NUMCHAR,              // "SELECT CAST(SUM(numchars) AS unsigned) FROM realmdb.realmcharacters WHERE acctid = ?"
+    PROXYD_DB_INCR_NUMCHAR,             // "UPDATE realmdb.realmcharacters SET numchars = numchars + 1 WHERE realmid = ? AND acctid = ?"
+    PROXYD_DB_INS_CHAR,                 // "INSERT INTO characters (guid, account, name, race, class, gender, level, zone, map, position_x, position_y, position_z) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)"
+    PROXYD_DB_LOAD_PLR_CREATEINFO,      // "SELECT race, class, map, zone, position_x, position_y, position_z FROM player_createinfo"
     PROXYD_DB_STMT_MAX
 };
 
@@ -73,6 +75,7 @@ public:
      */
     void get_account(Proxy_Sock_Ptr sock);
     void get_chars(Proxy_Sock_Ptr sock);
+    void load_player_createinfo();
 };
 
 };

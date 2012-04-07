@@ -1,3 +1,2 @@
 * Generic code to load DBCs
-* Better code to execute synch queries and get a result
 * Implement class Log with masks for message types

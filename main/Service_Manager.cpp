@@ -62,7 +62,7 @@ void Service_Manager::update_services()
 {
     std::map<MorpheusServices, ServiceInfo*>::iterator iter;
 
-    for(iter = svcs.begin();iter != svcs.end(); iter++) {
+    for (iter = svcs.begin();iter != svcs.end(); iter++) {
         if (iter->second->status == OFF)
             continue;
         
@@ -71,8 +71,10 @@ void Service_Manager::update_services()
         ACE_OS::sprintf(path,"/proc/%u/stat", iter->second->pid);
         ACE_HANDLE status_file = ACE_OS::open(path, GENERIC_READ);
           
-        if (status_file == ACE_INVALID_HANDLE)
+        if (status_file == ACE_INVALID_HANDLE) {
+            ACE_DEBUG((LM_DEBUG,"Service has crashed.\n"));
             is_dead = true;
+        }
           
         if (!is_dead) {
             char *buf = new char[100]; //please excuse me this waste of bytes.
@@ -83,6 +85,7 @@ void Service_Manager::update_services()
             char * status = strtok(NULL, delim);
             delete[] buf;
             if (*status == 'Z') {
+                ACE_DEBUG((LM_DEBUG, "Service is stopped.\n"));
                 is_dead = true;
                 ACE_OS::kill(iter->second->pid, SIGKILL);
             }

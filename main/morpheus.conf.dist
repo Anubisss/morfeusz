@@ -31,6 +31,7 @@ DBUrl = localhost;3306;morpheus;morpheus;characters
 #name of realmd database. Proxyd needs it for account retrieval.
 #user that proxyd uses, needs to have privileges for both databases.
 RealmDB = realmd
+WorldDB = world
 DBengine = mysql
 DBThreads = 3
 

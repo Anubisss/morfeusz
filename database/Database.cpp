@@ -103,7 +103,7 @@ void SqlOperationBase::add_float(uint8 index, float value)
     if (statement_data.size() < index)
         statement_data.resize(index);
 
-    statement_data[--index].data.u8 = value;
+    statement_data[--index].data.f = value;
     statement_data[index].type = TYPE_FLOAT;
 }
 
@@ -111,6 +111,7 @@ void SqlOperationBase::add_string(uint8 index, const char* value)
 {
     if (statement_data.size() < index)
         statement_data.resize(index);
+
     statement_data[--index].str.append(value);
     statement_data[index].type = TYPE_STRING;
   

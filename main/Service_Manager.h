@@ -41,8 +41,9 @@ struct ServiceInfo
 {
     ServiceInfo() : status(OFF), pid(0) {}
     ServiceInfo(pid_t pid) : pid(pid), status(ON) {}
-        ServiceStatus status;
-        pid_t pid;
+
+    ServiceStatus status;
+    pid_t pid;
 };
 
 class Service_Manager
@@ -55,11 +56,11 @@ public:
     bool run_realmd();
     bool run_proxyd();
     void update_services();
-    static Service_Manager* instance(){return ACE_Singleton<Service_Manager, ACE_Thread_Mutex>::instance();}
+    static Service_Manager* instance() { return ACE_Singleton<Service_Manager, ACE_Thread_Mutex>::instance(); }
 
 private:
 
-    Service_Manager(){};
+    Service_Manager() {};
     std::map<MorpheusServices, ServiceInfo*> svcs;
 };
 

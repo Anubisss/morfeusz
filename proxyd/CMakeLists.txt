@@ -19,6 +19,7 @@ include_directories(
     ${CMAKE_SOURCE_DIR}/configuration
     ${CMAKE_SOURCE_DIR}/common
     ${CMAKE_SOURCE_DIR}/database
+    ${CMAKE_SOURCE_DIR}/game
     ${CMAKE_SOURCE_DIR}/common/${_CLIENT_BUILD}
     ${CMAKE_SOURCE_DIR}/proxyd/${_CLIENT_BUILD}
     ${CMAKE_SOURCE_DIR}/proxyd
@@ -41,4 +42,5 @@ target_link_libraries(
     proxyd
     common
     morpheusconfig
+    morpheusgame
     )

@@ -89,6 +89,7 @@ include_directories(
 endif(WIN32)
 
 add_subdirectory(common)
+add_subdirectory(game)
 add_subdirectory(configuration)
 add_subdirectory(database)
 add_subdirectory(realmd)
