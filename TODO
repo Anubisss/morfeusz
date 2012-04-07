@@ -8,4 +8,4 @@ TODO
 KNOWN ISSUES
 ============
 
-* When creating a new char, client sometimes displays list before the new char is actually created, and it is not displayed (reconnecting fixes the issue)
+* When creating a new char, client sometimes displays list before the new char is actually created, and it is not displayed (reconnecting fixes the issue) -> doesn't seem to be caused by async execution of the transaction

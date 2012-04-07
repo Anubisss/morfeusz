@@ -200,6 +200,11 @@ private:
      * 
      */
     void handle_cmsg_char_create();
+    
+    /**
+     * @brief Handles CMSG_PLAYED_TIME
+     */
+    void handle_cmsg_played_time();
 
     Proxy_Sock_Ptr ptr;
     size_t expected_data;

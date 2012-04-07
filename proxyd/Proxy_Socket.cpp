@@ -175,6 +175,9 @@ void Proxy_Socket::process_incoming()
     case CMSG_CHAR_CREATE:
         this->handle_cmsg_char_create();
         break;
+    case CMSG_PLAYED_TIME:
+        this->handle_cmsg_played_time();
+        break;
     default:
         PROXY_LOG("Unhandled packet.\n");
         break;
@@ -269,6 +272,18 @@ void Proxy_Socket::handle_cmsg_realm_split()
     *pkt << unk;
     *pkt << (uint32)0x00;
     *pkt << date;
+    this->send(pkt);
+}
+
+void Proxy_Socket::handle_cmsg_played_time()
+{
+    PROXY_TRACE;
+    
+    // TODO: Only placeholders here
+    ServerPkt* pkt = new ServerPkt(SMSG_PLAYED_TIME, 8);
+    *pkt << uint32(0);
+    *pkt << uint32(0);
+    
     this->send(pkt);
 }
 
