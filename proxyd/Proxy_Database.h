@@ -49,6 +49,7 @@ enum ProxyDatabaseStatements
     PROXYD_DB_INCR_NUMCHAR,             // "UPDATE realmdb.realmcharacters SET numchars = numchars + 1 WHERE realmid = ? AND acctid = ?"
     PROXYD_DB_INS_CHAR,                 // "INSERT INTO characters (guid, account, name, race, class, gender, level, zone, map, position_x, position_y, position_z) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)"
     PROXYD_DB_LOAD_PLR_CREATEINFO,      // "SELECT race, class, map, zone, position_x, position_y, position_z FROM player_createinfo"
+    PROXYD_DB_GET_CHAR_MAX_GUID,        // "SELECT MAX(guid) FROM characters"
     PROXYD_DB_STMT_MAX
 };
 

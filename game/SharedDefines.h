@@ -49,4 +49,10 @@ enum DBCClasses
     CLASS_MAX
 };
 
+enum GuidTypes
+{
+    GUID_CHAR       = 0,
+    GUID_MAX
+};
+
 #endif // _SHARED_DEF_H

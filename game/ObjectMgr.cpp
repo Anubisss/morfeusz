@@ -17,6 +17,7 @@
  */
 
 #include "ObjectMgr.h"
+#include "Proxy_Service.h"
 
 namespace Morpheus
 {
@@ -27,6 +28,17 @@ namespace Managers
 void ObjectMgr::player_create_info_loaded(uint8 loaded)
 {
     printf("Loaded %u character creation information sets.\n", loaded);
+}
+
+void ObjectMgr::init_max_guids()
+{
+    // Characters
+    SqlOperationRequest* op = new SqlOperationRequest(PROXYD_DB_GET_CHAR_MAX_GUID);
+    Morpheus::SQL::ResultSet* res = sProxy->get_db()->enqueue_synch_query(op);
+    
+    res->next();
+    max_guids[GUID_CHAR] = res->getUint32(1);
+    max_guids[GUID_CHAR]++;
 }
     
 };

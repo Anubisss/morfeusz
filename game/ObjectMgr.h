@@ -45,29 +45,20 @@ class ObjectMgr
 public:
 
     static ObjectMgr* instance() { return ACE_Singleton<ObjectMgr, ACE_Recursive_Thread_Mutex>::instance(); }
+    
     void player_create_info_loaded(uint8 loaded);
     void set_player_create_info(uint8 race, uint8 pclass, PlayerCreateInfo info) { playerCreateInfo[race - 1][pclass - 1] = info; }
     const PlayerCreateInfo& get_player_create_info(uint8 race, uint8 pclass) { return playerCreateInfo[race - 1][pclass - 1]; }
-    virtual ~ObjectMgr()
-    {
-        /*for (int i = 0; i < RACE_MAX; i++) {
-            for (int j = 0; j < CLASS_MAX; j++)
-                delete playerCreateInfo[i][j];
-        }*/
-    }
+    
+    void init_max_guids();
+    uint32 get_max_guid(uint8 type) { return max_guids[type]++; }
     
 private:
-
-    ObjectMgr()
-    {
-        /*playerCreateInfo[RACE_MAX][CLASS_MAX] = new PlayerCreateInfo[RACE_MAX * CLASS_MAX];
-        for (int i = 0; i < RACE_MAX; i++) {
-            for (int j = 0; j < CLASS_MAX; j++)
-                playerCreateInfo[i][j] = new PlayerCreateInfo;
-        }*/
-    }
     
     PlayerCreateInfo playerCreateInfo[RACE_MAX][CLASS_MAX];
+    
+    // Max GUIDs
+    uint32 max_guids[GUID_MAX];
     
 };
     

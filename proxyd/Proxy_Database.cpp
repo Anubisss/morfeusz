@@ -222,6 +222,7 @@ bool ProxyDatabaseConnection::open(const std::string& driver, const std::string&
         query += worlddb;
         query += ".player_createinfo";
         ADD_STMT(PROXYD_DB_LOAD_PLR_CREATEINFO, query.c_str());
+        ADD_STMT(PROXYD_DB_GET_CHAR_MAX_GUID, "SELECT MAX(guid) FROM characters");
 
         this->worker = new DatabaseWorker(this->query_queue, this);
         return true;

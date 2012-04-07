@@ -1,2 +1,11 @@
+TODO
+====
+
 * Generic code to load DBCs
 * Implement class Log with masks for message types
+* Check why ServiceManager restarts services only once after they crashed
+
+KNOWN ISSUES
+============
+
+* When creating a new char, client sometimes displays list before the new char is actually created, and it is not displayed (reconnecting fixes the issue)

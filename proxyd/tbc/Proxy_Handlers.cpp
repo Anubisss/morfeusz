@@ -35,6 +35,7 @@
 #include "Proxy_Crypto.h"
 #include "Opcodes.h"
 #include "Player.h"
+#include "ObjectMgr.h"
 
 // TODO: move this
 enum ResponseCodes
@@ -510,7 +511,7 @@ void Proxy_Socket::handle_cmsg_char_create()
     op->add_uint32(2, this->acct.id);
     trans->append(op);
     
-    bool created = Morpheus::Entities::Player::create(uint32(1), this->acct.id, name, race, pclass, gender, skin, face, hair_style, hair_color, facial_hair, outfit_id, trans);
+    bool created = Morpheus::Entities::Player::create(sObjectMgr->get_max_guid(GUID_CHAR), this->acct.id, name, race, pclass, gender, skin, face, hair_style, hair_color, facial_hair, outfit_id, trans);
     
     sProxy->get_db()->enqueue(trans);
 

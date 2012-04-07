@@ -113,6 +113,7 @@ void Proxy_Service::start()
     this->reactor->schedule_timer(new Proxy_Timer(), 0, tm, tm);
 
     this->database->load_player_createinfo();
+    sObjectMgr->init_max_guids();
     
     ACE_Thread_Manager::instance()->wait();
     return;
