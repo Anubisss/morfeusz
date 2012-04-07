@@ -155,7 +155,7 @@ void Proxy_Socket::process_incoming()
         return;
 
 #ifdef _MORPHEUS_DEBUG
-    PROXY_LOG("Received packet 0x%X, size: %u\n",this->in_packet->PeekOpcode(), this->in_packet->PeekSize());
+    PROXY_LOG("Received packet 0x%X (%s), size: %u\n",this->in_packet->PeekOpcode(), OpcodesNames[this->in_packet->PeekOpcode()].c_str(), this->in_packet->PeekSize());
     this->in_packet->hexlike();
 #endif
 
@@ -176,6 +176,7 @@ void Proxy_Socket::process_incoming()
         this->handle_cmsg_char_create();
         break;
     default:
+        PROXY_LOG("Unhandled packet.\n");
         break;
     }
     
