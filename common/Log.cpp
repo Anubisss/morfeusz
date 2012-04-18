@@ -38,23 +38,20 @@ Log::~Log()
 }
 
 void Log::initialize(LogType type)
-{
-    // Set log type
-    log_type = type;
-    
+{    
     switch (type) {
     case LOG_TYPE_REALMD:
         open(f_log_main, "realmd");
         break;
     case LOG_TYPE_PROXYD:
         open(f_log_main, "proxyd");
+        open(f_log_chars, "proxyd_chars");
         break;
-    case LOG_TYPE_ZONED:
-        open(f_log_main, "zoned"); // TODO: we should have some other prefix for these, to distinct distinguish different zone-nodes (maybe a parameter -n <name>?)
+    case LOG_TYPE_ZONED: // TODO: we should have some other prefix for these, to distinct distinguish different zone-nodes (maybe a parameter -n <name>?)
+        open(f_log_main, "zoned");
+        open(f_log_chars, "zoned_chars");
         break;
-    }
-    
-    open(f_log_chars, "chars");
+    }    
 
     // Init log mask
     log_filter_mask = sConfig->getInt("log", "LogFilterMask");

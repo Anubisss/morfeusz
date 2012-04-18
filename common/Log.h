@@ -137,7 +137,6 @@ private:
     void open(std::ofstream& file, std::string name);
     
     LogLevel log_levels[LOG_FILTERS];
-    LogType log_type;
     int log_filter_mask;
 
     std::ofstream f_log_main;
