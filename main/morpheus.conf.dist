@@ -42,6 +42,9 @@ NSLocation = corbaloc:iiop:127.0.0.1:9966
 dbc=/home/morpheus/dbc/
 
 [log]
+#directory where files will be stored
+LogDir = "."
+
 #log filter mask (todo: add explanation for flags)
 LogFilterMask = 3
 

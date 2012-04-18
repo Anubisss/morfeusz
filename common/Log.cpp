@@ -86,7 +86,9 @@ void Log::setLevel(LogFilter mask, LogLevel level)
 
 void Log::open(std::ofstream& file, std::string name)
 {
-    std::string filename = name;
+    std::string filename = sConfig->getString("log", "LogDir");
+    filename.append("/");
+    filename.append(name);
     filename.append("_");
     filename.append(timestamp(true));
     filename.append(".log");
