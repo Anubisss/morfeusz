@@ -33,6 +33,7 @@
 #include "Proxyd_EC_Communicator.h"
 #include "Proxy_Timer.h"
 #include "dbc/DBC_Store.h"
+#include "Log.h"
 
 #include "ObjectMgr.h"
 
@@ -46,7 +47,10 @@ void Proxy_Service::start()
 {
     PROXY_TRACE;
     //Boilerplate code goes in here.
-    PROXY_LOG("Starting...\n");
+    PROXY_LOG("Starting proxyd\n");
+    
+    sLog->initialize(LOG_TYPE_PROXYD);
+    sLog->outDetail(LOG_FILTER_SYSTEM, "Log system initialized.");
 
     this->load = 0;
     this->connection_limit = sConfig->getInt("proxyd","ConnectionLimit");
@@ -96,8 +100,8 @@ void Proxy_Service::start()
         this->event_channel->connect();
     }
     catch (CORBA::Exception &e) {
-      delete orb_args;
-      return;
+        delete orb_args;
+        return;
     }
 
     delete orb_args;

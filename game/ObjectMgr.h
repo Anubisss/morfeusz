@@ -55,6 +55,7 @@ public:
     
 private:
     
+    ObjectMgr() {}
     PlayerCreateInfo playerCreateInfo[RACE_MAX][CLASS_MAX];
     
     // Max GUIDs

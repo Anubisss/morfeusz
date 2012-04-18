@@ -40,3 +40,12 @@ NSLocation = corbaloc:iiop:127.0.0.1:9966
 
 [data]
 dbc=/home/morpheus/dbc/
+
+[log]
+#log filter mask (todo: add explanation for flags)
+LogFilterMask = 3
+
+#log levels for various logging filters;
+#must be between 1 and 3.
+LogLevelSystem = 3
+LogLevelChars = 3

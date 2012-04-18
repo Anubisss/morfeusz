@@ -29,6 +29,7 @@
 #include <ace/Configuration.h>
 #include <ace/Singleton.h>
 #include <string>
+#include "Log.h"
 
 namespace Morpheus
 {
@@ -55,6 +56,7 @@ public:
     void open(const std::string& location = "morpheus.conf");
     float getFloat(const std::string& section, const std::string& key);
     int getInt(const std::string& section, const std::string& key);
+    LogLevel getLogLevel(const std::string& section, const std::string& key);
     std::string getString(const std::string& section, const std::string& key);
     bool getBool(const std::string& section, const std::string& key);
 

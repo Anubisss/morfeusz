@@ -3,6 +3,7 @@ set(common_SRCS
     dbc/DBC_File.cpp
     dbc/DBC_Store.h
     dbc/DBC_Store.cpp
+    Log.cpp
     )
 
 include_directories(

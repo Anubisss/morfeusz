@@ -81,4 +81,9 @@ bool ConfigurationHolder::getBool(const std::string& section, const std::string&
     return (this->getInt(section, key) > 0 ? true: false);
 }
 
+LogLevel ConfigurationHolder::getLogLevel(const std::string& section, const std::string& key)
+{
+    return (LogLevel)(this->getInt(section, key));
+}
+
 };

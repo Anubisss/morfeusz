@@ -46,6 +46,9 @@ void Realm_Service::start()
 {
     REALM_TRACE;
     REALM_LOG("Starting realmd\n");
+    
+    sLog->initialize(LOG_TYPE_REALMD);
+    sLog->outDetail(LOG_FILTER_SYSTEM, "Log system initialized.");
 
 #if defined (ACE_HAS_EVENT_POLL) || defined (ACE_HAS_DEV_POLL)
     this->reactor = new ACE_Reactor(new ACE_Dev_Poll_Reactor());

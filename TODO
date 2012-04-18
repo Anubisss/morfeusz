@@ -4,6 +4,7 @@ TODO
 * Generic code to load DBCs
 * Implement class Log with masks for message types
 * Check why ServiceManager restarts services only once after they crashed
+* Log: add config option LogsDir
 
 KNOWN ISSUES
 ============
