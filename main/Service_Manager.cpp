@@ -79,16 +79,16 @@ void Service_Manager::update_services()
         if (!is_dead) {
             char *buf = new char[100]; //please excuse me this waste of bytes.
             char delim[] = " ";
-            ACE_OS::read(status_file,buf,100);
+            ACE_OS::read(status_file,buf,99);
             strtok(buf,delim);
             strtok(NULL,delim);
             char * status = strtok(NULL, delim);
-            delete[] buf;
             if (*status == 'Z') {
                 ACE_DEBUG((LM_DEBUG, "Service is stopped.\n"));
                 is_dead = true;
                 ACE_OS::kill(iter->second->pid, SIGKILL);
             }
+            delete[] buf;
         }
 
         if (is_dead) {
