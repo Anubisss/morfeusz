@@ -34,7 +34,7 @@ bool Service_Manager::run_realmd()
         return false;
 
     ServiceInfo *si = new ServiceInfo(realmpid);
-    this->svcs.insert(std::pair<MorpheusServices, ServiceInfo*>(LOGINSERVER, si));
+    svcs[LOGINSERVER] = si;
     ACE_DEBUG((LM_DEBUG,"Realmd runs at pid %u\n", realmpid));
     return true;
 }
@@ -49,11 +49,11 @@ bool Service_Manager::run_proxyd()
     ACE_Process_Options pop;
     pop.command_line(proxyd_args.argv());
     pid_t proxyd_pid = pmgr->spawn(pop);
-    if(proxyd_pid == ACE_INVALID_PID)
+    if (proxyd_pid == ACE_INVALID_PID)
         return false;
 
     ServiceInfo* si = new ServiceInfo(proxyd_pid);
-    this->svcs.insert(std::pair<MorpheusServices, ServiceInfo*>(GAMESERVER,si));
+    svcs[GAMESERVER] = si;
     ACE_DEBUG((LM_DEBUG,"Proxyd runs at pid %u\n", proxyd_pid));
     return true;
 }
@@ -93,6 +93,7 @@ void Service_Manager::update_services()
 
         if (is_dead) {
             switch(iter->first) {
+            delete iter->second;
             case LOGINSERVER:
                 ACE_DEBUG((LM_DEBUG,"Restarting Realm Service\n"));
                 this->run_realmd();
@@ -105,7 +106,6 @@ void Service_Manager::update_services()
                 break;
             }
 
-            svcs.erase(iter);
             continue;
         }
         
