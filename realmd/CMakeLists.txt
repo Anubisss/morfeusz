@@ -23,6 +23,7 @@ add_custom_target(realmd_idl
 
 set_source_files_properties( 
     Proxy_EventsC.cpp
+    Proxy_EventsC.h
     PROPERTIES
     GENERATED TRUE
     LANGUAGE CXX)
