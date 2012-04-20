@@ -21,10 +21,10 @@ UpdateInterval = 5
 [proxyd]
 #this address is sent to clients, so it CANNOT BE "0.0.0.0"
 #to bind to multiple interfaces, run multiple proxies.
-BindAddr = 192.168.1.1:8899
+BindAddr = 192.168.1.1:8085
 NetThreads = 3
 #realm it is proxying for.
-RealmID = 0
+RealmID = 1
 ConnectionLimit = 1000
 #location of realms character database.
 DBUrl = localhost;3306;morpheus;morpheus;characters

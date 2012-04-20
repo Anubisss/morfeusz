@@ -61,7 +61,7 @@ public:
 private:
 
     Service_Manager() {};
-    std::map<MorpheusServices, ServiceInfo*> svcs;
+    std::multimap<MorpheusServices, ServiceInfo*> svcs;
 };
 
 #define sServiceManager Service_Manager::instance()

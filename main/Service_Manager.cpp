@@ -34,7 +34,7 @@ bool Service_Manager::run_realmd()
         return false;
 
     ServiceInfo *si = new ServiceInfo(realmpid);
-    svcs[LOGINSERVER] = si;
+    this->svcs.insert(std::pair<MorpheusServices, ServiceInfo*>(LOGINSERVER, si));
     ACE_DEBUG((LM_DEBUG,"Realmd runs at pid %u\n", realmpid));
     return true;
 }
@@ -53,7 +53,7 @@ bool Service_Manager::run_proxyd()
         return false;
 
     ServiceInfo* si = new ServiceInfo(proxyd_pid);
-    svcs[GAMESERVER] = si;
+    this->svcs.insert(std::pair<MorpheusServices, ServiceInfo*>(GAMESERVER, si));
     ACE_DEBUG((LM_DEBUG,"Proxyd runs at pid %u\n", proxyd_pid));
     return true;
 }
@@ -93,7 +93,6 @@ void Service_Manager::update_services()
 
         if (is_dead) {
             switch(iter->first) {
-            delete iter->second;
             case LOGINSERVER:
                 ACE_DEBUG((LM_DEBUG,"Restarting Realm Service\n"));
                 this->run_realmd();
@@ -105,6 +104,9 @@ void Service_Manager::update_services()
             default:
                 break;
             }
+            
+            delete iter->second;
+            this->svcs.erase(iter++); // I'm not sure this is correct - it might skip the next service
 
             continue;
         }
