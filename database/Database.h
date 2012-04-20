@@ -37,6 +37,7 @@
 #include <ace/Future.h>
 #include <ace/Activation_Queue.h>
 #include <ace/Task.h>
+#include "Log.h"
 
 #include "Driver.h"
 #include "Statement.h"
@@ -514,12 +515,12 @@ public:
         }
 
         if (error) {
-            printf("Error in transaction, rolling back...\n"); // FIXME: class Log
+            sLog->outError(LOG_FILTER_DB, "Error in transaction, rolling back...\n");
             db->rollback_transaction();
             return -1;
         }
         else {
-            printf("Transaction successful, committing\n"); // FIXME: class Log
+            sLog->outDetail(LOG_FILTER_DB, "Transaction successful, committing\n");
             db->commit_transaction();
             return 0;
         }

@@ -28,6 +28,7 @@ enum LogFilter
     LOG_FILTER_NONE     = 0x00000000,
     LOG_FILTER_SYSTEM   = 0x00000001,
     LOG_FILTER_CHARS    = 0x00000002,
+    LOG_FILTER_DB       = 0x00000004,
         
     LOG_FILTER_FULL     = 0xFFFFFFFF
 };
