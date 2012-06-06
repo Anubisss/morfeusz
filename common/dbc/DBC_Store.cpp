@@ -25,7 +25,7 @@
  *
  */
 
-#include <ace/OS_Dirent.h>
+#include <ace/OS.h>
 #include "DBC_Store.h"
 #include "DBC_File.h"
 #include "Configuration.h"
