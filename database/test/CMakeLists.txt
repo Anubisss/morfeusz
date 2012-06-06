@@ -1,16 +1,16 @@
 SET(testMysql_SRCS
-	test_mysql.cpp
-	)
+    test_mysql.cpp
+    )
 	
 SET(testSqlite_SRCS
-	test_sqlite.cpp
-	)
+    test_sqlite.cpp
+    )
 	
 include_directories(
-	${CMAKE_SOURCE_DIR}/src/common
-	${CMAKE_SOURCE_DIR}/src/database
-	
+    ${CMAKE_SOURCE_DIR}/src/common
+    ${CMAKE_SOURCE_DIR}/src/database
 )
+
 IF(MYSQL_FOUND)
 add_executable(test_mysql ${testMysql_SRCS})
 
