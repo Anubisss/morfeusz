@@ -1,0 +1,2 @@
+cmake -D_DEBUG=1 -D_SHOW_TRACE=1 -D_CLIENT_BUILD="tbc" -D_INSTALL_DIR=/home/anuka/bin/morpheus \
+-DCMAKE_PREFIX_PATH=/home/anuka/tao/complete ../
