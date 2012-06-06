@@ -39,7 +39,7 @@ DBThreads = 3
 NSLocation = corbaloc:iiop:127.0.0.1:9966
 
 [data]
-dbc=/home/morpheus/dbc/
+dbc=/home/morpheus/dbc
 
 [log]
 #directory where files will be stored

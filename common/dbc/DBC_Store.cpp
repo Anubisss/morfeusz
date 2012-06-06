@@ -38,7 +38,10 @@ namespace DBC
 
 void DBC_Store::open()
 {
-    this->path = sConfig->getString("data", "dbc"); 
+    this->path = sConfig->getString("data", "dbc");
+    // use / if needed at end of the path
+    if (this->path.length() > 0 && this->path[path.length() - 1] != '/')
+        this->path += '/';
 
     if (!ACE_OS::opendir(this->path.c_str()))
         ACE_DEBUG((LM_ERROR, "Couldn't open DBC directory: %s !\n", path.c_str()));
