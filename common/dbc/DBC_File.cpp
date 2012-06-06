@@ -37,10 +37,10 @@ DBC_File::DBC_File(const char* src)
 {
     this->file.open(src, std::fstream::binary);
     if (!file)
-        throw new DBC_Read_Exception("Could not open file!");
+        throw DBC_Read_Exception("Could not open file!", src);
 
     if (this->read_uint32() != 0x43424457)
-        throw new DBC_Read_Exception("File is not a valid DBC store.");
+        throw DBC_Read_Exception("File is not a valid DBC store.", src);
 
     this->records = this->read_uint32();
     this->fields = this->read_uint32();
@@ -53,6 +53,8 @@ DBC_File::DBC_File(const char* src)
     // Complete data size is records times records size. We add header size to it
     // And size of NULL that precedes string block.
     this->data_size = (this->records * this->record_size) + 20;
+
+    this->file_name = src;
 }
   
 uint32 DBC_File::read_uint32()
@@ -72,8 +74,7 @@ float DBC_File::read_float()
 std::string DBC_File::read_string()
 {
     if (this->string_block_size <= 1)
-        throw new DBC_Read_Exception("DBC doesn't have string block.");
-
+        throw DBC_Read_Exception("DBC doesn't have string block.", file_name);
 
     uint32 offset = this->read_uint32();
     uint32 get_ptr = this->file.tellg();

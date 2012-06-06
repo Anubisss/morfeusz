@@ -48,10 +48,10 @@ namespace DBC
 class DBC_DIR_Read_Exception
 {
 public:
-    DBC_DIR_Read_Exception(char const* msg) { _msg = msg; }
-    std::string What() const { return _msg; }
+    DBC_DIR_Read_Exception(std::string path) { _path = path; }
+    std::string What() const { return _path; }
 private:
-    std::string _msg;
+    std::string _path;
 };
 
 struct ItemEntry

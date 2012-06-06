@@ -33,6 +33,7 @@
 #include "Proxyd_EC_Communicator.h"
 #include "Proxy_Timer.h"
 #include "dbc/DBC_Store.h"
+#include "dbc/DBC_File.h"
 #include "Log.h"
 
 #include "ObjectMgr.h"
@@ -65,11 +66,24 @@ void Proxy_Service::start()
 #endif
     this->acceptor = new ProxydAcceptor();
 
-    sDBC->open();
-    sDBC->load_item_dbc();
-    sDBC->load_spell_item_enchantments_dbc();
-    sDBC->load_chr_races_dbc();
-    sDBC->load_chr_classes_dbc();
+    try
+    {
+        sDBC->open();
+        sDBC->load_item_dbc();
+        sDBC->load_spell_item_enchantments_dbc();
+        sDBC->load_chr_races_dbc();
+        sDBC->load_chr_classes_dbc();
+    }
+    catch (DBC::DBC_DIR_Read_Exception& e)
+    {
+        ACE_DEBUG((LM_ERROR, "Couldn't open DBC directory: %s\n", e.What().c_str()));
+        return;
+    }
+    catch (DBC::DBC_Read_Exception& e)
+    {
+        ACE_DEBUG((LM_ERROR, "[%s] - %s\n", e.File().c_str(), e.What().c_str()));
+        return;
+    }
 
     if (this->acceptor->
             open(ACE_INET_Addr(sConfig->getString("proxyd","BindAddr").c_str()),

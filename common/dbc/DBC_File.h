@@ -49,11 +49,13 @@ namespace DBC
 
 class DBC_Read_Exception
 {
-
 public:
-
-    DBC_Read_Exception(char* m) { msg += m; }
-    std::string msg;
+    DBC_Read_Exception(std::string msg, std::string file) { _msg = msg; _file = file; }
+    std::string What() const { return _msg; }
+    std::string File() const { return _file; }
+private:
+    std::string _msg;
+    std::string _file;
 };
 
 /**
@@ -102,6 +104,7 @@ private:
     uint32 field_size;
     uint32 fields;
 
+    std::string file_name;
     std::ifstream file;
 
     /**

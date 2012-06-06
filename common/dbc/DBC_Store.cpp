@@ -44,7 +44,7 @@ void DBC_Store::open()
         this->path += '/';
 
     if (!ACE_OS::opendir(this->path.c_str()))
-        throw new DBC_DIR_Read_Exception((std::string("Couldn't open DBC directory: ") + path).c_str());
+        throw DBC_DIR_Read_Exception(this->path);
 }
 
 void DBC_Store::load_item_dbc()
