@@ -114,6 +114,7 @@ void Proxy_Service::start()
         this->event_channel->connect();
     }
     catch (CORBA::Exception &e) {
+        ACE_DEBUG((LM_ERROR, "CORBA exception!\n"));
         delete orb_args;
         return;
     }
@@ -132,7 +133,7 @@ void Proxy_Service::start()
 
     this->database->load_player_createinfo();
     sObjectMgr->init_max_guids();
-    
+
     ACE_Thread_Manager::instance()->wait();
     return;
 }
