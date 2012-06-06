@@ -71,7 +71,8 @@ void EC_Communicator::connect()
         PROXY_LOG("Connected to Event Channel.\n");
     }
     catch (CORBA::Exception &e) {
-        PROXY_LOG("Couldn't connect to Event Channel!\nException thrown was of type: %s\n",e._name());
+        PROXY_LOG("Couldn't connect to Event Channel! - Exception thrown was of type: %s\n", e._name());
+        throw;
         return;
     }
 }
