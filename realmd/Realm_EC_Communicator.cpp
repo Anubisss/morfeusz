@@ -69,7 +69,8 @@ void EC_Communicator::connect()
         REALM_LOG("Connected to Event Channel.\n");
     }
     catch (CORBA::Exception &e) {
-        REALM_LOG("Couldn't connect to Event Channel!\nException thrown was of type: %s\n",e._name());
+        REALM_LOG("Couldn't connect to Event Channel! - Exception thrown was of type: %s\n", e._name());
+        throw;
         return;
     }
 }

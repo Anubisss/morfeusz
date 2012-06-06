@@ -72,18 +72,28 @@ void Realm_Service::start()
     this->database->open(sConfig->getString("realmd", "DBengine"),sConfig->getString("realmd", "DBUrl") );
 
     ACE_ARGV *orb_args = new ACE_ARGV;
-    orb_args->add("");
-    orb_args->add("-ORBInitRef");
-    std::string str = "NameService=";
-    str += sConfig->getString("corba","NSLocation");
-    str += "/NameService";
-    orb_args->add(str.c_str());
-    int argc = orb_args->argc();
-    REALM_LOG("Using %s\n", str.c_str());
-    this->orb = CORBA::ORB_init(argc, orb_args->argv(),NULL);
+    try
+    {
+        orb_args->add("");
+        orb_args->add("-ORBInitRef");
+        std::string str = "NameService=";
+        str += sConfig->getString("corba","NSLocation");
+        str += "/NameService";
+        orb_args->add(str.c_str());
+        int argc = orb_args->argc();
+        REALM_LOG("Using %s\n", str.c_str());
+        this->orb = CORBA::ORB_init(argc, orb_args->argv(),NULL);
+        event_channel = new EC_Communicator(this->orb.in());
+        event_channel->connect();
+    }
+    catch (CORBA::Exception &e)
+    {
+        ACE_DEBUG((LM_ERROR, "CORBA exception!\n"));
+        delete orb_args;
+        return;
+    }
+
     delete orb_args;
-    event_channel = new EC_Communicator(this->orb.in());
-    event_channel->connect();
 
     this->is_running = true;
     this->activate(THR_NEW_LWP | THR_JOINABLE, sConfig->getInt("realmd", "NetThreads"));
