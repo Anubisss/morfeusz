@@ -12,6 +12,8 @@ set(realmd_SRCS
     )
 
 include_directories(
+    ${ACE_INCLUDE_DIR}
+    ${TAO_INCLUDE_DIR}
     ${CMAKE_SOURCE_DIR}/configuration
     ${CMAKE_SOURCE_DIR}/database
     ${CMAKE_SOURCE_DIR}/common

@@ -4,6 +4,7 @@ SET(game_SRCS
     )
 
 include_directories(
+    ${ACE_INCLUDE_DIR}
     ${CMAKE_SOURCE_DIR}/common
     ${CMAKE_SOURCE_DIR}/database
     ${CMAKE_SOURCE_DIR}/proxyd

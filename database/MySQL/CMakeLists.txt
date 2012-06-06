@@ -9,6 +9,7 @@ SET(databaseMysql_SRCS
 	)
 	
 include_directories(
+    ${ACE_INCLUDE_DIR}
 	${CMAKE_SOURCE_DIR}/src/common
 	${MYSQL_INCLUDE_DIR}
 )
