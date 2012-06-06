@@ -64,7 +64,7 @@ void Proxy_Service::start()
     this->reactor = new ACE_Reactor(new ACE_TP_Reactor(), 1);
 #endif
     this->acceptor = new ProxydAcceptor();
-  
+
     sDBC->open();
     sDBC->load_item_dbc();
     sDBC->load_spell_item_enchantments_dbc();

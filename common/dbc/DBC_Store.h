@@ -41,6 +41,19 @@ namespace Morpheus
 namespace DBC
 {
 
+/**
+ *  @brief  Thrown when cannot read the DBC directory.
+ */
+
+class DBC_DIR_Read_Exception
+{
+public:
+    DBC_DIR_Read_Exception(char const* msg) { _msg = msg; }
+    std::string What() const { return _msg; }
+private:
+    std::string _msg;
+};
+
 struct ItemEntry
 {
     uint32 display_id;
