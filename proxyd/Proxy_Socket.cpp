@@ -254,7 +254,7 @@ void Proxy_Socket::handle_cmsg_ping()
     PROXY_TRACE;
     uint32 seq;
     *this->in_packet >> seq;
-    PROXY_LOG("PING: %u\n",seq);
+    // PROXY_LOG("PING: %u\n",seq);
     ServerPkt* pkt = new ServerPkt(SMSG_PONG, 4);
     *pkt << seq;
     this->send(pkt);

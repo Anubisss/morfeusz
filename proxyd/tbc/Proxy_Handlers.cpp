@@ -228,7 +228,7 @@ void Proxy_Socket::account_retrieved(bool state)
     char* s_char = BN_bn2hex(s);
     char* v_char = BN_bn2hex(v);
 
-    PROXY_LOG("s: %s \n\told v:%s\n\t v=%s\n", this->acct.s.c_str(),this->acct.v.c_str(),v_char);
+    // PROXY_LOG("s: %s \n\told v:%s\n\t v=%s\n", this->acct.s.c_str(),this->acct.v.c_str(),v_char);
 
     if (ACE_OS::strcmp(v_char, this->acct.v.c_str())) {
         BN_free(K);
@@ -266,7 +266,7 @@ void Proxy_Socket::account_retrieved(bool state)
 
     //std::reverse(check_digest, check_digest + SHA_DIGEST_LENGTH);
 
-    PROXY_LOG("memcmp %u\n",memcmp(check_digest, this->client_digest,20));
+    // PROXY_LOG("memcmp %u\n",memcmp(check_digest, this->client_digest,20));
 
     if (memcmp(check_digest, this->client_digest, 20)) {
         BN_free(K);
@@ -320,13 +320,15 @@ void Proxy_Socket::characters_retrieved(bool state)
         this->send(pkt);
         return;
     }
-  
-    PROXY_LOG("%u characters\n", this->characters.size());
 
     *pkt << (uint8)this->characters.size();
-  
-    for (std::list<Character>::const_iterator iter = this->characters.begin();iter != this->characters.end(); iter++) {
-        PROXY_LOG("%s \n", iter->name.c_str());
+
+    std::list<std::string> characterNames;
+
+    for (std::list<Character>::const_iterator iter = this->characters.begin();iter != this->characters.end(); iter++)
+    {
+        characterNames.push_back(iter->name);
+
         *pkt << uint64(uint64(iter->guid) | (uint64(0) <<24) | ( uint64(0) << 48) );
         *pkt << iter->name;
         *pkt << iter->race;
@@ -401,7 +403,18 @@ void Proxy_Socket::characters_retrieved(bool state)
         *pkt << (uint8)0;
         *pkt << (uint32)0;
     }
-  
+
+    std::string chrNamesStr;
+    for (std::list<std::string>::const_iterator itr = characterNames.begin();
+         itr != characterNames.end();)
+    {
+        chrNamesStr += *itr;
+        if (++itr != characterNames.end())
+            chrNamesStr += ", ";
+    }
+    PROXY_LOG("%u characters: %s\n", this->characters.size(), chrNamesStr.c_str());
+    characterNames.clear();
+
     this->send(pkt);
 }
 
@@ -424,7 +437,7 @@ void Proxy_Socket::handle_cmsg_char_create()
     *this->in_packet >> race;
     *this->in_packet >> pclass;
     
-    PROXY_LOG("Race: %u, Class: %u\n", race, pclass);
+    // PROXY_LOG("Race: %u, Class: %u\n", race, pclass);
     
     ServerPkt* pkt = new ServerPkt(SMSG_CHAR_CREATE, 1);
     
