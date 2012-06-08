@@ -156,7 +156,7 @@ void Proxy_Socket::process_incoming()
 
 #ifdef _MORPHEUS_DEBUG
     PROXY_LOG("Received packet 0x%X (%s), size: %u\n",this->in_packet->PeekOpcode(), OpcodesNames[this->in_packet->PeekOpcode()].c_str(), this->in_packet->PeekSize());
-    this->in_packet->hexlike();
+    // this->in_packet->hexlike();
 #endif
 
     switch (this->in_packet->PeekOpcode()) {
@@ -197,8 +197,8 @@ int Proxy_Socket::handle_output(ACE_HANDLE)
         ByteBuffer* buffer = this->packet_queue.front();
         ((ServerPkt*)buffer)->SetSize(buffer->size() - 4);
 #ifdef _MORPHEUS_DEBUG
-        PROXY_LOG("Sending packet:\n");
-        buffer->hexlike();
+        PROXY_LOG("Sending packet 0x%X (%s), size: %u\n", ((ServerPkt*)buffer)->Opcode(), OpcodesNames[((ServerPkt*)buffer)->Opcode()].c_str(), ((ServerPkt*)buffer)->Size());
+        // buffer->hexlike();
 #endif      
         if (!this->continue_send)
             this->crypto->encrypt(const_cast<uint8*>(buffer->contents()), 4);

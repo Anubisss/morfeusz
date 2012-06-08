@@ -466,6 +466,20 @@ public:
     }
 
     /**
+     *  @brief  Get opcode without moving internal read position.
+     */
+    uint16 Opcode()
+    {
+        size_t tmp;
+        uint16 ret;
+        tmp = _rpos;
+        _rpos = 2;
+        ret = read<uint16>();
+        _rpos = tmp;
+        return ret;
+    }
+
+    /**
      * @brief When setting size, we are ONLY talking 
      *        about size of data, size of header is 
      *        added to size of payload.
@@ -479,6 +493,21 @@ public:
         Utils::EndianConvertReverse<uint16>(size);
         append<uint16>(size);
         _wpos = tmp;
+    }
+
+    /**
+     *  @brief  Get size without moving read position.
+     */
+    uint16 Size()
+    {
+        size_t tmp;
+        uint16 ret;
+        tmp = _rpos;
+        _rpos = 0;
+        ret = read<uint16>();
+        _rpos = tmp;
+        Utils::EndianConvertReverse<uint16>(ret);
+        return ret;
     }
 };
 
