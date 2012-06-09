@@ -26,7 +26,7 @@
  */
 #include "Realm_Service.h"
 #include "Realm_EC_Communicator.h"
-#include "Proxy_EventsC.h"
+#include "idl/Proxy_EventsC.h"
 #include <orbsvcs/CosNamingC.h>
 
 namespace Morpheus

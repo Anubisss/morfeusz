@@ -26,9 +26,9 @@
  */
 
 #include "Proxy_Service.h"
-#include "Proxyd_EC_Communicator.h"
-#include "Proxy_EventsC.h"
 #include "Configuration.h"
+#include "Proxyd_EC_Communicator.h"
+#include "idl/Proxy_EventsC.h"
 #include <orbsvcs/CosNamingC.h>
 
 namespace Morpheus
