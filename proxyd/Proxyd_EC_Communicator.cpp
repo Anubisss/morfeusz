@@ -106,17 +106,15 @@ void EC_Communicator::announce()
     }
 }
 
-void EC_Communicator::push( const CORBA::Any &data)
+void EC_Communicator::push(const CORBA::Any &data)
 {
-    try {
+    CORBA::TypeCode_ptr dataType = data._tao_get_typecode();
+    if (dataType->equal(_tc_Proxy_Request))
+    {
         Morpheus::Proxy_Request* req;
-        if(data >>= req) {
-            if(req->realm_id == sProxy->get_realmid())
+        if (data >>= req)
+            if (req->realm_id == sProxy->get_realmid())
                 this->announce();
-        }
-    }
-    catch (CORBA::Exception &e) {
-      return;
     }
 }
 

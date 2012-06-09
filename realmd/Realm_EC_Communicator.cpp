@@ -88,16 +88,21 @@ void EC_Communicator::request_proxies_for_realm(uint8 id)
 
 void EC_Communicator::push(const CORBA::Any &data)
 {
-    Morpheus::Proxy_Announce* ann;
-    Morpheus::Proxy_Load_Report* report;
- 
-    if (data >>= ann) {
-        sRealm->add_proxy(ann->realm_id, std::string(CORBA::string_dup(ann->address)),
-                        ann->load);
+    CORBA::TypeCode_ptr dataType = data._tao_get_typecode();
+    if (dataType->equal(Morpheus::_tc_Proxy_Announce))
+    {
+        Morpheus::Proxy_Announce* ann;
+        if (data >>= ann)
+            sRealm->add_proxy(ann->realm_id,
+                              std::string(CORBA::string_dup(ann->address)),
+                              ann->load);
     }
-    else if(data >>= report) {
-        sRealm->add_proxy_load_report(std::string(CORBA::string_dup(report->address)),
-                                report->load);
+    else if (dataType->equal(Morpheus::_tc_Proxy_Load_Report))
+    {
+        Morpheus::Proxy_Load_Report* report;
+        if (data >>= report)
+            sRealm->add_proxy_load_report(std::string(CORBA::string_dup(report->address)),
+                                          report->load);
     }
 }
 
