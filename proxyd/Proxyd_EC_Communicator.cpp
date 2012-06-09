@@ -108,14 +108,20 @@ void EC_Communicator::announce()
 
 void EC_Communicator::push(const CORBA::Any &data)
 {
+    PROXY_TRACE;
     CORBA::TypeCode_ptr dataType = data._tao_get_typecode();
     if (dataType->equal(_tc_Proxy_Request))
     {
         Morpheus::Proxy_Request* req;
         if (data >>= req)
+        {
+            PROXY_LOG("[EVENT] %s | ID: %u\n", dataType->name(), req->realm_id);
             if (req->realm_id == sProxy->get_realmid())
                 this->announce();
+        }
     }
+    else
+        PROXY_LOG("[EVENT] %s | unhandled\n", dataType->name());
 }
 
 void EC_Communicator::report_load()
