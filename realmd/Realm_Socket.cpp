@@ -574,14 +574,13 @@ ByteBuffer* Realm_Socket::build_realm_packet()
             if (i->second.build != this->client_build)
                 continue;
 
+            std::string address = sRealm->get_proxy_for_realm(i->first);
+
             *pkt << (uint8) i->second.icon;
-            *pkt << (uint8) i->second.color;
+            *pkt << uint8(address == "" ? 0x02 : i->second.color); // if no proxy then mark the realm is offline
             *pkt << i->second.name;
-          
-            if (i->second.address == ":")
-                *pkt << sRealm->get_proxy_for_realm(i->first);
-            else
-                *pkt << i->second.address;
+
+            *pkt << address;
 
             *pkt << (float)i->second.population;
 
@@ -592,6 +591,14 @@ ByteBuffer* Realm_Socket::build_realm_packet()
 
             *pkt << (uint8) i->second.timezone;
             *pkt << (uint8) 0x00;
+
+#ifdef _MORPHEUS_DEBUG
+            if (address == "")
+                REALM_LOG("No proxy for realm: %s (%u)\n", i->second.name.c_str(), i->first);
+            else
+                REALM_LOG("Selected proxy for realm: %s (%u) | %s\n", i->second.name.c_str(), i->first, address.c_str());
+#endif
+
         }
     }
 
@@ -624,27 +631,30 @@ ByteBuffer* Realm_Socket::build_expansion_realm_packet()
     *pkt << (uint16) listSize;
   
     if (listSize > 0) {
-        for (i = realmlist->begin(); i != realmlist->end(); i++) {
+        for (i = realmlist->begin(); i != realmlist->end(); i++)
+        {
             if (i->second.build != this->client_build)
                 continue;
-          
+
+            std::string address = sRealm->get_proxy_for_realm(i->first);
+
             *pkt << uint8(i->second.icon);
             *pkt << uint8(i->second.allowedSecurityLevel > this->acct.gmlevel ? 1 : 0);
-            *pkt << uint8(i->second.color);
+            *pkt << uint8(address == "" ? 0x02 : i->second.color); // if no proxy then mark the realm is offline
             *pkt << i->second.name;
-
-            if(!i->second.address.compare(":0"))
-                *pkt << sRealm->get_proxy_for_realm(i->first);
-
-            else {
-                REALM_LOG("proxy: %s\n", i->second.address.c_str());
-                *pkt << i->second.address;
-            }
-
+            *pkt << address;
             *pkt << float(i->second.population);
             *pkt << uint8(this->realm_char_amount[i->first]);
             *pkt << uint8(i->second.timezone);
             *pkt << uint8(0x00);
+
+#ifdef _MORPHEUS_DEBUG
+            if (address == "")
+                REALM_LOG("No proxy for realm: %s (%u)\n", i->second.name.c_str(), i->first);
+            else
+                REALM_LOG("Selected proxy for realm: %s (%u) | %s\n", i->second.name.c_str(), i->first, address.c_str());
+#endif
+
         }
     }
     

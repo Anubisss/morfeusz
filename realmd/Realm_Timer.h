@@ -20,8 +20,8 @@
 /**
  *  @file
  *  @brief   Holds implementation of 
- *           Realm_Timer class that performs
- *           timed update to realmd.
+ *           Unban_Timer class that performs
+ *           timed update to prune bans.
  *  @author  raczman <raczman@gmail.com>
  *  @date    2009-11-02
  *  @ingroup Realmd
@@ -36,35 +36,17 @@ namespace Realmd
 {
 
 /**
- * @brief Timer that performs tasks for realmd
- * @details This class, being an inherit from ACE_Event_Handler
- *          contains only one function, which goes off at a time
- *          set in configuration file.
- */
-class Realm_Timer : public ACE_Event_Handler
-{
-
-private:
-
-    /**
-     * @brief Inherited from ACE_Event_Handler
-     * @details If there are any tasks that need to go at scheduled time,
-     *          put them in here.
-     */
-    int handle_timeout(const ACE_Time_Value &, const void *act)
-    {
-        sRealm->get_db()->get_realmlist();
-        return 0;
-    }
-};
-
-/**
- * @brief Prunes bans every minute.
+ *  @brief    Prunes bans every minute.
+ *  @details  This class, being an inherit from ACE_Event_Handler
+ *            contains only one function, which goes off at a time
+ *            set in configuration file.
  */
 class Unban_Timer : public ACE_Event_Handler
 {
     /**
-     * @see Realm_Timer::handle_timeout
+     * @brief    Inherited from ACE_Event_Handler
+     * @details  If there are any tasks that need to go at scheduled time,
+     *           put them in here.
      */
     int handle_timeout(const ACE_Time_Value &, const void* act)
     {

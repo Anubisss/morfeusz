@@ -65,8 +65,6 @@ void Realm_Service::start()
         delete acceptor;
         return;
     }
-
-    ACE_Time_Value tm(1 * 60 * sConfig->getInt("realmd","UpdateInterval"));
  
     this->database = new RealmDB(sConfig->getInt("realmd", "DBThreads"));
     this->database->open(sConfig->getString("realmd", "DBengine"),sConfig->getString("realmd", "DBUrl") );
@@ -98,7 +96,6 @@ void Realm_Service::start()
     this->is_running = true;
     this->activate(THR_NEW_LWP | THR_JOINABLE, sConfig->getInt("realmd", "NetThreads"));
     this->database->get_realmlist();
-    this->reactor->schedule_timer(new Realm_Timer(), 0, tm, tm);
     this->reactor->schedule_timer(new Unban_Timer(), 0, ACE_Time_Value(1), ACE_Time_Value(60));
     REALM_LOG("Started\n");
     ACE_Thread_Manager::instance()->wait();
@@ -116,26 +113,17 @@ void Realm_Service::update_realms(Morpheus::SQL::ResultSet* res)
     Realm rlm;
     uint32 id;
     while (res->next()) {
-        std::ostringstream oss;
-        oss.clear();
-        rlm.name = res->getString(2); 
-        oss << res->getString(3) << ":" << res->getUint16(4);
-        rlm.address = oss.str();
-        rlm.icon = res->getUint8(5);
-        rlm.color = res->getUint8(6);
-        rlm.timezone = res->getUint8(7);
-        rlm.allowedSecurityLevel = res->getUint8(8);
-        rlm.population = res->getFloat(9);
-        rlm.build = res->getUint16(10);
+        rlm.name = res->getString(2);
+        rlm.icon = res->getUint8(3);
+        rlm.color = res->getUint8(4);
+        rlm.timezone = res->getUint8(5);
+        rlm.allowedSecurityLevel = res->getUint8(6);
+        rlm.population = res->getFloat(7);
+        rlm.build = res->getUint16(8);
         id = res->getUint32(1);
         this->realm_map[id] = rlm;
 
-        if (!rlm.address.compare(":0")) {
-            if(this->proxies.find(id) == proxies.end())
-                this->event_channel->request_proxies_for_realm(id);
-        }
-
-        REALM_LOG("Added realm %s (ID: %u) %f\n",rlm.name.c_str(), res->getUint8(1), rlm.population);
+        REALM_LOG("Added realm %s (ID: %u) %f\n", rlm.name.c_str(), id, rlm.population);
     }
 }
 
@@ -168,10 +156,6 @@ void Realm_Service::add_proxy(uint8 realm, std::string ip, float load)
     REALM_TRACE;
     if (realm_map.find(realm) == realm_map.end())
         return;
-    if (!realm_map[realm].address.compare(":0")) {
-        REALM_LOG("Received incorrect Proxy Server (%s) for realm with TC1/TC2 gameserver!\n", ip.c_str());
-        return;
-    }
 
     std::pair<std::multimap<uint8, Proxy_Info>::iterator, 
         std::multimap<uint8, Proxy_Info>::iterator> ret;  //Fuck you stl.
@@ -210,19 +194,27 @@ void Realm_Service::add_proxy_load_report(std::string ip, float load)
 
 std::string Realm_Service::get_proxy_for_realm(uint8 id)
 {
-    REALM_TRACE;
-    std::multimap<uint8, Proxy_Info>::iterator ret, itr;
-    std::pair< std::multimap<uint8, Proxy_Info>::iterator,
-        std::multimap<uint8, Proxy_Info>::iterator > proxies_for_realm;
+    // get valid proxys for the realm id
+    std::list<Proxy_Info> proxies_for_realm;
+    for (std::multimap<uint8, Proxy_Info>::const_iterator itr = proxies.begin();
+         itr != proxies.end();
+         ++itr)
+        if (itr->first == id)
+            proxies_for_realm.push_back(itr->second);
 
-    proxies_for_realm = this->proxies.equal_range(id);
-    ret = proxies_for_realm.first;
-    for (itr = ret; itr != proxies_for_realm.second; itr++) {
-        if (itr->second.load < ret->second.load)
-            ret = itr;
-    }
-    
-    return ret->second.ip;
+    // there's no proxy for that realm
+    if (proxies_for_realm.empty())
+        return "";
+
+    // select the most lowest load
+    std::list<Proxy_Info>::const_iterator lowestLoad = proxies_for_realm.begin();
+    for (std::list<Proxy_Info>::const_iterator itr = lowestLoad;
+         itr != proxies_for_realm.end();
+         ++itr)
+        if (itr->load < lowestLoad->load)
+            lowestLoad = itr;
+
+    return lowestLoad->ip;
 }
 
 };

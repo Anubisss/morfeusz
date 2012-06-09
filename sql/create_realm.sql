@@ -75,8 +75,6 @@ DROP TABLE IF EXISTS `realmlist`;
 CREATE TABLE `realmlist` (
   `id` int(11) unsigned NOT NULL AUTO_INCREMENT,
   `name` varchar(32) NOT NULL DEFAULT '',
-  `address` varchar(32) NOT NULL DEFAULT '127.0.0.1',
-  `port` int(11) NOT NULL DEFAULT '8085',
   `icon` tinyint(3) unsigned NOT NULL DEFAULT '0',
   `color` tinyint(3) unsigned NOT NULL DEFAULT '2',
   `timezone` tinyint(3) unsigned NOT NULL DEFAULT '0',

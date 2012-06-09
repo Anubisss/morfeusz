@@ -63,7 +63,7 @@ bool RealmDatabaseConnection::open(const std::string& driver, const std::string&
         ADD_STMT(REALMD_DB_CHECK_ACCT_BAN, "SELECT UPPER(a.sha_pass_hash) , a.id, a.locked, a.last_ip, ab.active, a.failed_logins FROM account AS a LEFT OUTER JOIN account_banned AS ab ON ab.id = a.id AND ab.active = 1 WHERE a.username = ?");
         ADD_STMT(REALMD_DB_SET_S_V, "UPDATE account SET v = ?, s = ? WHERE username = ?");
         ADD_STMT(REALMD_DB_UPDATE_ACCOUNT, "UPDATE account SET sessionkey = ?, last_ip = ?, last_login = NOW(), locale = ?, failed_logins = 0 WHERE username = ?");
-        ADD_STMT(REALMD_DB_GET_REALMLIST, "SELECT id, name, address, port, icon, color, timezone, allowedSecurityLevel, population, gamebuild FROM realmlist WHERE color <>3 ORDER BY id");
+        ADD_STMT(REALMD_DB_GET_REALMLIST, "SELECT id, name, icon, color, timezone, allowedSecurityLevel, population, gamebuild FROM realmlist WHERE color <> 3 ORDER BY id");
         ADD_STMT(REALMD_DB_GET_NUMCHAR, "SELECT realmid, numchars FROM realmcharacters WHERE acctid = ?");
         ADD_STMT(REALMD_DB_UPDATE_ACCOUNT,"UPDATE account SET sessionkey = ?, last_ip = ?, last_login = NOW(), locale = ?, failed_logins = 0 WHERE username = ?");
         ADD_STMT(REALMD_DB_FIX_SV, "UPDATE account set s ='', v ='' where username = ?");

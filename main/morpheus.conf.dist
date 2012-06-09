@@ -15,8 +15,6 @@ WrongPassBan = 1
 WrongPassAmnt = 3
 #ban type, ip  or account
 WrongPassBanType = ip
-#Update interval for realmd's list of realms, in minutes.
-UpdateInterval = 5
 
 [proxyd]
 #this address is sent to clients, so it CANNOT BE "0.0.0.0"

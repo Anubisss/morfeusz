@@ -64,7 +64,6 @@ class EC_Communicator;
 struct Realm
 {
     std::string name;
-    std::string address;
     uint8 icon;
     uint8 color;
     uint8 timezone;
@@ -126,6 +125,12 @@ public:
 
     void add_proxy_load_report(std::string ip, float load);
 
+    /**
+     *  @brief    Get a proxy ip for a specific realm.
+     *  @details  Select the most lowest loaded proxy and
+     *            return with its address.
+     *            Return empty string if there is no proxy for that realm.
+     */
     std::string get_proxy_for_realm(uint8 id);
 
 private:
