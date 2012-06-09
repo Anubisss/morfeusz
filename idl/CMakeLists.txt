@@ -1,9 +1,9 @@
 set(idl_SRCS
-    Proxy_EventsC.cpp
-    Proxy_EventsC.h
-    Proxy_EventsC.inl
-    Proxy_EventsS.cpp
-    Proxy_EventsS.h
+    ${CMAKE_SOURCE_DIR}/idl/Proxy_EventsC.cpp
+    ${CMAKE_SOURCE_DIR}/idl/Proxy_EventsC.h
+    ${CMAKE_SOURCE_DIR}/idl/Proxy_EventsC.inl
+    ${CMAKE_SOURCE_DIR}/idl/Proxy_EventsS.cpp
+    ${CMAKE_SOURCE_DIR}/idl/Proxy_EventsS.h
 )
 
 include_directories(
