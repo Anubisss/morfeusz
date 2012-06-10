@@ -175,7 +175,7 @@ void Realm_Service::add_proxy(uint8 realm, std::string ip, float load)
     info.ip = ip;
     info.load = 0;
     proxies.insert(std::pair<uint8, Proxy_Info>(realm,info));
-    REALM_LOG("Received new proxy server for realm %u: %s\n",realm,ip.c_str());
+    REALM_LOG("Received new proxy server for realm %s (%u): %s\n", realm_map[realm].name.c_str(), realm, ip.c_str());
 }
 
 void Realm_Service::add_proxy_load_report(std::string ip, float load)
