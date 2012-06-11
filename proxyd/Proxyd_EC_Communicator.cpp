@@ -28,6 +28,7 @@
 #include "Proxy_Service.h"
 #include "Configuration.h"
 #include "Proxyd_EC_Communicator.h"
+#include "Proxy_Timer.h"
 #include "idl/Proxy_EventsC.h"
 #include <orbsvcs/CosNamingC.h>
 
@@ -108,7 +109,10 @@ void EC_Communicator::push(const CORBA::Any &data)
             if (req->realm_id == sProxy->get_realmid())
             {
                 // cancel the announce timer
-                sProxy->get_reactor()->cancel_timer(sProxy->announce_timer_id);
+                // 0 means that call handle_close in Proxy_Announce_Timer
+                sProxy->get_reactor()->cancel_timer(sProxy->announce_timer_id,
+                                                    NULL,
+                                                    0);
 
                 this->announce();
 

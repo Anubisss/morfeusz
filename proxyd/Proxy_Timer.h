@@ -46,6 +46,11 @@ class Proxy_Announce_Timer : public ACE_Event_Handler
         sProxy->get_event_channel()->announce();
         return 0;
     }
+    int handle_close(ACE_HANDLE, ACE_Reactor_Mask)
+    {
+        delete this;
+        return 0;
+    }
 };
 
 };
