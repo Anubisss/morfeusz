@@ -271,7 +271,7 @@ void Realm_Service::delete_proxy(std::string ip)
         else
             ++itr;
     }
-    ASSERT(false); // shouldn't happen
+    ASSERT(deleted); // shouldn't happen
     REALM_LOG("Proxy %s deleted\n", ip.c_str());
 }
 
