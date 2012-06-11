@@ -133,7 +133,11 @@ void Proxy_Service::start()
     sObjectMgr->init_max_guids();
 
     this->event_channel->announce();
-    this->reactor->schedule_timer(new Proxy_Announce_Timer(), 0, tm, tm);
+    this->announce_timer_id = this->reactor->schedule_timer(
+                                    new Proxy_Announce_Timer(),
+                                    0,
+                                    tm,
+                                    tm);
 
     ACE_Thread_Manager::instance()->wait();
     return;

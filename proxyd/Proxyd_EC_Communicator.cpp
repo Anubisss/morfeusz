@@ -106,7 +106,16 @@ void EC_Communicator::push(const CORBA::Any &data)
         {
             PROXY_LOG("[EVENT] %s | ID: %u\n", dataType->name(), req->realm_id);
             if (req->realm_id == sProxy->get_realmid())
+            {
+                // cancel the announce timer
+                sProxy->get_reactor()->cancel_timer(sProxy->announce_timer_id);
+
                 this->announce();
+
+                // restart the announce timer
+                ACE_Time_Value tm(sConfig->getInt("proxyd", "AnnounceInterval"));
+                sProxy->announce_timer_id = sProxy->get_reactor()->schedule_timer(new Proxy_Announce_Timer(), 0, tm, tm);
+            }
         }
     }
     else

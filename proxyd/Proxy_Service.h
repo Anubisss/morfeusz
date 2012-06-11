@@ -80,6 +80,8 @@ public:
     uint8 get_realmid() { return this->realm_id; }
     float load;
 
+    long announce_timer_id;
+
 private:
 
     Proxy_Service(){}
