@@ -97,6 +97,7 @@ void Realm_Service::start()
     this->activate(THR_NEW_LWP | THR_JOINABLE, sConfig->getInt("realmd", "NetThreads"));
     this->database->get_realmlist();
     this->reactor->schedule_timer(new Unban_Timer(), 0, ACE_Time_Value(1), ACE_Time_Value(60));
+
     REALM_LOG("Started\n");
     ACE_Thread_Manager::instance()->wait();
     return;
@@ -105,10 +106,11 @@ void Realm_Service::start()
 void Realm_Service::update_realms(Morpheus::SQL::ResultSet* res)
 {
     REALM_TRACE;
-    REALM_LOG("Updating realms\n");
 
     if (!res)
         return;
+
+    REALM_LOG("Updating realms\n");
 
     Realm rlm;
     uint32 id;
@@ -125,6 +127,7 @@ void Realm_Service::update_realms(Morpheus::SQL::ResultSet* res)
 
         REALM_LOG("Added realm %s (ID: %u) %f\n", rlm.name.c_str(), id, rlm.population);
     }
+    this->event_channel->request_proxies();
 }
 
 int Realm_Service::svc()
@@ -151,50 +154,130 @@ void Realm_Service::stop()
     this->database->close();
 }
 
+void Realm_Service::process_proxy_announce(Morpheus::Proxy_Announce const* announce)
+{
+    REALM_TRACE;
+
+    uint8 realm_id = announce->realm_id;
+    std::string address = CORBA::string_dup(announce->address);
+    float load = announce->load;
+
+    // invalid realm ID
+    if (realm_map.find(realm_id) == realm_map.end())
+    {
+        REALM_LOG("Realm doesn't exist: %u\n", realm_id);
+        return;
+    }
+
+    bool newProxy = false;
+    // definitely new proxy
+    if (proxies.find(realm_id) == proxies.end())
+        newProxy = true;
+    // maybe new maybe not
+    else
+    {
+        newProxy = true;
+        for (std::multimap<uint8, Proxy_Info>::const_iterator itr = proxies.begin();
+             itr != proxies.end();
+             ++itr)
+        {
+            // realm ID doesn't match
+            if (itr->first != realm_id)
+            {
+                // have another proxy with the same address but not same realm ID
+                // all these 2 proxies should be deleted
+                // and request new ones for these realm
+                if (itr->second.ip == address)
+                {
+
+#ifdef _MORPHEUS_DEBUG
+                    REALM_LOG("Proxy (%s) duplication, both proxies deleted and requesting new ones for the realms: %s (%u) - %s (%u)\n",
+                              address.c_str(),
+                              realm_map[itr->first].name.c_str(),
+                              itr->first,
+                              realm_map[realm_id].name.c_str(),
+                              realm_id);
+#endif
+
+                    delete_proxy(address);
+                    event_channel->request_proxies_for_realm(itr->first);
+                    event_channel->request_proxies_for_realm(realm_id);
+                    return;
+                }
+                continue;
+            }
+            if (itr->second.ip == address)
+            {
+                newProxy = false;
+                break;
+            }
+        }
+    }
+
+    if (newProxy)
+        add_proxy(realm_id, address, load);
+    else
+        update_proxy_load(address, load);
+}
+
 void Realm_Service::add_proxy(uint8 realm, std::string ip, float load)
 {
     REALM_TRACE;
-    if (realm_map.find(realm) == realm_map.end())
-        return;
-
-    std::pair<std::multimap<uint8, Proxy_Info>::iterator, 
-        std::multimap<uint8, Proxy_Info>::iterator> ret;  //Fuck you stl.
-  
-    std::multimap<uint8, Proxy_Info>::iterator itr;
-    ret = proxies.equal_range(realm);
-  
-    //Ignore nodes we know about.
-    for (itr = ret.first;itr != ret.second; ++itr) {
-        if (!itr->second.ip.compare(ip)) {
-            itr->second.load = load;
-            return;
-        }
-    }
-  
     Proxy_Info info;
     info.ip = ip;
-    info.load = 0;
-    proxies.insert(std::pair<uint8, Proxy_Info>(realm,info));
-    REALM_LOG("Received new proxy server for realm %s (%u): %s\n", realm_map[realm].name.c_str(), realm, ip.c_str());
+    info.load = load;
+    proxies.insert(std::pair<uint8, Proxy_Info>(realm, info));
+    REALM_LOG("Received new proxy server for realm %s (%u): %s\n",
+              realm_map[realm].name.c_str(),
+              realm,
+              ip.c_str());
 }
 
-void Realm_Service::add_proxy_load_report(std::string ip, float load)
+void Realm_Service::update_proxy_load(std::string ip, float load)
 {
     REALM_TRACE;
-    std::multimap<uint8, Proxy_Info>::iterator itr;
-    for (itr = proxies.begin();itr != proxies.end(); ++itr) {
-        if(!itr->second.ip.compare(ip)) {
+    for (std::multimap<uint8, Proxy_Info>::iterator itr = proxies.begin();
+         itr != proxies.end();
+         ++itr)
+    {
+        if (itr->second.ip == ip)
+        {
+
+#ifdef _MORPHEUS_DEBUG
+            REALM_LOG("%s | Proxy load updated: %f -> %f\n",
+                      ip.c_str(),
+                      itr->second.load,
+                      load);
+#endif
+
             itr->second.load = load;
-            return;
+            break;
         }
     }
+}
 
-    REALM_LOG("Received load report for node (%s) that is not registered as proxy server. This shouldn't happen.\n");
+void Realm_Service::delete_proxy(std::string ip)
+{
+    REALM_TRACE;
+    bool deleted = false;
+    for (std::multimap<uint8, Proxy_Info>::iterator itr = proxies.begin();
+         itr != proxies.end();)
+    {
+        if (itr->second.ip == ip)
+        {
+            proxies.erase(itr++);
+            deleted = true;
+        }
+        else
+            ++itr;
+    }
+    ASSERT(false); // shouldn't happen
+    REALM_LOG("Proxy %s deleted\n", ip.c_str());
 }
 
 std::string Realm_Service::get_proxy_for_realm(uint8 id)
 {
-    // get valid proxys for the realm id
+    // get proxies for the same realm id
     std::list<Proxy_Info> proxies_for_realm;
     for (std::multimap<uint8, Proxy_Info>::const_iterator itr = proxies.begin();
          itr != proxies.end();

@@ -557,7 +557,7 @@ ByteBuffer* Realm_Socket::build_realm_packet()
 {
     REALM_TRACE;
     ByteBuffer* pkt = new ByteBuffer;
-    std::map<uint8, Realm>* realmlist = sRealm->get_realmlist();
+    std::map<uint8, Realm> const* realmlist = sRealm->get_realmlist();
 
     uint16 listSize=0;
     std::map<uint8, Realm>::const_iterator i;
@@ -618,7 +618,7 @@ ByteBuffer* Realm_Socket::build_expansion_realm_packet()
 {
     REALM_TRACE;
     ByteBuffer* pkt = new ByteBuffer;
-    std::map<uint8, Realm>* realmlist = sRealm->get_realmlist();
+    std::map<uint8, Realm> const* realmlist = sRealm->get_realmlist();
   
     uint16 listSize=0;
     std::map<uint8, Realm>::const_iterator i;

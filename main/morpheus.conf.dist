@@ -32,6 +32,8 @@ RealmDB = realmd
 WorldDB = world
 DBengine = mysql
 DBThreads = 3
+# Interval for announce proxyd's details, in seconds.
+AnnounceInterval = 60
 
 [corba]
 NSLocation = corbaloc:iiop:127.0.0.1:9966

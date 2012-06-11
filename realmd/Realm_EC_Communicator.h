@@ -63,6 +63,11 @@ public:
     void disconnect_push_consumer();
 
     /**
+     *  @brief  Request proxies for all realms.
+     */
+    void request_proxies();
+
+    /**
      * @brief Realm Service calls this function to poll for proxy nodes
      */
     void request_proxies_for_realm(uint8 id);

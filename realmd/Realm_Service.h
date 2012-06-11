@@ -31,8 +31,9 @@
  */
 
 #ifndef sRealm
-#include <map>
 
+#include <map>
+#include "idl/Proxy_EventsC.h"
 #include <ace/Singleton.h>
 #include <ace/Acceptor.h>
 #include <ace/SOCK_Acceptor.h>
@@ -105,14 +106,14 @@ public:
      * @brief Realm_Service is a singleton, we are accessing it using mutexed instance call.
      */
     static Realm_Service* instance() { return ACE_Singleton<Realm_Service, ACE_Recursive_Thread_Mutex>::instance(); }
-    ACE_Reactor* get_reactor() { return reactor; }
+    ACE_Reactor* get_reactor() const { return reactor; }
 
     /**
      * @brief Threadbody for network handling threads.
      */
     int svc();
-    RealmDB* get_db() { return database; }
-    std::map<uint8, Realm>* get_realmlist() { return &realm_map; }
+    RealmDB* get_db() const { return database; }
+    std::map<uint8, Realm> const* get_realmlist() const { return &realm_map; }
 
     /**
      * @brief This is callbacked function, used to set realmlist.
@@ -121,9 +122,34 @@ public:
      */
     void update_realms(Morpheus::SQL::ResultSet*);
 
+    /**
+     *  @brief  Process the announce message from the EC.
+     */
+    void process_proxy_announce(Morpheus::Proxy_Announce const* announce);
+
+private:
+
+    /**
+     *  @brief  Add a new proxy to the proxy map.
+     */
     void add_proxy(uint8 realm, std::string ip, float load);
 
-    void add_proxy_load_report(std::string ip, float load);
+    /**
+     *  @brief  Update an existing proxy's load.
+     */
+    void update_proxy_load(std::string ip, float load);
+
+    /**
+     *  @brief  Delete proxy/proxies with specific ip.
+     */
+    void delete_proxy(std::string ip);
+
+public:
+
+    /**
+     *  @brief  Delete all proxies.
+     */
+    void delete_proxies() { proxies.clear(); }
 
     /**
      *  @brief    Get a proxy ip for a specific realm.

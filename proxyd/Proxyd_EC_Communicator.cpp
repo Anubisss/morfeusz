@@ -79,31 +79,20 @@ void EC_Communicator::connect()
 
 void EC_Communicator::disconnect_push_consumer()
 {
-    try {
-        PROXY_LOG("WARNING: Disconnected from Event Channel!\n");
-        this->supplier_proxy->disconnect_push_supplier ();
-    }
-    catch (CORBA::Exception &e) {
-        return;
-    }
+    PROXY_LOG("WARNING: Disconnected from Event Channel!\n");
+    this->supplier_proxy->disconnect_push_supplier ();
 }
 
 void EC_Communicator::announce()
 {
-    try {
-        Morpheus::Proxy_Announce ann;
-        ann.realm_id = sProxy->get_realmid();
-        ann.address = CORBA::string_dup(sConfig->getString("proxyd","BindAddr").c_str());
-        ann.load = sProxy->load;
+    Morpheus::Proxy_Announce ann;
+    ann.realm_id = sProxy->get_realmid();
+    ann.address = CORBA::string_dup(sConfig->getString("proxyd", "BindAddr").c_str());
+    ann.load = sProxy->load;
 
-        CORBA::Any any;
-        any <<= ann;
-        this->pusher->push(any);
-    }
-    catch (CORBA::Exception &e) {
-        PROXY_LOG("Exception thrown!\n");
-        return;
-    }
+    CORBA::Any any;
+    any <<= ann;
+    this->pusher->push(any);
 }
 
 void EC_Communicator::push(const CORBA::Any &data)
@@ -122,22 +111,6 @@ void EC_Communicator::push(const CORBA::Any &data)
     }
     else
         PROXY_LOG("[EVENT] %s | unhandled\n", dataType->name());
-}
-
-void EC_Communicator::report_load()
-{
-    try {
-        Morpheus::Proxy_Load_Report rep;
-        rep.address = CORBA::string_dup(sConfig->getString("proxyd","BindAddr").c_str());
-        rep.load = sProxy->load;
-
-        CORBA::Any any;
-        any <<= rep;
-        this->pusher->push(any);
-    }
-    catch (CORBA::Exception &e) {
-      return;
-    }
 }
 
 };

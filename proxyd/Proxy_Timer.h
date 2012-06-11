@@ -37,15 +37,13 @@ namespace Proxyd
 {
 
 /**
- * @brief This timer gets caled every minute,
- *        to broadcast load to existing realmd
- *        nodes.
-*/
-class Proxy_Timer : public ACE_Event_Handler
+ *  @brief  Announce proxy"s details at certain (taken from config) intervals.
+ */
+class Proxy_Announce_Timer : public ACE_Event_Handler
 {
-    int handle_timeout(const ACE_Time_Value &, const void*)
+    int handle_timeout(const ACE_Time_Value&, const void*)
     {
-        sProxy->get_event_channel()->report_load();
+        sProxy->get_event_channel()->announce();
         return 0;
     }
 };

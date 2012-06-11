@@ -52,14 +52,9 @@ public:
     virtual void disconnect_push_consumer();
 
     /**
-     * @brief Announces proxy node in cluster.
+     *  @brief  Announces proxy node in cluster.
      */
     void announce();
-
-    /**
-     * @brief Sends load reports.
-     */
-    void report_load();
 
 private:
 

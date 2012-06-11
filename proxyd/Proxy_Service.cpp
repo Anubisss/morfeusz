@@ -96,7 +96,7 @@ void Proxy_Service::start()
     }
 
     ACE_ARGV* orb_args = new ACE_ARGV;
-    ACE_Time_Value tm(60);
+    ACE_Time_Value tm(sConfig->getInt("proxyd", "AnnounceInterval"));
 
     try {
         orb_args->add("");
@@ -128,11 +128,12 @@ void Proxy_Service::start()
 
     this->activate(THR_NEW_LWP | THR_JOINABLE,
                 sConfig->getInt("proxyd","NetThreads"));
-    this->event_channel->announce();
-    this->reactor->schedule_timer(new Proxy_Timer(), 0, tm, tm);
 
     this->database->load_player_createinfo();
     sObjectMgr->init_max_guids();
+
+    this->event_channel->announce();
+    this->reactor->schedule_timer(new Proxy_Announce_Timer(), 0, tm, tm);
 
     ACE_Thread_Manager::instance()->wait();
     return;

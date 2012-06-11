@@ -75,6 +75,17 @@ void EC_Communicator::connect()
     }
 }
 
+void EC_Communicator::request_proxies()
+{
+    REALM_TRACE;
+    sRealm->delete_proxies(); // to make sure it's clean
+    std::map<uint8, Realm> const* realms = sRealm->get_realmlist();
+    for (std::map<uint8, Realm>::const_iterator itr = realms->begin();
+         itr != realms->end();
+         ++itr)
+        request_proxies_for_realm(itr->first);
+}
+
 void EC_Communicator::request_proxies_for_realm(uint8 id)
 {
     REALM_TRACE;
@@ -95,20 +106,12 @@ void EC_Communicator::push(const CORBA::Any &data)
         Morpheus::Proxy_Announce* ann;
         if (data >>= ann)
         {
-            REALM_LOG("[EVENT] %s | ID: %u Address: %s Load: %f\n", dataType->name(), ann->realm_id, CORBA::string_dup(ann->address), ann->load);
-            sRealm->add_proxy(ann->realm_id,
-                              CORBA::string_dup(ann->address),
-                              ann->load);
-        }
-    }
-    else if (dataType->equal(Morpheus::_tc_Proxy_Load_Report))
-    {
-        Morpheus::Proxy_Load_Report* report;
-        if (data >>= report)
-        {
-            REALM_LOG("[EVENT] %s | Address: %s Load: %f\n", dataType->name(), CORBA::string_dup(report->address), report->load);
-            sRealm->add_proxy_load_report(CORBA::string_dup(report->address),
-                                          report->load);
+            REALM_LOG("[EVENT] %s | ID: %u Address: %s Load: %f\n",
+                      dataType->name(),
+                      ann->realm_id,
+                      CORBA::string_dup(ann->address),
+                      ann->load);
+            sRealm->process_proxy_announce(ann);
         }
     }
     else

@@ -38,7 +38,7 @@ void ConfigurationHolder::reload()
 
     if (importer.import_config(configFile.c_str()) == -1) {  
         ACE_ERROR((LM_ERROR,"Couldn't open configuration file %s !\n", configFile.c_str()));
-        assert(false);
+        ASSERT(false);
     }
 }
 
