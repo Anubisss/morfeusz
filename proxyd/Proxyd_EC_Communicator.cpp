@@ -109,16 +109,22 @@ void EC_Communicator::push(const CORBA::Any &data)
             if (req->realm_id == sProxy->get_realmid())
             {
                 // cancel the announce timer
-                // 0 means that call handle_close in Proxy_Announce_Timer
-                sProxy->get_reactor()->cancel_timer(sProxy->announce_timer_id,
-                                                    NULL,
-                                                    0);
+                if (sProxy->announce_timer_id != -1)
+                {
+                    // 0 means that call handle_close in Proxy_Announce_Timer
+                    sProxy->get_reactor()->cancel_timer(sProxy->announce_timer_id,
+                                                        NULL,
+                                                        0);
+                }
 
                 this->announce();
 
                 // restart the announce timer
-                ACE_Time_Value tm(sConfig->getInt("proxyd", "AnnounceInterval"));
-                sProxy->announce_timer_id = sProxy->get_reactor()->schedule_timer(new Proxy_Announce_Timer(), 0, tm, tm);
+                if (sProxy->announce_timer_id != -1)
+                {
+                    ACE_Time_Value tm(sConfig->getInt("proxyd", "AnnounceInterval"));
+                    sProxy->announce_timer_id = sProxy->get_reactor()->schedule_timer(new Proxy_Announce_Timer(), 0, tm, tm);
+                }
             }
         }
     }

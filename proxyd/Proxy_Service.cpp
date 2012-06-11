@@ -57,6 +57,7 @@ void Proxy_Service::start()
     this->connection_limit = sConfig->getInt("proxyd","ConnectionLimit");
     this->realm_id = sConfig->getInt("proxyd","RealmID");
     this->current_connections = 0;
+    this->announce_timer_id = -1
   
 #if defined (ACE_HAS_EVENT_POLL) || defined (ACE_HAS_DEV_POLL)
     this->reactor = new ACE_Reactor(new ACE_Dev_Poll_Reactor());
