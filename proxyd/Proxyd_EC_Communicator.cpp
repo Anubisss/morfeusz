@@ -105,7 +105,11 @@ void EC_Communicator::push(const CORBA::Any &data)
         Morpheus::Proxy_Request* req;
         if (data >>= req)
         {
+
+#ifdef _MORPHEUS_DEBUG
             PROXY_LOG("[EVENT] %s | ID: %u\n", dataType->name(), req->realm_id);
+#endif
+
             if (req->realm_id == sProxy->get_realmid())
             {
                 // cancel the announce timer
@@ -128,8 +132,10 @@ void EC_Communicator::push(const CORBA::Any &data)
             }
         }
     }
+#ifdef _MORPHEUS_DEBUG
     else
         PROXY_LOG("[EVENT] %s | unhandled\n", dataType->name());
+#endif
 }
 
 };

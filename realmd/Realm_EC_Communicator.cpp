@@ -106,16 +106,23 @@ void EC_Communicator::push(const CORBA::Any &data)
         Morpheus::Proxy_Announce* ann;
         if (data >>= ann)
         {
+
+#ifdef _MORPHEUS_DEBUG
             REALM_LOG("[EVENT] %s | ID: %u Address: %s Load: %f\n",
                       dataType->name(),
                       ann->realm_id,
                       CORBA::string_dup(ann->address),
                       ann->load);
+#endif
+
             sRealm->process_proxy_announce(ann);
         }
     }
+    
+#ifdef _MORPHEUS_DEBUG
     else
         REALM_LOG("[EVENT] %s | unhandled\n", dataType->name());
+#endif
 }
 
 void EC_Communicator::disconnect_push_consumer()
