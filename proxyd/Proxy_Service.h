@@ -100,11 +100,11 @@ private:
 };
 
 //Logging macros
-#define PROXY_PREFIX ACE_TEXT("PROXYD: ")
+#define PROXY_PREFIX ACE_TEXT("(%P|%t|%T) PROXYD: ")
 #define PROXY_LOG(...) ACE_DEBUG((LM_INFO, PROXY_PREFIX __VA_ARGS__))
 
 #ifdef _SHOW_TRACE
-#define PROXY_TRACE ACE_DEBUG((LM_DEBUG,"%s\n", __PRETTY_FUNCTION__))
+#define PROXY_TRACE ACE_DEBUG((LM_DEBUG,"(%P|%t|%T) %s\n", __PRETTY_FUNCTION__))
 #else
 #define PROXY_TRACE NULL
 #endif

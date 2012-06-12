@@ -183,7 +183,7 @@ private:
 /**
  * @brief Prefix for log macro.
  */
-#define REALM_PREFIX ACE_TEXT("REALMD: ")
+#define REALM_PREFIX ACE_TEXT("(%P|%t|%T) REALMD: ")
 
 /**
  * @brief Logging macro. Outputs messages in "REALMD: %s" format.
@@ -191,7 +191,7 @@ private:
 #define REALM_LOG(...) ACE_DEBUG((LM_INFO, REALM_PREFIX __VA_ARGS__))
 
 #ifdef _SHOW_TRACE
-#define REALM_TRACE ACE_DEBUG((LM_DEBUG,"%s\n", __PRETTY_FUNCTION__))
+#define REALM_TRACE ACE_DEBUG((LM_DEBUG,"(%P|%t|%T) %s\n", __PRETTY_FUNCTION__))
 #else
 #define REALM_TRACE NULL
 #endif
