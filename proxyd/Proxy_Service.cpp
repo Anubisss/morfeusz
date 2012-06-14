@@ -165,6 +165,7 @@ void Proxy_Service::stop()
     PROXY_LOG("Proxy shutting down...\n");
     this->event_channel->shutdowned();
     this->is_running = false;
+    this->database->close();
 }
 
 int Proxy_Service::svc()

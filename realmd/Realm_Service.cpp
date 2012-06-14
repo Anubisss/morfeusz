@@ -42,6 +42,17 @@ namespace Morpheus
 namespace Realmd
 {
 
+class Realm_Signal_Handler : public ACE_Event_Handler
+{
+public:
+    int handle_signal(int signum, siginfo_t*, ucontext_t*)
+    {
+        REALM_LOG("[SIGNAL] %s (%d) occured\n", ACE_OS::strsignal(signum), signum);
+        sRealm->stop();
+        return 0;
+    }
+};
+
 void Realm_Service::start()
 {
     REALM_TRACE;
@@ -98,6 +109,11 @@ void Realm_Service::start()
     this->database->get_realmlist();
     this->reactor->schedule_timer(new Unban_Timer(), 0, ACE_Time_Value(1), ACE_Time_Value(60));
 
+    // register the signal handler
+    Realm_Signal_Handler realm_sig_handler;
+    ACE_Sig_Handler sig_handler;
+    sig_handler.register_handler(SIGINT, &realm_sig_handler);
+
     REALM_LOG("Started\n");
     ACE_Thread_Manager::instance()->wait();
     return;
@@ -150,7 +166,6 @@ void Realm_Service::stop()
 {
     REALM_TRACE;
     this->is_running = false;
-    this->reactor->end_reactor_event_loop();
     this->database->close();
 }
 

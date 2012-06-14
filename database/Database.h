@@ -265,9 +265,7 @@ public:
      */
     bool close()
     {
-        for (int i = 0; i < connections.size(); i++)
-            this->enqueue(NULL);
-
+        this->queue->queue()->close();
         return true;
     }
 
