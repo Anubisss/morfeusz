@@ -36,6 +36,7 @@
 #include <ace/SOCK_Acceptor.h>
 #include "Proxy_Socket.h"
 #include "Proxy_Database.h"
+#include "Proxyd_EC_Communicator.h"
 
 class ACE_Reactor;
 using namespace Morpheus::DatabaseAccess;

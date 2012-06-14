@@ -96,6 +96,16 @@ void EC_Communicator::announce()
     this->pusher->push(any);
 }
 
+void EC_Communicator::shutdowned()
+{
+    Morpheus::Proxy_Shutdowned proxy;
+    proxy.address = CORBA::string_dup(sConfig->getString("proxyd", "BindAddr").c_str());
+
+    CORBA::Any any;
+    any <<= proxy;
+    this->pusher->push(any);
+}
+
 void EC_Communicator::push(const CORBA::Any &data)
 {
     PROXY_TRACE;
@@ -105,7 +115,6 @@ void EC_Communicator::push(const CORBA::Any &data)
         Morpheus::Proxy_Request* req;
         if (data >>= req)
         {
-
 #ifdef _MORPHEUS_DEBUG
             PROXY_LOG("[EVENT] %s | ID: %u\n", dataType->name(), req->realm_id);
 #endif

@@ -44,6 +44,17 @@ namespace Morpheus
 namespace Proxyd
 {
 
+class Proxy_Signal_Handler : public ACE_Event_Handler
+{
+public:
+    int handle_signal(int signum, siginfo_t*, ucontext_t*)
+    {
+        PROXY_LOG("[SIGNAL] %s (%d) occured\n", ACE_OS::strsignal(signum), signum);
+        sProxy->stop();
+        return 0;
+    }
+};
+
 void Proxy_Service::start()
 {
     PROXY_TRACE;
@@ -140,8 +151,20 @@ void Proxy_Service::start()
                                     tm,
                                     tm);
 
+    // register the signal handler
+    Proxy_Signal_Handler proxy_sig_handler;
+    ACE_Sig_Handler sig_handler;
+    sig_handler.register_handler(SIGINT, &proxy_sig_handler);
+
     ACE_Thread_Manager::instance()->wait();
     return;
+}
+
+void Proxy_Service::stop()
+{
+    PROXY_LOG("Proxy shutting down...\n");
+    this->event_channel->shutdowned();
+    this->is_running = false;
 }
 
 int Proxy_Service::svc()

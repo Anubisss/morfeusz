@@ -139,17 +139,17 @@ private:
      */
     void update_proxy_load(std::string ip, float load);
 
-    /**
-     *  @brief  Delete proxy/proxies with specific ip.
-     */
-    void delete_proxy(std::string ip);
-
 public:
 
     /**
      *  @brief  Delete all proxies.
      */
     void delete_proxies() { proxies.clear(); }
+
+    /**
+     *  @brief  Delete proxy/proxies with specific ip.
+     */
+    void delete_proxy(std::string ip);
 
     /**
      *  @brief    Get a proxy ip for a specific realm.

@@ -41,6 +41,7 @@ module Morpheus
 
         /**
          *  @brief  Address of proxy node, in ip:port form.
+         *          This is proxy's unique ID.
          */
         string address;
 
@@ -56,6 +57,18 @@ module Morpheus
     struct Proxy_Request
     {
         unsigned short realm_id;
+    };
+
+    /**
+     *  @brief  Broadcast that this proxy is shutdowned.
+     */
+    struct Proxy_Shutdowned
+    {
+        /**
+         *  @brief  Proxy ID.
+         *          Tells that which proxy shutdowned.
+         */
+        string address;
     };
 
 };

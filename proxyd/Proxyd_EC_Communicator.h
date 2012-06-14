@@ -55,6 +55,11 @@ public:
      *  @brief  Announces proxy node in cluster.
      */
     void announce();
+    
+    /**
+     *  @brief  Announces proxy node is just shutdowned.
+     */
+    void shutdowned();
 
 private:
 

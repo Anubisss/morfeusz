@@ -106,7 +106,6 @@ void EC_Communicator::push(const CORBA::Any &data)
         Morpheus::Proxy_Announce* ann;
         if (data >>= ann)
         {
-
 #ifdef _MORPHEUS_DEBUG
             REALM_LOG("[EVENT] %s | ID: %u Address: %s Load: %f\n",
                       dataType->name(),
@@ -116,6 +115,20 @@ void EC_Communicator::push(const CORBA::Any &data)
 #endif
 
             sRealm->process_proxy_announce(ann);
+        }
+    }
+    else if (dataType->equal(Morpheus::_tc_Proxy_Shutdowned))
+    {
+        Morpheus::Proxy_Shutdowned* proxy;
+        if (data >>= proxy)
+        {
+            std::string address(CORBA::string_dup(proxy->address));
+
+#ifdef _MORPHEUS_DEBUG
+            REALM_LOG("[EVENT] %s | Address: %s\n", dataType->name(), address.c_str());
+#endif
+
+            sRealm->delete_proxy(address);
         }
     }
 
