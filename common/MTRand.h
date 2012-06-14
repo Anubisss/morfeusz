@@ -1,12 +1,12 @@
-/* 
+/*
 A C-program for MT19937, with initialization improved 2002/1/26.
 Coded by Takuji Nishimura and Makoto Matsumoto.
 
-Before using, initialize the state by using init_genrand(seed)  
+Before using, initialize the state by using init_genrand(seed)
 or init_by_array(init_key, key_length).
 
 Copyright (C) 1997 - 2002, Makoto Matsumoto and Takuji Nishimura,
-All rights reserved.                          
+All rights reserved.
 
 Redistribution and use in source and binary forms, with or without
 modification, are permitted provided that the following conditions
@@ -19,8 +19,8 @@ notice, this list of conditions and the following disclaimer.
 notice, this list of conditions and the following disclaimer in the
 documentation and/or other materials provided with the distribution.
 
-3. The names of its contributors may not be used to endorse or promote 
-products derived from this software without specific prior written 
+3. The names of its contributors may not be used to endorse or promote
+products derived from this software without specific prior written
 permission.
 
 THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS
@@ -40,10 +40,10 @@ Any feedback is very welcome.
 http://www.math.sci.hiroshima-u.ac.jp/~m-mat/MT/emt.html
 email: m-mat @ math.sci.hiroshima-u.ac.jp (remove space)
 
-Reference: M. Matsumoto and T. Nishimura, "Mersenne Twister: 
+Reference: M. Matsumoto and T. Nishimura, "Mersenne Twister:
 A 623-Dimensionally Equidistributed Uniform Pseudo-Random Number Generator",
 ACM Transactions on Modeling and Computer Simulation, Vol. 8, No. 1,
-January 1998, pp 3--30. 
+January 1998, pp 3--30.
 */
 
 // C++ wrapped up by Changjiang Yang, more important: make it thread-safe.
@@ -55,9 +55,9 @@ January 1998, pp 3--30.
 #include <ace/Singleton.h>
 
 namespace Morpheus {
-  
+
 class MersenneTwist {
-    /* Period parameters */  
+    /* Period parameters */
     static const int N = 624;
     static const int M = 397;
     static const unsigned long MATRIX_A = 0x9908b0dfUL;   /* constant vector a */
@@ -70,9 +70,9 @@ class MersenneTwist {
 public:
 
     static MersenneTwist* instance() { return ACE_Singleton<MersenneTwist, ACE_Recursive_Thread_Mutex>::instance(); }
-  
+
     MersenneTwist() /*: mti(N+1) */{init_genrand(static_cast<unsigned long>(time(NULL)));}
-  
+
     /* initializes mt[N] with a seed */
     //   Note:  Initializing TWISTER to the scalar integer state 0 actually
     //   corresponds to the C call init_genrand(5489).
@@ -80,7 +80,7 @@ public:
     {
         mt[0]= s & 0xffffffffUL;
         for (mti=1; mti<N; mti++) {
-            mt[mti] = (1812433253UL * (mt[mti-1] ^ (mt[mti-1] >> 30)) + mti); 
+            mt[mti] = (1812433253UL * (mt[mti-1] ^ (mt[mti-1] >> 30)) + mti);
             /* See Knuth TAOCP Vol2. 3rd Ed. P.106 for multiplier. */
             /* In the previous versions, MSBs of the seed affect   */
             /* only MSBs of the array mt[].                        */
@@ -89,7 +89,7 @@ public:
             /* for >32 bit machines */
         }
     }
-  
+
     /* initialize by an array with array-length */
     /* init_key is the array for initializing keys */
     /* key_length is its length */
@@ -129,28 +129,28 @@ public:
                 i=1;
             }
         }
-        
-        mt[0] = 0x80000000UL; /* MSB is 1; assuring non-zero initial array */ 
+
+        mt[0] = 0x80000000UL; /* MSB is 1; assuring non-zero initial array */
     }
-  
+
     /* generates a random number on [0,0xffffffff]-interval */
     unsigned long genrand_int32(void)
     {
         unsigned long y;
         static unsigned long mag01[2] = { 0x0UL, MATRIX_A };
         /* mag01[x] = x * MATRIX_A  for x=0,1 */
-        
+
         if (mti >= N) { /* generate N words at one time */
             int kk;
-          
+
             if (mti == N+1)   /* if init_genrand() has not been called, */
                 init_genrand(5489UL); /* a default initial seed is used */
-              
+
             for (kk=0;kk<N-M;kk++) {
                 y = (mt[kk]&UPPER_MASK)|(mt[kk+1]&LOWER_MASK);
                 mt[kk] = mt[kk+M] ^ (y >> 1) ^ mag01[y & 0x1UL];
             }
-            
+
             for ( ; kk<N-1; kk++) {
                 y = (mt[kk]&UPPER_MASK)|(mt[kk+1]&LOWER_MASK);
                 mt[kk] = mt[kk+(M-N)] ^ (y >> 1) ^ mag01[y & 0x1UL];
@@ -158,53 +158,53 @@ public:
 
             y = (mt[N-1]&UPPER_MASK)|(mt[0]&LOWER_MASK);
             mt[N-1] = mt[M-1] ^ (y >> 1) ^ mag01[y & 0x1UL];
-              
+
             mti = 0;
         }
-        
+
         y = mt[mti++];
-        
+
         /* Tempering */
         y ^= (y >> 11);
         y ^= (y << 7) & 0x9d2c5680UL;
         y ^= (y << 15) & 0xefc60000UL;
         y ^= (y >> 18);
-        
+
         return y;
     }
-  
+
     /* generates a random number on [0,0x7fffffff]-interval */
     long genrand_int31(void)
     {
         return (long)(genrand_int32()>>1);
     }
-  
+
     /* generates a random number on [0,1]-real-interval */
     double genrand_real1(void)
     {
-        return genrand_int32()*(1.0/4294967295.0); 
-        /* divided by 2^32-1 */ 
+        return genrand_int32()*(1.0/4294967295.0);
+        /* divided by 2^32-1 */
     }
-  
+
     /* generates a random number on [0,1)-real-interval */
     double genrand_real2(void)
     {
-        return genrand_int32()*(1.0/4294967296.0); 
+        return genrand_int32()*(1.0/4294967296.0);
         /* divided by 2^32 */
     }
-  
+
     /* generates a random number on (0,1)-real-interval */
     double genrand_real3(void)
     {
-        return (((double)genrand_int32()) + 0.5)*(1.0/4294967296.0); 
+        return (((double)genrand_int32()) + 0.5)*(1.0/4294967296.0);
         /* divided by 2^32 */
     }
-  
+
     /* generates a random number on [0,1) with 53-bit resolution*/
-    double genrand_res53(void) 
-    { 
-        unsigned long a=genrand_int32()>>5, b=genrand_int32()>>6; 
-        return(a*67108864.0+b)*(1.0/9007199254740992.0); 
+    double genrand_res53(void)
+    {
+        unsigned long a=genrand_int32()>>5, b=genrand_int32()>>6;
+        return(a*67108864.0+b)*(1.0/9007199254740992.0);
     }
 
 };

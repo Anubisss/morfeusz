@@ -38,9 +38,9 @@ namespace Morpheus
 namespace DatabaseAccess
 {
 
-    RealmDatabaseConnection::RealmDatabaseConnection(ACE_Activation_Queue* q) 
+    RealmDatabaseConnection::RealmDatabaseConnection(ACE_Activation_Queue* q)
         : DatabaseConnection(q)
-    {} 
+    {}
 
     RealmDatabaseConnection::~RealmDatabaseConnection()
     {
@@ -78,7 +78,7 @@ bool RealmDatabaseConnection::open(const std::string& driver, const std::string&
         ACE_ERROR((LM_ERROR,"Error when setting up connection: %s\n",e.what() ));
         ACE_OS::exit(-1);
     }
-    
+
     return true;
 }
 #undef ADD_STMT

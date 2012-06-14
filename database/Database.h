@@ -54,8 +54,8 @@ namespace Morpheus
 * @brief Abstraction layer for accessing database.
 * @details This namespace contains classes and structures
 *          used while accessing database, regardless of its
-*          storage backend. If you are interested in 
-*          actual connectors, please see Morpheus::SQL 
+*          storage backend. If you are interested in
+*          actual connectors, please see Morpheus::SQL
 *          namespace.
 */
 namespace DatabaseAccess
@@ -163,7 +163,7 @@ public:
     {
         db = new_db;
     }
-    
+
     /**
      * @brief Returns database used
      */
@@ -171,17 +171,17 @@ public:
     {
         return db;
     }
-    
+
     /**
      * @brief Assign the specified result to the sql op.
-     * 
+     *
      */
     void set_result(ACE_Future<SQL::ResultSet*>& future)
     {
         result = future;
         has_result = true;
     }
-    
+
     /**
      * @brief Returns the associated statement, mainly for debugging purposes.
      */
@@ -297,7 +297,7 @@ public:
             sql_op->set_result(*future_result);
             allocated = true;
         }
-	
+
         if (prio == PRIORITY_LOW)
             this->enqueue(sql_op);
         else
@@ -367,7 +367,7 @@ public:
     {
         return statement_holder[index];
     }
-    
+
     /**
      * @brief Rollback the current transaction. IMPORTANT: Don't forget that DB engine MUST support transactions to use this.
      * InnoDB does, MyISAM doesn't.
@@ -377,7 +377,7 @@ public:
         this->connection->rollback();
         //this->connection->setAutoCommit(true);
     }
-    
+
     /**
      * @brief Commit the current transaction. IMPORTANT: Don't forget that DB engine MUST support transactions to use this.
      * InnoDB does, MyISAM doesn't.
@@ -387,12 +387,12 @@ public:
         this->connection->commit();
         //this->connection->setAutoCommit(true);
     }
-    
+
     bool getAutoCommit()
     {
         return connection->getAutoCommit();
     }
-    
+
     void setAutoCommit(bool autoCommit)
     {
         connection->setAutoCommit(autoCommit);
@@ -453,8 +453,8 @@ public:
 };
 
 /**
- * @brief Execute several queries in a row, in the given order, and 
- *        revert all queries if one fails for some reason. Autocommit is restored 
+ * @brief Execute several queries in a row, in the given order, and
+ *        revert all queries if one fails for some reason. Autocommit is restored
  *        in its initial state after the transaction is done.
  */
 class SqlOperationTransaction : public SqlOperationBase
@@ -469,7 +469,7 @@ public:
         //autocommit_state = db->getAutoCommit();
         printf("Beginning transaction.\n");
     }
-    
+
     /**
      * @brief Destructor. Restore previous state of autocommit.
      */
@@ -483,7 +483,7 @@ public:
 
         db->setAutoCommit(autocommit_state);
     }
-    
+
     /**
      * @brief Append the statement to the transaction.
      */
@@ -491,7 +491,7 @@ public:
     {
         requests.push(req);
     }
-    
+
     /**
      * @brief Worker threads of DB connection call this function.
      */
@@ -509,7 +509,7 @@ public:
                 error = true;
                 break;
             }
-            
+
             delete req;
             requests.pop();
         }
@@ -524,10 +524,10 @@ public:
             db->commit_transaction();
             return 0;
         }
-        
+
         return 0;
     }
-    
+
 private:
 
     bool autocommit_state;

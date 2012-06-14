@@ -59,7 +59,7 @@ namespace Proxyd
  */
 class Proxy_Service : public ACE_Task_Base
 {
-    friend class ACE_Singleton<Proxy_Service, ACE_Recursive_Thread_Mutex>;  
+    friend class ACE_Singleton<Proxy_Service, ACE_Recursive_Thread_Mutex>;
 
 public:
 
@@ -74,7 +74,7 @@ public:
      * @param up true for +1, false for -1
      */
     void update_connections(bool up);
-  
+
     ProxyDB* get_db() { return this->database; }
     EC_Communicator* get_event_channel() { return event_channel; }
     uint8 get_realmid() { return this->realm_id; }

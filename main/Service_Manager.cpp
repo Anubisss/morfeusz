@@ -25,7 +25,7 @@ bool Service_Manager::run_realmd()
     ACE_ARGV realmd_args;
     realmd_args.add(this->args.argv()[0]);
     realmd_args.add("runrealmd");
-  
+
     ACE_Process_Manager* pmgr = ACE_Process_Manager::instance();
     ACE_Process_Options pop;
     pop.command_line(realmd_args.argv());
@@ -65,17 +65,17 @@ void Service_Manager::update_services()
     for (iter = svcs.begin();iter != svcs.end(); iter++) {
         if (iter->second->status == OFF)
             continue;
-        
+
         bool is_dead = false;
         char path[ 6 + 6 + 5];
         ACE_OS::sprintf(path,"/proc/%u/stat", iter->second->pid);
         ACE_HANDLE status_file = ACE_OS::open(path, GENERIC_READ);
-          
+
         if (status_file == ACE_INVALID_HANDLE) {
             ACE_DEBUG((LM_DEBUG,"Service has crashed.\n"));
             is_dead = true;
         }
-          
+
         if (!is_dead) {
             char *buf = new char[100]; //please excuse me this waste of bytes.
             char delim[] = " ";
@@ -104,13 +104,13 @@ void Service_Manager::update_services()
             default:
                 break;
             }
-            
+
             delete iter->second;
             this->svcs.erase(iter++); // I'm not sure this is correct - it might skip the next service
 
             continue;
         }
-        
+
         ACE_OS::close(status_file);
     }
 }

@@ -19,7 +19,7 @@
 
 /**
  *  @file
- *  @brief   Definition of DBC_Store singleton, as well as data-holding structures. 
+ *  @brief   Definition of DBC_Store singleton, as well as data-holding structures.
  *  @author  raczman <raczman@gmail.com>
  *  @date    2009-12-29
  *
@@ -134,7 +134,7 @@ public:
     void load_spell_item_enchantments_dbc();
     void load_chr_races_dbc();
     void load_chr_classes_dbc();
-    
+
     item_map* get_item_map() { return &items; }
     spell_item_ench_map* get_spell_item_ench_map() { return &spell_item_enchantments; }
     chr_races_map* get_chr_races_map() { return &chr_races; }

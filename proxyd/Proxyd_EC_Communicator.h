@@ -26,7 +26,7 @@
  */
 
 #ifndef _PROXY_EC_COMMUNICATOR_H
-#define _PROXY_EC_COMMUNICATOR_H  
+#define _PROXY_EC_COMMUNICATOR_H
 #include <orbsvcs/CosEventCommS.h>
 #include <orbsvcs/CosEventChannelAdminC.h>
 

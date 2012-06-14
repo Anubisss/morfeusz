@@ -34,7 +34,7 @@
 namespace Morpheus
 {
 
-/* 
+/*
  * @brief List of Opcodes
  */
 enum Opcodes

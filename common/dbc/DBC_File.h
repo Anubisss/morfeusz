@@ -19,7 +19,7 @@
 
 /**
  *  @file
- *  @brief   
+ *  @brief
  *  @author  raczman <raczman@gmail.com>
  *  @date    2009-12-29
  *
@@ -69,15 +69,15 @@ private:
 *        - number of fields in each record
 *        - size of record
 *        - string block size.
-*        
-*        After header, comes data section, of size record_size*records. 
+*
+*        After header, comes data section, of size record_size*records.
 *        Last section is string block, which contains null terminated strings.
 *        When referencing to a string, DBC just marks an offset into string bblock from which to read.
-* 
+*
 */
 class DBC_File
 {
-    
+
 public:
 
     /**

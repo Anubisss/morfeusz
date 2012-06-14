@@ -19,7 +19,7 @@
 
 /*
  *  @file    MySQLStatement.h
- *  @brief	Mysql impl of Statement.h
+ *  @brief    Mysql impl of Statement.h
  *  @author  Albator
  *  @date    2009-07-22
  *

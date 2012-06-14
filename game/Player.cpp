@@ -15,7 +15,7 @@
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
  */
- 
+
 #include "Player.h"
 #include "ObjectMgr.h"
 #include "Database.h"
@@ -23,7 +23,7 @@
 
 namespace Morpheus
 {
-    
+
 namespace Entities
 {
 
@@ -37,13 +37,13 @@ bool Player::create(uint32 low_guid, uint32 account, const std::string& name, ui
     op->add_uint8(5, pclass);
     op->add_uint8(6, gender);
     op->add_uint32(7, uint32(1));
-    
+
     uint32 playerBytes = (skin | (face << 8) | (hair_style << 16) | hair_color << 24);
     op->add_uint32(8, playerBytes);
-    
+
     uint32 playerBytes2 = (facial_hair | (0x00 << 8) | (0x00 << 16) | (0x02 << 24)); // Magic numbers from TC
     op->add_uint32(9, playerBytes2);
-    
+
     Morpheus::Managers::PlayerCreateInfo pci = sObjectMgr->get_player_create_info(race, pclass);
     printf("Data: %u %u %f %f %f\n", pci.zone_id, pci.map_id, pci.position_x, pci.position_y, pci.position_z);
     op->add_uint32(10, pci.zone_id);
@@ -51,9 +51,9 @@ bool Player::create(uint32 low_guid, uint32 account, const std::string& name, ui
     op->add_float(12, pci.position_x);
     op->add_float(13, pci.position_y);
     op->add_float(14, pci.position_z);
-    
+
     trans->append(op);
-    
+
     return true;
 }
 

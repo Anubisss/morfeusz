@@ -15,7 +15,7 @@
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
  */
- 
+
 #ifndef _OBJECTMGR_H
 #define _OBJECTMGR_H
 
@@ -25,7 +25,7 @@
 
 namespace Morpheus
 {
-    
+
 namespace Managers
 {
 
@@ -41,28 +41,28 @@ struct PlayerCreateInfo
 class ObjectMgr
 {
     friend class ACE_Singleton<ObjectMgr, ACE_Recursive_Thread_Mutex>;
-    
+
 public:
 
     static ObjectMgr* instance() { return ACE_Singleton<ObjectMgr, ACE_Recursive_Thread_Mutex>::instance(); }
-    
+
     void player_create_info_loaded(uint8 loaded);
     void set_player_create_info(uint8 race, uint8 pclass, PlayerCreateInfo info) { playerCreateInfo[race - 1][pclass - 1] = info; }
     const PlayerCreateInfo& get_player_create_info(uint8 race, uint8 pclass) { return playerCreateInfo[race - 1][pclass - 1]; }
-    
+
     void init_max_guids();
     uint32 get_max_guid(uint8 type) { return max_guids[type]++; }
-    
+
 private:
-    
+
     ObjectMgr() {}
     PlayerCreateInfo playerCreateInfo[RACE_MAX][CLASS_MAX];
-    
+
     // Max GUIDs
     uint32 max_guids[GUID_MAX];
-    
+
 };
-    
+
 };
 };
 

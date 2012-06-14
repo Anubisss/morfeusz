@@ -19,7 +19,7 @@
 
 /**
  *  @file
- *  @brief   Holds implementation of 
+ *  @brief   Holds implementation of
  *           Unban_Timer class that performs
  *           timed update to prune bans.
  *  @author  raczman <raczman@gmail.com>

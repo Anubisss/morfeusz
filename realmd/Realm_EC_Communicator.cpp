@@ -39,25 +39,25 @@ void EC_Communicator::connect()
 {
     try {
         REALM_LOG("Connecting to Event Channel...\n");
-        CORBA::Object_var _object = 
+        CORBA::Object_var _object =
             orb->resolve_initial_references("NameService");
-        CosNaming::NamingContext_var naming_context = 
+        CosNaming::NamingContext_var naming_context =
             CosNaming::NamingContext::_narrow (_object.in ());
 
         CosNaming::Name ec_name;
         ec_name.length(1);
         ec_name[0].id = CORBA::string_dup("CosEventService");
 
-        CosEventChannelAdmin::EventChannel_var channel = 
+        CosEventChannelAdmin::EventChannel_var channel =
             CosEventChannelAdmin::EventChannel::_narrow(naming_context->resolve(ec_name));
 
         _object = orb->resolve_initial_references("RootPOA");
         this->poa = PortableServer::POA::_narrow(_object.in());
-      
+
         PortableServer::ObjectId_var oid = poa->activate_object(this);
         CORBA::Object_var consumer_obj = poa->id_to_reference(oid.in());
-      
-        CosEventComm::PushConsumer_var consumer = 
+
+        CosEventComm::PushConsumer_var consumer =
             CosEventComm::PushConsumer::_narrow(consumer_obj.in());
         this->supplier_proxy = channel->for_consumers()->obtain_push_supplier();
         this->supplier_proxy->connect_push_consumer(consumer.in());
@@ -118,7 +118,7 @@ void EC_Communicator::push(const CORBA::Any &data)
             sRealm->process_proxy_announce(ann);
         }
     }
-    
+
 #ifdef _MORPHEUS_DEBUG
     else
         REALM_LOG("[EVENT] %s | unhandled\n", dataType->name());

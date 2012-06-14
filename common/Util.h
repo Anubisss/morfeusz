@@ -68,13 +68,13 @@ inline void hexdump(void *pAddressIn, long  lSize)
     long lIndent = 1;
     long lOutLen, lIndex, lIndex2, lOutLen2;
     long lRelPos;
-    
+
     struct
     {
         char *pData;
         unsigned long lSize;
     } buf;
-    
+
     unsigned char *pTmp,ucTmp;
     unsigned char *pAddress = (unsigned char *)pAddressIn;
 
@@ -175,7 +175,7 @@ inline void asciiHexStringtoByteArray(std::string inString, unsigned char* outAr
             else
                 if (ch1>='a' && ch1<='f')
                     dig1 = ch1 - 'a' + 10;
-                else	//this is a failure case, if we get here we've been given a malformed Hex string!
+                else    //this is a failure case, if we get here we've been given a malformed Hex string!
                     dig1 = 0;
 
         if (isdigit(ch2))
@@ -186,7 +186,7 @@ inline void asciiHexStringtoByteArray(std::string inString, unsigned char* outAr
             else
                 if (ch2>='a' && ch2<='f')
                     dig2 = ch2 - 'a' + 10;
-                else	//this is a failure case, if we get here we've been given a malformed Hex string!
+                else    //this is a failure case, if we get here we've been given a malformed Hex string!
                     dig2 = 0;
         outArray[i] = dig1*16 + dig2;
     }
@@ -205,11 +205,11 @@ inline bool normalizePlayerName(std::string& name)
 {
     if (name.empty())
         return false;
-        
+
     name[0] = std::toupper(name[0]);
     for (int i = 1; i < name.length(); i++)
         name[i] = std::tolower(name[i]);
-        
+
     return true;
 }
 
@@ -217,10 +217,10 @@ inline bool isBasicLatinCharacter(wchar_t c)
 {
     if (c >= L'a' && c <= L'z')
         return true;
-        
+
     if (c >= L'A' && c <= L'Z')
         return true;
-        
+
     return false;
 }
 
@@ -242,7 +242,7 @@ inline bool isExtendedLatinCharacter(wchar_t c)
         return true;
     if (c == 0x1E9E)                                 // LATIN CAPITAL LETTER SHARP S
         return true;
-        
+
     return false;
 }
 
@@ -251,7 +251,7 @@ inline bool isValidName(std::string name)
 {
     if (name.length() > 12) // Client limit TODO: define it somewhere
         return false;
-        
+
     for (int i = 0; i < name.length(); i++) {
         wchar_t c;
         mbstowcs(&c, &name[i], 1);
@@ -259,7 +259,7 @@ inline bool isValidName(std::string name)
         if (!isExtendedLatinCharacter(c))
             return false;
     }
-    
+
     return true;
 }
 
@@ -270,7 +270,7 @@ namespace ByteConverter
     template<size_t T>
       inline void convert(char *val)
       {
-	std::swap(*val, *(val + T - 1));
+    std::swap(*val, *(val + T - 1));
         convert<T - 2>(val + 1);
       }
 
@@ -290,7 +290,7 @@ template<typename T> inline void EndianConvertReverse(T&) { }
 template<typename T> inline void EndianConvert(T&) { }
 template<typename T> inline void EndianConvertReverse(T& val) { ByteConverter::apply<T>(&val); }
 #endif
- 
+
 template<typename T> void EndianConvert(T*);         // will generate link error
 template<typename T> void EndianConvertReverse(T*);  // will generate link error
 

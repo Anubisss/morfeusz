@@ -19,7 +19,7 @@
 
 /*
  *  @file    Statement.h
- *  @brief	 JDBC-like (and lite) interface for statement
+ *  @brief     JDBC-like (and lite) interface for statement
  *  @author  Albator
  *  @date    2009-07-22
  *

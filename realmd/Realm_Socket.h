@@ -62,7 +62,7 @@ public:
     uint8 gmlevel;
     uint8 failed_logins;
 };
- 
+
 /**
  *  @brief This enum is used by callback that fetches accounts from db.
  *  @see void Realm_Socket::account_checked(AccountState)
@@ -75,7 +75,7 @@ enum AccountState
 };
 
 /**
- * @brief Used to mark state of connection, 
+ * @brief Used to mark state of connection,
  *        to permit certain operations only to authed clients.
  */
 enum ConnectionState
@@ -89,8 +89,8 @@ enum ConnectionState
 
 /**
  * @brief Networking socket used to communicate with game client
- * @details Inherited from ACE_Svc_Handler this class follows 
- *          Acceptor/Reactor design pattern. 
+ * @details Inherited from ACE_Svc_Handler this class follows
+ *          Acceptor/Reactor design pattern.
  * @see ACE_Svc_Handler
  */
 class Realm_Socket : public ACE_Svc_Handler<ACE_SOCK_STREAM, ACE_MT_SYNCH>
@@ -107,14 +107,14 @@ public:
      * @brief Frees resources.
      */
     ~Realm_Socket();
-  
+
     /**
      * @brief Called by reactor when new socket is opened.
      */
     int open(void*);
 
     /**
-     * @brief Called by reactor when connection is closed, 
+     * @brief Called by reactor when connection is closed,
      *        or handler is deregistered for event type.
      */
     int close(u_long flags);
@@ -122,17 +122,17 @@ public:
     const std::string& get_login() { return login; }
 
     /**
-     * @brief %Callback called from checkIpBanObsv 
+     * @brief %Callback called from checkIpBanObsv
      * @param result Indicates wether IP is banned.
      */
     void ip_ban_checked(bool result);
 
     /**
      * @brief %Callback from checkAcctObsv
-     *        by the time this callback is received, 
-     *        Realm_Socket::acct should be set in case 
+     *        by the time this callback is received,
+     *        Realm_Socket::acct should be set in case
      *        account exists and is usable.
-     * @param state Contains value from AccountState 
+     * @param state Contains value from AccountState
      *              enum, to indicate account status
      */
     void account_checked(AccountState state);
@@ -151,7 +151,7 @@ public:
     Account acct;
 
     /**
-     * @brief %Callback from getCharAmntObsv 
+     * @brief %Callback from getCharAmntObsv
      * @param amnt Contains information about character amount
      */
     void get_char_amount(std::map<uint8, uint8> amnt);
@@ -187,7 +187,7 @@ private:
      *        other references to it are removed.
      */
     void die();
-  
+
     /**
      * @brief Handles packet 0x00, fills initial information about account.
      */
@@ -212,7 +212,7 @@ private:
      * @brief Handles packet 0x03
      */
     void handle_auth_reconnect_proof();
-  
+
     /**
      * @brief Sets verificator and seed, used by SRP6 authentication.
      */
@@ -235,7 +235,7 @@ private:
     int handle_close(ACE_HANDLE, ACE_Reactor_Mask);
 
     /**
-     * @brief Internal reference counted pointer, which helps us 
+     * @brief Internal reference counted pointer, which helps us
      *        with cleaning memory.
      */
     ACE_Refcounted_Auto_Ptr<Realm_Socket, ACE_Recursive_Thread_Mutex> ptr;
@@ -262,7 +262,7 @@ private:
 
     /**
      * @brief Variables used when calculating SRP6
-     *        Seed, verificator, sessionkey, N prime and others. 
+     *        Seed, verificator, sessionkey, N prime and others.
      */
     BIGNUM* s, *v, *g, *N, *b, *B, *reconnect_proof;
 

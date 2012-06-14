@@ -19,7 +19,7 @@
 
 /*
  *  @file    SQLiteInclude.h
- *  @brief	Include all files related to libmysql
+ *  @brief    Include all files related to libmysql
  *  @author  Albator
  *  @date    2009-07-22
  *

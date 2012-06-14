@@ -77,7 +77,7 @@ namespace Realmd
  * @see Realm_Socket::get_sessionkey(bool)
  */
 template <class C>
-class getSessionKeyObsv : public SqlOperationObserver<C, bool> 
+class getSessionKeyObsv : public SqlOperationObserver<C, bool>
 {
 
 public:
@@ -192,7 +192,7 @@ public:
         SQL::ResultSet* res;
         future.get(res);
         res->next();
-      
+
         if (res->rowsCount() == 0 )
             SqlOperationObserver<C, AccountState>::callback.call(ACCOUNT_NOTFOUND);
         else if (res->getUint8(5) != 0) // FIXME: Incorrect, 5 is active and 6 is failed_logins
@@ -208,7 +208,7 @@ public:
             SqlOperationObserver<C, AccountState>::callback.get_obj()->acct = acc;
             SqlOperationObserver<C, AccountState>::callback.call(ACCOUNT_EXISTS);
         }
-      
+
         delete res;
         delete this;
     }
@@ -260,12 +260,12 @@ public:
 
     /**
      * @brief Fetches sessionkey for account from database.
-     * 
+     *
      */
     void get_sessionkey(Realm_Sock_Ptr conn);
 
     /**
-     * @brief Increments number of failed logins on account, 
+     * @brief Increments number of failed logins on account,
      *        mainly to handle failed logins autobanning.
      * @param id Account id.
      */

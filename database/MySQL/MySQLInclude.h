@@ -19,7 +19,7 @@
 
 /*
  *  @file    MySQLInclude.h
- *  @brief	Include all files related to libmysql
+ *  @brief    Include all files related to libmysql
  *  @author  Albator
  *  @date    2009-07-22
  *
@@ -37,7 +37,7 @@ extern "C"
 #undef _REENTRANT
 
 //this is not win32 compatible
-//#if PLATFORM == PLATFORM_WIN32 
+//#if PLATFORM == PLATFORM_WIN32
 //#include <my_global.h>
 //#endif
 

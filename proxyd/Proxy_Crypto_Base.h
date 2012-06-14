@@ -37,7 +37,7 @@ namespace Proxyd
  * @brief Base class for encryption.
  * @details Encryption method varies across versions,
  *          so to preserve flexibility we use abstract
- *          class that will have to be implemented in 
+ *          class that will have to be implemented in
  *          version specific encryption classes.
  */
 class Proxy_Crypto_Base
@@ -49,7 +49,7 @@ public:
    * @brief Encrypts data sent to client.
    */
   virtual void encrypt(uint8* data, size_t len) = 0;
- 
+
   /**
    * @brief Decrypts received data.
    */

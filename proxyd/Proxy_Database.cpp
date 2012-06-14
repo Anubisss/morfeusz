@@ -44,7 +44,7 @@ namespace Proxyd
 template <class C>
 class getAcctObsv : public SqlOperationObserver<C, bool>
 {
-  
+
 public:
 
     getAcctObsv(Callback<C, bool> c): SqlOperationObserver<C, bool>(c) {}
@@ -147,7 +147,7 @@ public:
         SQL::ResultSet* res;
         future.get(res);
         Morpheus::Managers::PlayerCreateInfo info;
-        
+
         if (res->rowsCount() == 0)
             SqlOperationObserver<C, uint8>::callback.call(uint8(0));
         else {
@@ -161,13 +161,13 @@ public:
                 info.position_x = res->getFloat(5);
                 info.position_y = res->getFloat(6);
                 info.position_z = res->getFloat(7);
-                
-                SqlOperationObserver<C, uint8>::callback.get_obj()->set_player_create_info(race, pclass, info);            
+
+                SqlOperationObserver<C, uint8>::callback.get_obj()->set_player_create_info(race, pclass, info);
             }
 
             SqlOperationObserver<C, uint8>::callback.call(uint8(res->rowsCount()));
         }
-        
+
         delete res;
         delete this;
     }
@@ -189,7 +189,7 @@ bool ProxyDatabaseConnection::open(const std::string& driver, const std::string&
         query += realmdb;
         query += ".account WHERE username = ?";
         ADD_STMT(PROXYD_DB_GET_ACCT, query.c_str());
-        /*ADD_STMT(PROXYD_DB_GET_CHAR, 
+        /*ADD_STMT(PROXYD_DB_GET_CHAR,
             "SELECT c.guid, c.name, c.race,"
             "c.class, c.gender, c.playerBytes, "
             "c.playerBytes2, c.level, c.zone, "
@@ -215,7 +215,7 @@ bool ProxyDatabaseConnection::open(const std::string& driver, const std::string&
         query += realmdb;
         query += ".realmcharacters SET numchars = numchars + 1 WHERE realmid = ? AND acctid = ?";
         ADD_STMT(PROXYD_DB_INCR_NUMCHAR, query.c_str());
-        ADD_STMT(PROXYD_DB_INS_CHAR, 
+        ADD_STMT(PROXYD_DB_INS_CHAR,
             "INSERT INTO characters (guid, account, name, race, class, gender, level, playerBytes, playerBytes2, "
             "zone, map, position_x, position_y, position_z) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)");
         query = "SELECT race, class, map, zone, position_x, position_y, position_z FROM ";
@@ -258,7 +258,7 @@ void ProxyDB::get_chars(Proxy_Sock_Ptr sock)
     res.attach(new Proxyd::getCharsObsv<Proxy_Socket>
         (Callback<Proxy_Socket, bool>
         (sock, &Proxy_Socket::characters_retrieved)
-	    ));
+        ));
     SqlOperationRequest* op = new SqlOperationRequest(PROXYD_DB_GET_CHAR, res);
     op->add_uint64(1, sock->get_acct_id());
     this->enqueue(op);

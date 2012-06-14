@@ -39,13 +39,13 @@ public:
     {
         _storage.reserve(DEFAULT_SIZE);
     }
-    
+
     // constructor
     ByteBuffer(size_t res): _rpos(0), _wpos(0)
     {
         _storage.reserve(res);
     }
-    
+
     // copy constructor
     ByteBuffer(const ByteBuffer &buf): _rpos(buf._rpos), _wpos(buf._wpos), _storage(buf._storage) { }
 
@@ -336,7 +336,7 @@ public:
     {
         uint32 j = 1, k = 1;
         ACE_DEBUG((LM_DEBUG, "STORAGE_SIZE: %u\n", size()));
-    
+
         for (uint32 i = 0; i < size(); i++) {
             if ((i == (j*8)) && ((i != (k*16)))) {
                 if (read<uint8>(i) < 0x0F) {
@@ -394,12 +394,12 @@ protected:
  */
 class ClientPkt : public ByteBuffer
 {
-    
+
 public:
 
     ClientPkt(size_t siz) : ByteBuffer(siz) { _rpos = 6; }
     ClientPkt() : ByteBuffer() { _rpos = 6; }
-  
+
     /**
      * @brief Peek opcode, without moving internal read position
      */
@@ -440,11 +440,11 @@ public:
  */
 class ServerPkt : public ByteBuffer
 {
-    
+
 public:
 
     /**
-     * @brief We add +4 so when passing length of 
+     * @brief We add +4 so when passing length of
      *        data do not add header length.
      */
     ServerPkt(size_t siz) : ByteBuffer(siz + 4) { _wpos = 4; }
@@ -480,8 +480,8 @@ public:
     }
 
     /**
-     * @brief When setting size, we are ONLY talking 
-     *        about size of data, size of header is 
+     * @brief When setting size, we are ONLY talking
+     *        about size of data, size of header is
      *        added to size of payload.
      */
     void SetSize(uint16 size)
@@ -549,7 +549,7 @@ template <typename T> ByteBuffer &operator>>(ByteBuffer &b, std::list<T> &v)
     uint32 vsize;
     b >> vsize;
     v.clear();
-    
+
     while (vsize--) {
         T t;
         b >> t;
@@ -574,14 +574,14 @@ template <typename K, typename V> ByteBuffer &operator>>(ByteBuffer &b, std::map
     uint32 msize;
     b >> msize;
     m.clear();
-    
+
     while (msize--) {
         K k;
         V v;
         b >> k >> v;
         m.insert(make_pair(k, v));
     }
-    
+
     return b;
 }
 

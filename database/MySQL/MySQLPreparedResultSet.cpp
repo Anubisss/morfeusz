@@ -61,12 +61,12 @@ MySQLPreparedResultSet::MySQLPreparedResultSet(MySQLPreparedStatement* stmt, MYS
         delete[] mysqlStmt->bind->length;
         delete[] mysqlStmt->bind->is_null;
     }
-    
+
     bindResult = new MYSQL_BIND[numFields];
     isNull = new my_bool[numFields];
-    length = new unsigned long[numFields]; 
-    
-    ACE_OS::memset(bindResult, 0, numFields*sizeof(MYSQL_BIND));  
+    length = new unsigned long[numFields];
+
+    ACE_OS::memset(bindResult, 0, numFields*sizeof(MYSQL_BIND));
     ACE_OS::memset(isNull, 0, numFields*sizeof(my_bool));
     ACE_OS::memset(length, 0, numFields*sizeof(unsigned long));
 
@@ -161,7 +161,7 @@ MySQLPreparedResultSet::~MySQLPreparedResultSet()
 {
     if (metaResult)
         mysql_free_result(metaResult);
-  
+
     for (int i=0; i < numFields; i++)
       ACE_OS::free(bindResult[i].buffer);
 
@@ -304,7 +304,7 @@ bool MySQLPreparedResultSet::next()
 
     if (!res || res == MYSQL_DATA_TRUNCATED)
         return true;
-    
+
     if (res == MYSQL_NO_DATA)
         return false;
 

@@ -119,13 +119,13 @@ struct Character
 class Proxy_Crypto;
 class Proxy_Socket;
 typedef ACE_Refcounted_Auto_Ptr<Morpheus::Proxyd::Proxy_Socket, ACE_Recursive_Thread_Mutex> Proxy_Sock_Ptr;
-  
+
 /**
  * @brief Network socket for Proxy Service.
  * @details As this class is based on ACE's handler class,
- *          there are elements that are common with 
+ *          there are elements that are common with
  *          Morpheus::Realmd::Realm_Socket class.
- * @sa Morpheus::Realmd::Realm_Socket          
+ * @sa Morpheus::Realmd::Realm_Socket
  */
 class Proxy_Socket : public ACE_Svc_Handler<ACE_SOCK_STREAM, ACE_MT_SYNCH>
 {
@@ -144,7 +144,7 @@ public:
     void set_account(Account act) { this->acct = act; }
     void set_characters(std::list<Character> list) { this->characters = list; }
     uint32 get_acct_id() { return this->acct.id; }
-    
+
     /**
      * @brief Callback from ProxyDB::get_account
      * @sa handle_cmsg_auth_session
@@ -185,7 +185,7 @@ private:
      *        realm splits were a way of offy
      *        to divide overpopulated realms.
      *        The handler just sends back data
-     *        that indicates no split. 
+     *        that indicates no split.
      */
     void handle_cmsg_realm_split();
 
@@ -194,13 +194,13 @@ private:
      *
      */
     void handle_cmsg_char_enum();
-    
+
     /**
      * @brief Handles CMSG_CHAR_CREATE
-     * 
+     *
      */
     void handle_cmsg_char_create();
-    
+
     /**
      * @brief Handles CMSG_PLAYED_TIME
      */
@@ -209,7 +209,7 @@ private:
     Proxy_Sock_Ptr ptr;
     size_t expected_data;
     uint8 raw_buf[4096];
-  
+
     /**
      * @brief Seed used to authenticate with client.
      */
@@ -221,7 +221,7 @@ private:
      *        or process it with process_incoming.
      */
     ClientPkt* in_packet;
-  
+
     Account acct;
     std::string login;
 

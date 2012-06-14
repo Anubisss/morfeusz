@@ -36,7 +36,7 @@ void ConfigurationHolder::reload()
 {
     ACE_Ini_ImpExp importer(this->config);
 
-    if (importer.import_config(configFile.c_str()) == -1) {  
+    if (importer.import_config(configFile.c_str()) == -1) {
         ACE_ERROR((LM_ERROR,"Couldn't open configuration file %s !\n", configFile.c_str()));
         ASSERT(false);
     }

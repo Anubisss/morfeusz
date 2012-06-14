@@ -64,22 +64,22 @@ MySQLConnection::MySQLConnection(const std::string& url) :
         host = *it;
         ++it;
     }
-    
+
     if (it!=tokens.end()) {
         port = ACE_OS::atoi((*it).c_str());;
         ++it;
     }
-    
+
     if (it!=tokens.end()) {
         user = *it;
         ++it;
     }
-    
+
     if (it!=tokens.end()) {
         password = *it;
         ++it;
     }
-    
+
     if (it!=tokens.end()) {
         schema = *it;
         ++it;

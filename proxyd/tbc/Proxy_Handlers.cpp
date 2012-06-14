@@ -173,11 +173,11 @@ void Proxy_Socket::account_retrieved(bool state)
 {
     PROXY_TRACE;
 
-    // The moment someone writes a hack that bypasses realmd 
+    // The moment someone writes a hack that bypasses realmd
     // and logs in somehow straight into game
     // Call me so i can give a beer to that wonderful hacker.
     // But still, we need to check if the account exists.
-    // Client doesn't even react to that opcode, but lets send it 
+    // Client doesn't even react to that opcode, but lets send it
     // For sake of being...
     // 0x15 is AUTH_STATE_ACCOUNT_UNKNOWN btw.
     if (!state) {
@@ -208,7 +208,7 @@ void Proxy_Socket::account_retrieved(bool state)
     BN_hex2bn(&s, this->acct.s.c_str());
 
     s_bin = new uint8[BN_num_bytes(s)];
-    BN_bn2bin(s, s_bin); 
+    BN_bn2bin(s, s_bin);
     BN_bn2bin(I, pass_hash);
 
     std::reverse(s_bin, (uint8*)s_bin + BN_num_bytes(s) );
@@ -245,7 +245,7 @@ void Proxy_Socket::account_retrieved(bool state)
         this->die();
         return;
     }
-  
+
     uint8 check_digest[SHA_DIGEST_LENGTH];
     uint32 trailer = 0x00;
     BN_hex2bn(&K, this->acct.sessionkey.c_str());
@@ -314,7 +314,7 @@ void Proxy_Socket::handle_cmsg_char_enum()
 void Proxy_Socket::characters_retrieved(bool state)
 {
     ServerPkt* pkt = new ServerPkt(SMSG_CHAR_ENUM, 100);
-  
+
     if (!state) {
         *pkt << uint8(0);
         this->send(pkt);
@@ -351,17 +351,17 @@ void Proxy_Socket::characters_retrieved(bool state)
         *pkt << uint32(0x00);//2002000); //iter->player_flags;
 
         *pkt << (uint8)0x01; //UNK
-      
+
         /**
          * @todo Load dbc's and get pets family info...*/
-	
+
         /* *pkt << iter->pet.modelid;
         *pkt << iter->pet.level;
         *pkt << family;*/
         *pkt << (uint32)0;
         *pkt << (uint32)0;
         *pkt << (uint32)0;
-      
+
         /*for (uint8 slot = 0; slot < 19; slot++) {
             // *pkt << (uint32)enchant_id; // TODO
             uint32 item_base = PLAYER_VISIBLE_ITEM_1_0 + (slot * 16);
@@ -369,14 +369,14 @@ void Proxy_Socket::characters_retrieved(bool state)
             if (sDBC->get_item_map()->find(item_id) != sDBC->get_item_map()->end()) {
                 const Morpheus::DBC::ItemEntry& item = sDBC->get_item_map()->find(item_id)->second;
                 const Morpheus::DBC::SpellItemEnchantmentEntry* spell = NULL;
-	      
+
                 *pkt << (uint32)item.display_id;
                 *pkt << (uint8)item.inventory_type;
-	
+
                 for (uint8 i = 0; i <= 1; i++) {
                     uint32 enchant_id = iter->update_fields[item_base + 1 + i];
-              
-                    if (sDBC->get_spell_item_ench_map()->find(enchant_id) 
+
+                    if (sDBC->get_spell_item_ench_map()->find(enchant_id)
                         != sDBC->get_spell_item_ench_map()->end())
                     {
                         spell = &sDBC->get_spell_item_ench_map()->find(enchant_id)->second;
@@ -392,13 +392,13 @@ void Proxy_Socket::characters_retrieved(bool state)
                 *pkt << (uint32)0;
             }
         }*/
-        
+
         for (uint8 slot = 0; slot < 19; slot++) {
             *pkt << (uint32)0;
             *pkt << (uint8)0;
             *pkt << (uint32)0;
         }
-        
+
         *pkt << (uint32)0;
         *pkt << (uint8)0;
         *pkt << (uint32)0;
@@ -427,49 +427,49 @@ void Proxy_Socket::handle_cmsg_char_create()
 
     if (!this->in_packet->CheckSize(1+1+1+1+1+1+1+1+1+1))
         return;
-    
+
     *this->in_packet >> name;
-    
+
     // Recheck with name size
     if (!this->in_packet->CheckSize((name.size()+1)+1+1+1+1+1+1+1+1+1))
         return;
-        
+
     *this->in_packet >> race;
     *this->in_packet >> pclass;
-    
+
     // PROXY_LOG("Race: %u, Class: %u\n", race, pclass);
-    
+
     ServerPkt* pkt = new ServerPkt(SMSG_CHAR_CREATE, 1);
-    
+
     // TODO: Implement race/class creation disable system based on config
-    
+
     const Morpheus::DBC::ChrRacesEntry* race_entry = NULL;
     if (sDBC->get_chr_races_map()->find(race) != sDBC->get_chr_races_map()->end())
         race_entry = &sDBC->get_chr_races_map()->find(race)->second;
-        
+
     const Morpheus::DBC::ChrClassesEntry* class_entry = NULL;
     if (sDBC->get_chr_classes_map()->find(pclass) != sDBC->get_chr_classes_map()->end())
         class_entry = &sDBC->get_chr_classes_map()->find(pclass)->second;
-        
+
     if (!race_entry || !class_entry) {
         *pkt << uint8(CHAR_CREATE_FAILED);
         this->send(pkt);
         PROXY_LOG("handle_cmsg_char_create: race %u or class %u not found in DBC.", race, pclass);
         return;
     }
-    
+
     if (race_entry->addon > this->acct.expansion) {
         *pkt << uint8(CHAR_CREATE_EXPANSION);
         this->send(pkt);
         return;
     }
-    
+
     if (!Utils::normalizePlayerName(name)) {
         *pkt << uint8(CHAR_NAME_INVALID_CHARACTER);
         this->send(pkt);
         return;
     }
-    
+
     if (!Utils::isValidName(name)) {
         *pkt << uint8(CHAR_NAME_INVALID_CHARACTER);
         this->send(pkt);
@@ -479,7 +479,7 @@ void Proxy_Socket::handle_cmsg_char_create()
     DatabaseAccess::SqlOperationRequest* op = new SqlOperationRequest(PROXYD_DB_GET_PLR_GUID_FROM_NAME);
     op->add_string(1, name.c_str());
     SQL::ResultSet* res = sProxy->get_db()->enqueue_synch_query(op);
-    
+
     if (res->rowsCount() != 0) {
         *pkt << uint8(CHAR_CREATE_NAME_IN_USE);
         this->send(pkt);
@@ -496,20 +496,20 @@ void Proxy_Socket::handle_cmsg_char_create()
         this->send(pkt);
         return;
     }
-    
+
     op = new SqlOperationRequest(PROXYD_DB_GET_CHAR_COUNT);
     op->add_uint32(1, this->acct.id);
     res = sProxy->get_db()->enqueue_synch_query(op);
-    
+
     res->next();
     if (res->rowsCount() > 0 && res->getUint8(1) >= 10) { // TODO: config option
         *pkt << uint8(CHAR_CREATE_SERVER_LIMIT);
         this->send(pkt);
         return;
     }
-    
+
     // TODO: Check on AllowTwoSideAccounts
-    
+
     *this->in_packet >> gender;
     *this->in_packet >> skin;
     *this->in_packet >> face;
@@ -517,15 +517,15 @@ void Proxy_Socket::handle_cmsg_char_create()
     *this->in_packet >> hair_color;
     *this->in_packet >> facial_hair;
     *this->in_packet >> outfit_id;
-    
+
     SqlOperationTransaction* trans = new SqlOperationTransaction();
     op = new SqlOperationRequest(PROXYD_DB_INCR_NUMCHAR);
     op->add_uint32(1, sProxy->get_realmid());
     op->add_uint32(2, this->acct.id);
     trans->append(op);
-    
+
     bool created = Morpheus::Entities::Player::create(sObjectMgr->get_max_guid(GUID_CHAR), this->acct.id, name, race, pclass, gender, skin, face, hair_style, hair_color, facial_hair, outfit_id, trans);
-    
+
     sProxy->get_db()->enqueue(trans);
 
     *pkt << uint8(CHAR_CREATE_SUCCESS);

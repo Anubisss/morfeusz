@@ -49,7 +49,7 @@ void Proxy_Service::start()
     PROXY_TRACE;
     //Boilerplate code goes in here.
     PROXY_LOG("Starting proxyd\n");
-    
+
     sLog->initialize(LOG_TYPE_PROXYD);
     sLog->outDetail(LOG_FILTER_SYSTEM, "Log system initialized.");
 
@@ -58,7 +58,7 @@ void Proxy_Service::start()
     this->realm_id = sConfig->getInt("proxyd","RealmID");
     this->current_connections = 0;
     this->announce_timer_id = -1;
-  
+
 #if defined (ACE_HAS_EVENT_POLL) || defined (ACE_HAS_DEV_POLL)
     this->reactor = new ACE_Reactor(new ACE_Dev_Poll_Reactor());
     this->reactor->restart(1);
@@ -146,7 +146,7 @@ void Proxy_Service::start()
 
 int Proxy_Service::svc()
 {
-    PROXY_TRACE; 
+    PROXY_TRACE;
     ACE_Time_Value tm;
     tm.msec(100);
     while (this->is_running) {
@@ -162,7 +162,7 @@ int Proxy_Service::svc()
 
 void Proxy_Service::update_connections(bool up)
 {
-    PROXY_TRACE; 
+    PROXY_TRACE;
     if (up)
         this->current_connections++;
     else

@@ -19,7 +19,7 @@
 
 /**
  *  @file
- *  @brief   
+ *  @brief
  *  @author  raczman <raczman@gmail.com>
  *  @date    2009-12-29
  *
@@ -113,9 +113,9 @@ void DBC_Store::load_chr_races_dbc()
 {
     std::string file = this->path;
     file += "ChrRaces.dbc";
-    
+
     DBC_File* dbc = new DBC_File(file.c_str());
-    
+
     for (int i = 0; i < dbc->get_records(); i++) {
         uint32 entry = dbc->read_uint32();
         ChrRacesEntry& crentry = this->chr_races[entry];
@@ -139,9 +139,9 @@ void DBC_Store::load_chr_races_dbc()
             dbc->skip_field();
         crentry.addon = dbc->read_uint32();
     }
-    
+
     ACE_DEBUG((LM_ERROR, "Loaded %u ChrRaces.dbc entries.\n", this->chr_races.size()));
-    
+
     delete dbc;
 }
 
@@ -149,9 +149,9 @@ void DBC_Store::load_chr_classes_dbc()
 {
     std::string file = this->path;
     file += "ChrClasses.dbc";
-    
+
     DBC_File* dbc = new DBC_File(file.c_str());
-    
+
     for (int i = 0; i < dbc->get_records(); i++) {
         uint32 entry = dbc->read_uint32();
         ChrClassesEntry& clentry = this->chr_classes[entry];
@@ -166,9 +166,9 @@ void DBC_Store::load_chr_classes_dbc()
         clentry.spellfamily = dbc->read_uint32();
         dbc->skip_field();
     }
-    
+
     ACE_DEBUG((LM_ERROR, "Loaded %u ChrClasses.dbc entries.\n", this->chr_classes.size()));
-    
+
     delete dbc;
 }
 

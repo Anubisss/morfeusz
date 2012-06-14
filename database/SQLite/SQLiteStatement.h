@@ -19,7 +19,7 @@
 
 /*
  *  @file    SQLiteStatement.h
- *  @brief	sqlite impl of Statement.h
+ *  @brief    sqlite impl of Statement.h
  *  @author  Albator
  *  @date    2009-07-22
  *

@@ -62,7 +62,7 @@ ACE_TMAIN(int argc, char* argv[])
     printf("| |  | | (_) | |  | |_) | | | |  __/ |_| |\\__ \\\n");
     printf("|_|  |_|\\___/|_|  | .__/|_| |_|\\___|\\__,_|\\___/\n");
     printf("                  |_|                         \n");
-    
+
     sServiceManager->args.add(args.argv());
     ACE_Arg_Shifter shifty(argc, argv); // This class ruins our argv, but we have copy in args.
 
@@ -73,10 +73,10 @@ ACE_TMAIN(int argc, char* argv[])
             sServiceManager->run_realmd();
         else if(ACE_OS::strcmp(shifty.get_current(), "-proxy") == 0)
             sServiceManager->run_proxyd();
-      
+
         shifty.consume_arg();
     }
-    
+
     ACE_Time_Value time;
     time.sec(1);
     while (1) {

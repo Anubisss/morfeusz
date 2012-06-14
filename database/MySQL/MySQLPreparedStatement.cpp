@@ -47,7 +47,7 @@ MySQLPreparedStatement::MySQLPreparedStatement(MySQLConnection* conn, MYSQL_STMT
     paramsSet.assign(paramCount, false);
     bind = new MYSQL_BIND[paramCount];
     ACE_OS::memset(bind, 0, sizeof(MYSQL_BIND) * paramCount);
-    my_bool	bool_tmp=1;
+    my_bool    bool_tmp=1;
     mysql_stmt_attr_set(stmt, STMT_ATTR_UPDATE_MAX_LENGTH, &bool_tmp);
 }
 
@@ -85,7 +85,7 @@ void MySQLPreparedStatement::close()
 bool MySQLPreparedStatement::execute()
 {
     doQuery();
-    my_bool	bool_tmp=1;
+    my_bool    bool_tmp=1;
     mysql_stmt_attr_set(stmt, STMT_ATTR_UPDATE_MAX_LENGTH, &bool_tmp);
     //mysql_stmt_store_result(stmt);
     return (mysql_stmt_field_count(stmt) > 0);
@@ -101,7 +101,7 @@ ResultSet* MySQLPreparedStatement::executeQuery()
 {
     //mysql_stmt_store_result(stmt);
     doQuery();
-    
+
     return new MySQLPreparedResultSet(this, stmt);
 }
 
@@ -157,7 +157,7 @@ void MySQLPreparedStatement::setValue(MYSQL_BIND* param, const void* value, uint
     param->buffer_length = 0;
     param->is_null_value = 0;
     delete param->length;
-    param->length	= NULL;
+    param->length    = NULL;
 
     ACE_OS::memcpy(param->buffer, value, len);
 }
@@ -182,7 +182,7 @@ void MySQLPreparedStatement::setUint32(const uint8 index, const uint32 value)
     checkValidity(index);
     paramsSet[index - 1] = true;
     MYSQL_BIND * param = &bind[index-1];
-    param->buffer_type	= MYSQL_TYPE_LONG;
+    param->buffer_type    = MYSQL_TYPE_LONG;
     setValue(param,&value,4);
 }
 
@@ -191,7 +191,7 @@ void MySQLPreparedStatement::setUint64(const uint8 index, const uint64 value)
     checkValidity(index);
     paramsSet[index - 1] = true;
     MYSQL_BIND * param = &bind[index-1];
-    param->buffer_type	= MYSQL_TYPE_LONGLONG;
+    param->buffer_type    = MYSQL_TYPE_LONGLONG;
     setValue(param,&value,8);
 }
 
@@ -205,7 +205,7 @@ void MySQLPreparedStatement::setInt32(const uint8 index, const int32 value)
     checkValidity(index);
     paramsSet[index - 1] = true;
     MYSQL_BIND * param = &bind[index-1];
-    param->buffer_type	= MYSQL_TYPE_LONG;
+    param->buffer_type    = MYSQL_TYPE_LONG;
     setValue(param,&value,4);
 }
 
@@ -214,7 +214,7 @@ void MySQLPreparedStatement::setInt64(const uint8 index, const int64 value)
     checkValidity(index);
     paramsSet[index - 1] = true;
     MYSQL_BIND * param = &bind[index-1];
-    param->buffer_type	= MYSQL_TYPE_LONGLONG;
+    param->buffer_type    = MYSQL_TYPE_LONGLONG;
     setValue(param,&value,8);
 }
 
@@ -223,7 +223,7 @@ void MySQLPreparedStatement::setDouble(const uint8 index, const double value)
     checkValidity(index);
     paramsSet[index - 1] = true;
     MYSQL_BIND * param = &bind[index-1];
-    param->buffer_type	= MYSQL_TYPE_DOUBLE;
+    param->buffer_type    = MYSQL_TYPE_DOUBLE;
     setValue(param,&value,8);
 }
 

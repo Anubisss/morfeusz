@@ -19,7 +19,7 @@
  * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
  */
 
-/** 
+/**
  *  @file
  *  @ingroup Realmd
  *  @brief Contains enumerations used by Realmd service.

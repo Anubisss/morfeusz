@@ -26,7 +26,7 @@
  */
 
 #ifndef REALM_EC_COMMUNICATOR_H
-#define REALM_EC_COMMUNICATOR_H         
+#define REALM_EC_COMMUNICATOR_H
 #include <orbsvcs/CosEventCommS.h>
 #include <orbsvcs/CosEventChannelAdminC.h>
 
@@ -79,8 +79,8 @@ private:
     CosEventChannelAdmin::ProxyPushSupplier_var supplier_proxy;
     PortableServer::POA_var poa;
 };
-  
+
 };
 };
 
-#endif //REALM_EC_COMMUNICATOR_H         
+#endif //REALM_EC_COMMUNICATOR_H

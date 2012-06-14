@@ -282,7 +282,7 @@ void Realm_Socket::handle_auth_logon_proof()
     BIGNUM* A = BN_new();
     BN_bin2bn(prf->A, sizeof(prf->A), A);
     std::reverse(prf->A, (uint8*)prf->A + sizeof(prf->A));
-  
+
     //Again, thanks Derex <3
     BIGNUM *u = BN_new();
     {
@@ -304,7 +304,7 @@ void Realm_Socket::handle_auth_logon_proof()
         std::reverse((uint8*)u_buff, (uint8*)u_buff + sizeof(u_buff));
         BN_bin2bn(u_buff, sizeof(u_buff), u);
     }
-  
+
     BIGNUM *S = BN_new();
     {
         BIGNUM *temp = BN_new();
@@ -388,7 +388,7 @@ void Realm_Socket::handle_auth_logon_proof()
     SHA1_Final(M_buff, &M_sha_ctx);
 
     //End of Derex's code.
-  
+
     if (!ACE_OS::memcmp(prf->M1, M_buff, SHA_DIGEST_LENGTH)) {
         REALM_LOG("User %s authenticated\n", this->login.c_str());
 
@@ -499,7 +499,7 @@ void Realm_Socket::handle_auth_reconnect_proof()
     }
 
     sAuthReconnectProof_C* prf = (sAuthReconnectProof_C*)&raw_buf;
-  
+
     SHA_CTX sha;
     uint8 hash[SHA_DIGEST_LENGTH];
     SHA1_Init(&sha);
@@ -610,7 +610,7 @@ ByteBuffer* Realm_Socket::build_realm_packet()
     *data << (uint16) pkt->size();
     data->append(*pkt);
     delete pkt;
-    
+
     return data;
 }
 
@@ -619,17 +619,17 @@ ByteBuffer* Realm_Socket::build_expansion_realm_packet()
     REALM_TRACE;
     ByteBuffer* pkt = new ByteBuffer;
     std::map<uint8, Realm> const* realmlist = sRealm->get_realmlist();
-  
+
     uint16 listSize=0;
     std::map<uint8, Realm>::const_iterator i;
     for (i = realmlist->begin(); i != realmlist->end(); i++) {
         if (i->second.build == this->client_build)
             ++listSize;
     }
-  
+
     *pkt << (uint32) 0x00;
     *pkt << (uint16) listSize;
-  
+
     if (listSize > 0) {
         for (i = realmlist->begin(); i != realmlist->end(); i++)
         {
@@ -657,10 +657,10 @@ ByteBuffer* Realm_Socket::build_expansion_realm_packet()
 
         }
     }
-    
+
     *pkt << uint8(0x10);
     *pkt << uint8(0x00);
-  
+
     ByteBuffer *data = new ByteBuffer;
     *data << uint8(REALM_LIST);
     *data << uint16(pkt->size());
@@ -699,7 +699,7 @@ void Realm_Socket::ip_ban_checked(bool result)
         account_checked(ACCOUNT_BANNED);
         return;
     }
-    
+
     sRealm->get_db()->get_account(this->ptr);
 }
 
@@ -738,14 +738,14 @@ void Realm_Socket::account_checked(AccountState state)
                 return;
             }
         }
-        
+
         ByteBuffer *buf = new ByteBuffer;
         *buf << (uint8) AUTH_LOGON_CHALLENGE;
         *buf << (uint8) 0x00;
         *buf << (uint8) REALM_AUTH_SUCCESS;
 
         this->set_vs();
-        
+
         BN_rand(b, 19*8,0,1);
         // Following snippet is courtesy of Derex.
         BIGNUM *temp = BN_new(), *temp2 = BN_new();
@@ -753,7 +753,7 @@ void Realm_Socket::account_checked(AccountState state)
         BN_mul(temp2, v, k, ctx);
         BN_add(temp2, temp2, temp);
         BN_mod(B, temp2, N, ctx);
-        
+
         BN_free(temp2);
         //</Derex's>
 
@@ -764,14 +764,14 @@ void Realm_Socket::account_checked(AccountState state)
         *buf << (uint8)1;
         *buf << (uint8)7;
         *buf << (uint8)32;
-        
+
         BN_bn2bin(N, tmp);
         std::reverse(tmp, (uint8*)tmp+sizeof(tmp));
         buf->append(tmp, 32);
         BN_bn2bin(s, tmp);
         std::reverse(tmp, (uint8*)tmp+sizeof(tmp));
         buf->append(tmp, 32);
-        
+
         BN_rand(temp, 16*8, 0, 1);
         BN_bn2bin(temp, tmp);
         buf->append(tmp, 16);
@@ -799,17 +799,17 @@ void Realm_Socket::get_sessionkey(bool result)
     ByteBuffer* pkt = new ByteBuffer();
     *pkt << (uint8) AUTH_RECONNECT_CHALLENGE;
     *pkt << (uint8) 0x00;
-    
+
     BN_rand(this->reconnect_proof, 16*8,0,1);
-    
+
     uint8* rpr = new uint8[16];
     BN_bn2bin(this->reconnect_proof,rpr);
     pkt->append(rpr, 16);
     delete[] rpr;
-    
+
     *pkt << (uint64) 0x00;
     *pkt << (uint64) 0x00;
-    
+
     this->send(pkt);
     this->state = STATUS_NEED_RPROOF;
 }
@@ -906,9 +906,9 @@ void Realm_Socket::die()
     this->state = STATUS_CLOSING;
     ACE_Guard<ACE_Recursive_Thread_Mutex> g(this->queue_mtx);
     sRealm->get_reactor()->remove_handler(this,
-					ACE_Event_Handler::READ_MASK |
-					ACE_Event_Handler::WRITE_MASK |
-					ACE_Event_Handler::DONT_CALL);
+                    ACE_Event_Handler::READ_MASK |
+                    ACE_Event_Handler::WRITE_MASK |
+                    ACE_Event_Handler::DONT_CALL);
 
     this->peer().close();
     this->ptr.release();
@@ -922,9 +922,9 @@ void Realm_Socket::send(ByteBuffer* pkt)
 
     if (!this->out_active) {
         sRealm->get_reactor()->register_handler(this,
-					     ACE_Event_Handler::WRITE_MASK);
+                         ACE_Event_Handler::WRITE_MASK);
         //  sRealm->get_reactor()->notify(this,
-        //			    ACE_Event_Handler::WRITE_MASK);
+        //                ACE_Event_Handler::WRITE_MASK);
         this->out_active = true;
     }
 }

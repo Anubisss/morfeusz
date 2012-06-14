@@ -56,7 +56,7 @@ DBC_File::DBC_File(const char* src)
 
     this->file_name = src;
 }
-  
+
 uint32 DBC_File::read_uint32()
 {
     uint32 ret;

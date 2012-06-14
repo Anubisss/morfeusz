@@ -19,7 +19,7 @@
 
 /*
  *  @file    MySQLPreparedStatement.h
- *  @brief	Mysql impl of PreparedStatement.h
+ *  @brief    Mysql impl of PreparedStatement.h
  *  @author  Albator
  *  @date    2009-07-22
  *

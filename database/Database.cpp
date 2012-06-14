@@ -114,7 +114,7 @@ void SqlOperationBase::add_string(uint8 index, const char* value)
 
     statement_data[--index].str.append(value);
     statement_data[index].type = TYPE_STRING;
-  
+
 }
 
 int SqlOperationBase::execute()
@@ -155,7 +155,7 @@ int SqlOperationBase::execute()
         ACE_ERROR((LM_ERROR,"Error while executing statement: %s \n", e.what()));
         return -1;
     }
-    
+
     return 0;
 }
 

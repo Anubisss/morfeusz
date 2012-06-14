@@ -35,11 +35,11 @@ void ObjectMgr::init_max_guids()
     // Characters
     SqlOperationRequest* op = new SqlOperationRequest(PROXYD_DB_GET_CHAR_MAX_GUID);
     Morpheus::SQL::ResultSet* res = sProxy->get_db()->enqueue_synch_query(op); // TODO: This can be made asynchroneously to speed up startup
-    
+
     res->next();
     max_guids[GUID_CHAR] = res->getUint32(1);
     max_guids[GUID_CHAR]++;
 }
-    
+
 };
 };

@@ -44,7 +44,7 @@ class PreparedStatement : public Statement
 public:
 
     virtual void clearParameters() = 0;
-    
+
     /**
      * Functions to bind data into prepared statement
      */

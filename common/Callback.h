@@ -71,7 +71,7 @@ public:
             return object.get();
         else if (raw_ptr)
             return raw_ptr;
-        
+
         return NULL;
     }
 

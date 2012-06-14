@@ -44,20 +44,20 @@ Proxy_Socket::Proxy_Socket()
     in_packet(NULL), seed(urand32()), out_active(false),
     continue_send(false)
 {
-    PROXY_TRACE; 
+    PROXY_TRACE;
 
     ACE_OS::memset(this->raw_buf, 0, 4096);
 }
 
 Proxy_Socket::~Proxy_Socket()
 {
-    PROXY_TRACE; 
+    PROXY_TRACE;
     delete crypto;
 }
 
 int Proxy_Socket::open(void*)
 {
-    PROXY_TRACE; 
+    PROXY_TRACE;
     if(sProxy->load == 1)
         return -1;
 
@@ -85,14 +85,14 @@ void Proxy_Socket::send(ByteBuffer* pkt)
 
 int Proxy_Socket::close(u_long)
 {
-    PROXY_TRACE; 
+    PROXY_TRACE;
     this->die();
     return 0;
 }
 
 int Proxy_Socket::handle_input(ACE_HANDLE)
 {
-    PROXY_TRACE; 
+    PROXY_TRACE;
 
     size_t bytes_read = 0;
 
@@ -105,7 +105,7 @@ int Proxy_Socket::handle_input(ACE_HANDLE)
 
         // header's read, lets decrypt it.
         this->crypto->decrypt(this->raw_buf, sizeof(ClientPktHeader));
-      
+
         // Endian switch.
         Utils::EndianConvertReverse(*((int16*)&raw_buf[0]));
         Utils::EndianConvert(*((int32*)&raw_buf[2]));
@@ -115,7 +115,7 @@ int Proxy_Socket::handle_input(ACE_HANDLE)
         // So real packet size is reported size+2
         // *((uint16*)raw_buf) - 4 because we have received whole header.
         bytes_read = this->peer().recv(this->raw_buf + 6, *((uint16*)raw_buf) - 4);
-    
+
         //+6 since we have header already.
         this->in_packet = new ClientPkt(bytes_read + 6);
         this->in_packet->append(raw_buf, bytes_read + 6);
@@ -133,10 +133,10 @@ int Proxy_Socket::handle_input(ACE_HANDLE)
 
         if (bytes_read == -1 || bytes_read == 0)
             return -1;
-     
+
         // Add the data into waiting packet.
         this->in_packet->append(raw_buf, bytes_read);
-      
+
         // If we still did not read whole packet at once,
         // Give it another chance.
         if (bytes_read != expected_data) {
@@ -182,13 +182,13 @@ void Proxy_Socket::process_incoming()
         PROXY_LOG("Unhandled packet.\n");
         break;
     }
-    
+
     delete in_packet;
 }
 
 int Proxy_Socket::handle_output(ACE_HANDLE)
 {
-    PROXY_TRACE; 
+    PROXY_TRACE;
     ACE_Guard<ACE_Recursive_Thread_Mutex> g(this->queue_mtx);
     int error;
     size_t sent_bytes = 0;
@@ -199,7 +199,7 @@ int Proxy_Socket::handle_output(ACE_HANDLE)
 #ifdef _MORPHEUS_DEBUG
         PROXY_LOG("Sending packet 0x%X (%s), size: %u\n", ((ServerPkt*)buffer)->Opcode(), OpcodesNames[((ServerPkt*)buffer)->Opcode()].c_str(), ((ServerPkt*)buffer)->Size());
         // buffer->hexlike();
-#endif      
+#endif
         if (!this->continue_send)
             this->crypto->encrypt(const_cast<uint8*>(buffer->contents()), 4);
         this->continue_send = false;
@@ -222,10 +222,10 @@ int Proxy_Socket::handle_output(ACE_HANDLE)
         }
 
     };
-  
+
     if (this->packet_queue.empty()) {
         sProxy->get_reactor()->cancel_wakeup(this,
-					   ACE_Event_Handler::WRITE_MASK);
+                       ACE_Event_Handler::WRITE_MASK);
         this->out_active = false;
         return 0;
     }
@@ -235,7 +235,7 @@ int Proxy_Socket::handle_output(ACE_HANDLE)
 
 int Proxy_Socket::handle_close(ACE_HANDLE, ACE_Reactor_Mask mask)
 {
-    PROXY_TRACE; 
+    PROXY_TRACE;
     if(mask == ACE_Event_Handler::WRITE_MASK)
         return 0;
     this->die();
@@ -244,7 +244,7 @@ int Proxy_Socket::handle_close(ACE_HANDLE, ACE_Reactor_Mask mask)
 
 void Proxy_Socket::die()
 {
-    PROXY_TRACE; 
+    PROXY_TRACE;
     sProxy->update_connections(false);
     this->ptr.release();
 }
@@ -267,7 +267,7 @@ void Proxy_Socket::handle_cmsg_realm_split()
     std::string date = "01/01/01"; //Magic taken from tc1.
 
     *this->in_packet >> unk;
-  
+
     ServerPkt* pkt = new ServerPkt(SMSG_REALM_SPLIT, 4+4+date.size()+1);
     *pkt << unk;
     *pkt << (uint32)0x00;
@@ -278,12 +278,12 @@ void Proxy_Socket::handle_cmsg_realm_split()
 void Proxy_Socket::handle_cmsg_played_time()
 {
     PROXY_TRACE;
-    
+
     // TODO: Only placeholders here
     ServerPkt* pkt = new ServerPkt(SMSG_PLAYED_TIME, 8);
     *pkt << uint32(0);
     *pkt << uint32(0);
-    
+
     this->send(pkt);
 }
 

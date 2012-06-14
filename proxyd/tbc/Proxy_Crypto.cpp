@@ -55,7 +55,7 @@ void Proxy_Crypto::set_key(BIGNUM* key)
     HMAC_Init_ex(&ctx, hmac_key, SEED_KEY_SIZE, EVP_sha1(), NULL);
     HMAC_Update(&ctx, tmp, BN_num_bytes(key));
     HMAC_Final(&ctx, this->key, NULL);
-    HMAC_CTX_cleanup(&ctx); 
+    HMAC_CTX_cleanup(&ctx);
 
     delete[] hmac_key;
     delete[] tmp;

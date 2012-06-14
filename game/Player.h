@@ -26,7 +26,7 @@
 
 namespace Morpheus
 {
-    
+
 namespace Entities
 {
 

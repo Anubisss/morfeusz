@@ -29,7 +29,7 @@ module Morpheus
 {
 
     /**
-     *  @brief  Proxy nodes sends that when announcing 
+     *  @brief  Proxy nodes sends that when announcing
      *          their presence/load, either requested or not.
      */
     struct Proxy_Announce

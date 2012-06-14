@@ -118,7 +118,7 @@ PreparedStatement* SQLiteConnection::prepareStatement(const std::string& sql)
         sqlite3_finalize(stmt);
         throw SQLiteException("SQLiteConnection: error on sqlite3_prepare_v2",sqlite);
     }
-    
+
     return new SQLitePreparedStatement(this,stmt);
 }
 

@@ -6,7 +6,7 @@ SET(databaseSQLite_SRCS
     SQLiteResultSet.cpp
     SQLiteException.cpp
     )
-	
+
 include_directories(
     ${ACE_INCLUDE_DIR}
     ${CMAKE_SOURCE_DIR}/src/common

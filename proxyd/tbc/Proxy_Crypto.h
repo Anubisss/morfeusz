@@ -53,7 +53,7 @@ private:
    * @brief Header size for TBC server->client packets.
    */
   const static uint8 CRYPTED_SEND_LEN = 4;
-  
+
   /**
    * @brief Header size for TBC client->server packets.
    */

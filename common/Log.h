@@ -29,7 +29,7 @@ enum LogFilter
     LOG_FILTER_SYSTEM   = 0x00000001,
     LOG_FILTER_CHARS    = 0x00000002,
     LOG_FILTER_DB       = 0x00000004,
-        
+
     LOG_FILTER_FULL     = 0xFFFFFFFF
 };
 
@@ -53,68 +53,68 @@ enum LogType
 
 namespace Morpheus
 {
-    
+
 namespace Logging
 {
 
 class Log
 {
     friend class ACE_Singleton<Log, ACE_Null_Mutex>; // Is ACE_Log_Msg thread-safe?
-    
+
 public:
 
     static Log* instance() { return ACE_Singleton<Log, ACE_Null_Mutex>::instance(); }
-    
+
     /**
      * @brief Initialize log system: open logs files, load log filter mask and log levels from config.
-     * 
+     *
      * @param Currently running node type (realmd, proxyd, zoned, ...)
      */
     void initialize(LogType type);
     /**
      * @brief Change a log level for the given log filter(s).
-     * 
+     *
      * @param mask Mask of filters to be changed
      * @param level Log level to set
      */
     void setLevel(LogFilter mask, LogLevel level);
     /**
      * @return Current date and time, with spaces by default, without if for_file_name is true.
-     * 
+     *
      * @param for_file_name Must be true if the timestamp is to be inserted in a log file name
      */
     std::string timestamp(bool for_file_name = false);
     /**
      * @return Return a reference to the proper file for the given log filter
-     * 
+     *
      * @param filter The filter to get file for
      */
     std::ofstream& get_file_for(LogFilter filter);
-    
+
     /**
      * @brief Output informational messages in both config and files.
-     * 
+     *
      * @param filter The filter associated with the message
      * @param msg The message
      */
     void outString(LogFilter filter, const char* msg, ...);
     /**
      * @brief Output error messages in both config and files.
-     * 
+     *
      * @param filter The filter associated with the message
      * @param msg The message
      */
     void outError(LogFilter filter, const char* msg, ...);
     /**
      * @brief Output messages about detail informations in both config and files (log level must be >= LOG_LEVEL_DEFAULT).
-     * 
+     *
      * @param filter The filter associated with the message
      * @param msg The message
      */
     void outDetail(LogFilter filter, const char* msg, ...);
     /**
      * @brief Output debug messages in both config and files (log level must be >= LOG_LEVEL_DEBUG).
-     * 
+     *
      * @param filter The filter associated with the message
      * @param msg The message
      */
@@ -123,7 +123,7 @@ public:
 private:
 
     Log();
-    
+
     /**
      * @brief Dtor. Close all log files.
      */
@@ -131,20 +131,20 @@ private:
 
     /**
      * @brief Open a log while with a given prefix, on the given ostream
-     * 
+     *
      * @param file The ostream to open
      * @param name The filename prefix
      */
     void open(std::ofstream& file, std::string name);
-    
+
     LogLevel log_levels[LOG_FILTERS];
     int log_filter_mask;
 
     std::ofstream f_log_main;
     std::ofstream f_log_chars;
 };
-    
-};    
+
+};
 };
 
 #define sLog Morpheus::Logging::Log::instance()

@@ -1,11 +1,11 @@
 SET(testMysql_SRCS
     test_mysql.cpp
     )
-	
+
 SET(testSqlite_SRCS
     test_sqlite.cpp
     )
-	
+
 include_directories(
     ${CMAKE_SOURCE_DIR}/src/common
     ${CMAKE_SOURCE_DIR}/src/database

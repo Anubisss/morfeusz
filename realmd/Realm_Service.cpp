@@ -46,7 +46,7 @@ void Realm_Service::start()
 {
     REALM_TRACE;
     REALM_LOG("Starting realmd\n");
-    
+
     sLog->initialize(LOG_TYPE_REALMD);
     sLog->outDetail(LOG_FILTER_SYSTEM, "Log system initialized.");
 
@@ -58,14 +58,14 @@ void Realm_Service::start()
 #endif
 
     this->acceptor = new RealmdAcceptor();
-  
+
     if (this->acceptor->open(ACE_INET_Addr(sConfig->getString("realmd", "BindAddr").c_str()), this->reactor) == -1) {
         REALM_LOG("Couldn't bind to interface!\n");
         delete reactor;
         delete acceptor;
         return;
     }
- 
+
     this->database = new RealmDB(sConfig->getInt("realmd", "DBThreads"));
     this->database->open(sConfig->getString("realmd", "DBengine"),sConfig->getString("realmd", "DBUrl") );
 
@@ -134,7 +134,7 @@ int Realm_Service::svc()
 {
     REALM_TRACE;
     ACE_Time_Value tm;
-  
+
     while (this->is_running) {
         tm.msec(100);
         this->reactor->handle_events(tm);
@@ -142,7 +142,7 @@ int Realm_Service::svc()
         if (this->orb->work_pending())
             this->orb->run(tm);
     }
-    
+
     return 0;
 }
 

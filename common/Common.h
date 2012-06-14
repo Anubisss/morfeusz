@@ -53,14 +53,14 @@
 #endif
 
 #if COMPILER == COMPILER_MICROSOFT
-#	pragma warning(disable:4273)
-#	ifdef MORPHEUS_EXPORTS
-#		define MORPHEUS_API __declspec(dllexport)
-#	else
-#		define MORPHEUS_API __declspec(dllimport)
-#	endif
+#    pragma warning(disable:4273)
+#    ifdef MORPHEUS_EXPORTS
+#        define MORPHEUS_API __declspec(dllexport)
+#    else
+#        define MORPHEUS_API __declspec(dllimport)
+#    endif
 #else
-#	define MORPHEUS_API
+#    define MORPHEUS_API
 #endif
 
 typedef ACE_INT64 int64;
@@ -85,17 +85,17 @@ typedef ACE_UINT8 uint8;
 
 
 #if COMPILER == COMPILER_MICROSOFT
-#	define SNPRINTF _snprintf
+#    define SNPRINTF _snprintf
 #else
-#	define SNPRINTF snprintf
+#    define SNPRINTF snprintf
 #endif
 
-#define ASSERT( assertion ) do {					\
-    if( !(assertion) )							\
-      {									\
-	fprintf( stderr, "\n%s:%i ASSERTION FAILED:\n  %s\n", __FILE__, __LINE__, #assertion ); \
-	assert( #assertion &&0 );					\
-      }									\
+#define ASSERT( assertion ) do {                    \
+    if( !(assertion) )                            \
+      {                                    \
+    fprintf( stderr, "\n%s:%i ASSERTION FAILED:\n  %s\n", __FILE__, __LINE__, #assertion ); \
+    assert( #assertion &&0 );                    \
+      }                                    \
   } while (0)
 
 
